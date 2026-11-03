@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "401ac7d3-59af-4c00-81fa-cc6a7b6d020b",
+  "baseline_parent": "366eeb9c-ce76-4ba5-a695-11fc702a9724",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v60: five-minute pool polling, fifteen-minute bounded checkpoints and coordinated write conservation",
+  "message": "v61: prioritize available credentials, models and providers, then descending request totals",
   "files": [
     "index.html",
     "home-orb-v3.css",
@@ -93,8 +93,7 @@
     "model-status/status-v4.mjs",
     "model-status/status-v4.css",
     "model-status/status-v5.mjs",
-    "model-status/status-v6.mjs"
-  ],
-  "known_pool_outage_until": "2026-11-01T00:00:00Z",
-  "staged_version": "366eeb9c-ce76-4ba5-a695-11fc702a9724"
+    "model-status/status-v6.mjs",
+    "model-status/status-v7.mjs"
+  ]
 }
