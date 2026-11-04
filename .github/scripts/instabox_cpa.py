@@ -144,6 +144,17 @@ print(json.dumps({'health':200,'credentials':len(files),'disabled':sum(bool(row.
 '''.replace('ROOT', repr(ROOT)).replace('ORIGIN', repr('http://127.0.0.1:8317' if local else ORIGIN))
     report = json.loads(execute(['python3', '-c', code]))
     if not local:
+        request=urllib.request.Request('https://api.instabox.sh/v1/machines/'+MACHINE+'/files/content?'+urllib.parse.urlencode({'path':ROOT+'/private/config.yaml'}),
+                                      headers={'X-API-Key':os.environ['INSTABOX_API_KEY'].strip()})
+        with urllib.request.urlopen(request,timeout=30) as response:
+            config=yaml.safe_load(response.read())
+        model_counts=[]
+        for key in config['api-keys']:
+            status,_,body=api.request(ORIGIN+'/v1/models',headers={'Authorization':'Bearer '+key})
+            data=json.loads(body)
+            assert status==200 and isinstance(data.get('data'),list) and data['data']
+            model_counts.append(len(data['data']))
+        report.update({'static_keys_verified':len(model_counts),'model_counts':model_counts})
         record('verify', report)
     return report
 
@@ -185,7 +196,7 @@ def deploy_gateway():
         chunks.extend([('--'+boundary+'\r\nContent-Disposition: '+disposition+'\r\nContent-Type: '+mime+'\r\n\r\n').encode(),body,b'\r\n'])
     chunks.append(('--'+boundary+'--\r\n').encode())
     api.cf(name,'PUT',b''.join(chunks),{'Content-Type':'multipart/form-data; boundary='+boundary})
-    api.cf(name+'/schedules','PUT',{'schedules':[{'cron':'*/5 * * * *'}]})
+    api.cf(name+'/schedules','PUT',[{'cron':'*/5 * * * *'}])
     url='https://api.cloudflare.com/client/v4/accounts/'+os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()+'/workers/domains'
     registered=False
     try:
