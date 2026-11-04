@@ -5,6 +5,7 @@ import hmac
 import io
 import json
 import os
+import secrets
 from pathlib import Path
 import shlex
 import tempfile
@@ -124,24 +125,36 @@ def seed_pool():
                            'model_usage_preserved':bool(payload.get('cache',{}).get('modelUsage'))})
 
 
-def backup(client,sftp):
+def backup(client,sftp,label='backup'):
+    from yifu_backup import encrypt_files
+    assert label in ['backup','backup-before','backup-after']
     files={}
     for directory in ['private','auths','systemd']:
         for item in sftp.listdir_attr(ROOT+'/'+directory):
             if item.st_mode & 0o170000 != 0o100000 or item.filename.endswith('.sqlite'):continue
-            path=directory+'/'+item.filename;files[path]=base64.b64encode(read(sftp,ROOT+'/'+path)).decode()
+            path=directory+'/'+item.filename
+            raw=read(sftp,ROOT+'/'+path)
+            if directory=='auths' and item.filename.endswith('.json'):
+                for attempt in range(3):
+                    try:json.loads(raw);break
+                    except (ValueError,UnicodeError):
+                        if attempt==2:raise RuntimeError('Credential changed during backup; retry later') from None
+                        time.sleep(0.2);raw=read(sftp,ROOT+'/'+path)
+            files[path]=base64.b64encode(raw).decode()
+    temporary=ROOT+'/private/.pool-backup-'+secrets.token_hex(12)+'.sqlite'
     try:
         sftp.stat(ROOT+'/data/pool.sqlite')
-        command=ROOT+'/bin/node --input-type=module -e '+shlex.quote("import {DatabaseSync,backup} from 'node:sqlite';const db=new DatabaseSync('/opt/yifu-cpa/data/pool.sqlite',{readOnly:true});await backup(db,'/opt/yifu-cpa/private/pool-backup.sqlite');db.close();")
-        run(client,command);files['data/pool.sqlite']=base64.b64encode(read(sftp,ROOT+'/private/pool-backup.sqlite')).decode()
+        source="import {DatabaseSync,backup} from 'node:sqlite';import {chmodSync} from 'node:fs';const db=new DatabaseSync('/opt/yifu-cpa/data/pool.sqlite',{readOnly:true});await backup(db,"+json.dumps(temporary)+");db.close();chmodSync("+json.dumps(temporary)+",0o600);const copy=new DatabaseSync("+json.dumps(temporary)+",{readOnly:true});if(copy.prepare('PRAGMA quick_check').all().some(row=>Object.values(row)[0]!=='ok'))throw new Error('Invalid SQLite backup');copy.close();"
+        run(client,ROOT+'/bin/node --input-type=module -e '+shlex.quote(source))
+        files['data/pool.sqlite']=base64.b64encode(read(sftp,temporary)).decode()
     except FileNotFoundError:pass
-    raw=json.dumps({'schema':1,'files':files},separators=(',',':')).encode();nonce=os.urandom(12)
-    key=hashlib.sha256((os.environ['YIFU_BACKUP_SECRET'].strip()+'\nyifu-vps-backup-v1').encode()).digest()
-    envelope={'format':'AES-256-GCM','purpose':'yifu-vps-backup-v1','created':int(time.time()),'nonce':base64.b64encode(nonce).decode(),
-              'ciphertext':base64.b64encode(AESGCM(key).encrypt(nonce,raw,b'yifu-vps-backup-v1')).decode()}
+    finally:
+        try:sftp.remove(temporary)
+        except FileNotFoundError:pass
+    envelope=encrypt_files(files,os.environ['YIFU_BACKUP_SECRET'])
     Path('yifu-operation').mkdir(exist_ok=True)
-    Path('yifu-operation/backup.enc.json').write_text(json.dumps(envelope))
-    report('backup',{'encrypted':True,'files':len(files),'database_included':'data/pool.sqlite' in files})
+    target=Path('yifu-operation/'+label+'.enc.json');target.write_text(json.dumps(envelope));target.chmod(0o600)
+    report(label,{'encrypted':True,'files':len(files),'database_included':'data/pool.sqlite' in files,'roundtrip_verified':True,'database_consistency_checked':'data/pool.sqlite' in files,'temporary_database_removed':True})
 
 
 def main():
@@ -160,6 +173,12 @@ def main():
             if mode in ['verify','verify-stage']:verify(client,sftp,mode=='verify-stage')
             elif mode=='deploy-monitor':deploy_monitor(client,sftp)
             elif mode=='backup':backup(client,sftp)
+            elif mode=='apply-safety':
+                from yifu_safety import apply_safety
+                apply_safety(client,sftp)
+            elif mode=='rollback-safety':
+                from yifu_safety import rollback_safety
+                rollback_safety(client,sftp)
             elif mode=='status':
                 from yifu_safety import inspect_resources
                 report('status',inspect_resources(client,sftp))
