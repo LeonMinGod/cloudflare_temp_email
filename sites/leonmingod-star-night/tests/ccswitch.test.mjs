@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { parseHTML } from 'linkedom';
 import { apiEndpoints, buildImportLink, fetchModels, installCcSwitch } from '../public/free-token/ccswitch-v2.mjs';
 
-const credentials = { baseUrl: 'https://cpa.leonmingod.com/v1', apiKey: 'sk-lm-local-test-placeholder' };
+const credentials = { baseUrl: 'https://public-cpa.leonmingod.com/v1', apiKey: 'sk-lm-local-test-placeholder' };
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
 test('CC Switch imports use the native app format and exact live model alias without switching existing configuration', () => {
-  for (const [app, endpoint, format] of [['claude', 'https://cpa.leonmingod.com', 'anthropic'], ['codex', credentials.baseUrl, 'openai_responses'], ['gemini', 'https://cpa.leonmingod.com', 'gemini_native']]) {
+  for (const [app, endpoint, format] of [['claude', 'https://public-cpa.leonmingod.com', 'anthropic'], ['codex', credentials.baseUrl, 'openai_responses'], ['gemini', 'https://public-cpa.leonmingod.com', 'gemini_native']]) {
     const link = new URL(buildImportLink({ ...credentials, app, name: 'Leon · 自选', model: '哈基米/gemini-3.8-flash-high' }));
     assert.equal(link.protocol, 'ccswitch:');assert.equal(link.hostname, 'v1');assert.equal(link.pathname, '/import');
     assert.equal(link.searchParams.get('endpoint'), endpoint);assert.equal(link.searchParams.get('apiFormat'), format);
@@ -16,7 +16,7 @@ test('CC Switch imports use the native app format and exact live model alias wit
     assert.equal(link.searchParams.has('configUrl'), false);
   }
   assert.throws(() => apiEndpoints('https://unrelated.invalid/v1'));
-  assert.throws(() => apiEndpoints('https://cpa.leonmingod.com/v1?key=test'));
+  assert.throws(() => apiEndpoints('https://public-cpa.leonmingod.com/v1?key=test'));
   assert.throws(() => buildImportLink({ ...credentials, app: 'unknown', name: 'x', model: 'x' }));
   assert.throws(() => buildImportLink({ ...credentials, app: 'codex', name: ' ', model: 'x' }));
 });

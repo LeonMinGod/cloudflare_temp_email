@@ -26,4 +26,6 @@ test('CC Switch resolves the old CPA endpoint to the stable new domain without o
   assert.equal(link.searchParams.get('endpoint'), BASE_URL);
   assert.throws(() => apiEndpoints('https://cpa-dhke.onrender.com/v1?key=value'));
   assert.throws(() => apiEndpoints('https://unrelated.invalid/v1'));
+  assert.equal(normalizeBaseUrl('https://cpa.leonmingod.com/v1'), 'https://cpa.leonmingod.com/v1');
+  assert.throws(() => apiEndpoints('https://cpa.leonmingod.com/v1'));
 });

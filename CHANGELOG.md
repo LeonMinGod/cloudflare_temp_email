@@ -10,7 +10,7 @@
 
 ### Features
 
-- feat: |CPA InstaBox| 将 CPA、号池读取、CC Switch 与保存 Key 地址迁到 cpa.leonmingod.com；持久化原配置和凭据，增加遵守平台冷却的恢复、加密备份与云端交接
+- feat: |CPA InstaBox| 将 CPA、号池读取、CC Switch 与保存 Key 地址迁到 public-cpa.leonmingod.com；持久化原配置和凭据，增加遵守平台冷却的恢复、加密备份与云端交接
 
 - feat: |LeonMinGod| 新增 CC Switch 实时模型导入与匿名号池状态页；重做星海天阙四张背景、独立浮动玉球，默认开启并增强流光
 

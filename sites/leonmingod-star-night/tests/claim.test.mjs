@@ -225,7 +225,7 @@ test('the Worker enforces eligibility before email and returns the same key to a
     assert.equal(first.username, '青玉客');
     assert.equal(JSON.parse(await kv.get(emailKey('ada@example.com'))).username, '青玉客');
     assert.equal(JSON.parse(await kv.get(keyRecordKey(await sha256Hex(first.apiKey)))).username, '青玉客');
-    assert.equal(first.baseUrl, 'https://cpa.leonmingod.com/v1');
+    assert.equal(first.baseUrl, 'https://public-cpa.leonmingod.com/v1');
 
     const oathAgain = await post('/api/free-token/claim', { oath: '义父', confirmed: true });
     const grantAgain = oathAgain.headers.getSetCookie().find(value => value.startsWith('lmg_claim_local=')).split(';')[0];

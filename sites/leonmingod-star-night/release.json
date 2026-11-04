@@ -1,7 +1,7 @@
 {
   "baseline_parent": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v62: migrate CPA to persistent InstaBox, stable cpa domain and saved-key endpoint compatibility",
+  "message": "v62: isolate public CPA on public-cpa.leonmingod.com with persistent InstaBox hosting",
   "files": [
     "index.html",
     "home-orb-v3.css",
@@ -103,5 +103,5 @@
     "free-token/saved-key-v2.mjs",
     "free-token/verify-v3.mjs"
   ],
-  "staged_version": "9b221e92-04c7-45de-a7a2-0746068c07cc"
+  "staged_version": ""
 }

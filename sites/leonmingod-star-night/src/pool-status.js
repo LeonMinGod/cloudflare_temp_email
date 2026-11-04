@@ -3,7 +3,7 @@ import { attachModelUsage, mergeModelUsage } from './pool-metrics.js';
 import { loadPoolCache, savePoolCache } from './pool-storage.js';
 import { compareModels, compareAccounts, compareProviders } from '../public/model-status/order-v1.mjs';
 
-const ORIGIN='https://cpa.leonmingod.com';
+const ORIGIN='https://public-cpa.leonmingod.com';
 export const REFRESH_MS=300_000, QUOTA_MS=300_000, CHECKPOINT_MS=900_000, STALE_MS=1_800_000;
 const CONTROL='pool-status-control-v1', BUDGET_KEY='ops:do-write-budget:v1', DAILY_CACHE_WRITES=10_000;
 const PROVIDERS=new Set(['codex','antigravity','gemini','gemini-cli','claude','anthropic','aistudio','vertex','openai','qwen','iflow','kiro','copilot','xai','grok']);
@@ -89,6 +89,10 @@ export class PoolStatusCoordinator{
       this.control=control||{};this.lastCheckpoint=control?.checkpointAt||0;
       if(control?.gates){Object.assign(this.cache,control.gates);delete this.cache.quotaNext;
         for(const [id,next] of Object.entries(control.gates.quotaNext||{}))this.cache.quotas[id]={next,value:this.cache.quotas[id]?.value||{windows:[],supported:true}};}
+      if(control?.origin!==ORIGIN){
+        this.cache.next=0;this.cache.metricsNext=0;this.cache.managementBlockedUntil=0;this.cache.failures=0;
+        for(const row of Object.values(this.cache.quotas))row.next=0;
+      }
       this.isPool=kind==='pool';
     });
   }
@@ -114,9 +118,9 @@ export class PoolStatusCoordinator{
       let full=Boolean(json&&!this.lowWriteMode&&(!this.lastCheckpoint||now-this.lastCheckpoint>=CHECKPOINT_MS));
       const upper=full?Math.ceil(json.length/24000)+(this.persistedParts?.length||0)+1:0;
       if(spent+upper+1>DAILY_CACHE_WRITES)full=false;
-      if(!full&&this.control.day===day&&JSON.stringify(this.control.gates)===JSON.stringify(gates))return;
+      if(!full&&this.control.origin===ORIGIN&&this.control.day===day&&JSON.stringify(this.control.gates)===JSON.stringify(gates))return;
       if(spent+1>DAILY_CACHE_WRITES)return;
-      const control={gates,day,writes:spent+(full?upper:0)+1,checkpointAt:full?now:this.lastCheckpoint};
+      const control={origin:ORIGIN,gates,day,writes:spent+(full?upper:0)+1,checkpointAt:full?now:this.lastCheckpoint};
       if(full){let parts;
         await this.ctx.storage.transaction(async tx=>{await tx.put(CONTROL,control);parts=await savePoolCache({transaction:callback=>callback(tx)},json,this.persistedParts);});
         this.persistedParts=parts;this.lastCheckpoint=now;
@@ -245,6 +249,7 @@ export class PoolStatusCoordinator{
       const validModels=new Set(snapshot.models.map(x=>x.id));for(const id of Object.keys(this.cache.history))if(!validModels.has(id))delete this.cache.history[id];
       this.cache.snapshot=snapshot;this.cache.failures=0;this.cache.next=now+REFRESH_MS;await this.persist({checkpoint:true});
     }catch(error){
+      console.warn(JSON.stringify({event:'pool_refresh_failure',status:error?.status||0,code:error?.code||'POOL_REFRESH_FAILED'}));
       this.cache.failures++;this.cache.next=this.clock()+([401,403].includes(error.status)?900_000:Math.min(900_000,REFRESH_MS*2**Math.min(this.cache.failures-1,4)));
       if(error.managementAuth)this.cache.managementBlockedUntil=this.clock()+900_000;
       this.cache.lastError=publicError(error);await this.persist();
