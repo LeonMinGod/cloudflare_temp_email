@@ -1,186 +1,40 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Current production authority: v62 / Yifu VPS (2026-11-04)
 
-## LeonMinGod homepage / Free Token / Render operations
+Read [LEONMINGOD_HANDOFF_CN.md](LEONMINGOD_HANDOFF_CN.md) and
+[YIFU_VPS_HANDOFF_CN.md](YIFU_VPS_HANDOFF_CN.md) before operations.
+Public CPA is https://yifu.leonmingod.com/v1 on the dedicated LXD VPS, NOT Render
+or InstaBox. cpa.leonmingod.com belongs to the user's local CPA; never modify it
+or borrow its credentials. Public OAuth needs the user to reauthorize after migration.
+Preserve all existing static keys, credential disabled flags, and persistent auths.
+Never restore the old Render bootstrap over newly authorized files.
 
-### Latest website handoff: star-night and game (2026-10-25)
+Website source: sites/leonmingod-star-night; maintenance/publish branch:
+codex/free-token-home-20261024. Main is not the website release source.
+Production Worker v62 is 8419c16f-c7c5-4b90-aa89-21e087b26b8c; forwarder remains
+51a33be8-6ca4-4b4f-886f-613bfea996b0 with SITE bound to named entrypoint Site.
+The 12 bindings preserve original KV/GameRun state and add VPS_POOL_ENDPOINT.
+Use protected stage/publish, preserve assets; never directly deploy the partial mirror.
 
-Read [the latest handoff](vitepress-docs/docs/en/guide/feature/leonmingod-star-night-handoff.md)
-([中文](vitepress-docs/docs/zh/guide/feature/leonmingod-star-night-handoff.md)) first.
-Production now includes the star-night artwork and a game reward path, with parent
-Worker `leonmingod-home` now at `98a305ea-8544-45ec-809a-3c1f26ccaf5e`
-(OPEN: `FREE_TOKEN_RENDER_KEY` restored with a new key; source release `98a305ea-8544-45ec-809a-3c1f26ccaf5e`).
-Forwarder version is `51a33be8-6ca4-4b4f-886f-613bfea996b0`; retain SITE →
-leonmingod-home / named entrypoint `Site`, plus existing routes. Both claim flows
-and public concurrent reward protection were reverified; see source `verification/`.
-The live browser client is `app-v12.mjs`: NO pause controls, keyboard pause, or
-auto-pause on blur/visibility/touch. Keep real elapsed-time advancement and catch-up
-on return; the user explicitly requested uninterrupted play.
-Current trial is v8 (live-v1; in-flight v7 retained): 45 seconds, 24 jade, TWO shields. Rage starts at 19 collected
-(five remaining), NEVER at a remaining-seconds threshold. At 24, stop jade and survive
-the full duration. Defeat shows one of ten emoji/poetic oath taunts and a direct claim
-link. Keep browser/server aligned; old v1-v6 reward protocols are retired and must return 410. Never restore the vulnerable full-seed/trace finish path. Current poster URLs are home v6 / token v4.
-Sword-tip pickup fix: v6 collects jade/gold along the visible tip-to-body capsule
-(70 units above playerY); never shift/enlarge the ordinary damage hitbox to match it.
-Gold is a separate native-image_gen talisman, NOT goal jade. It grants exactly five
-seconds of a generated transparent golden barrier with HUD countdown; same-frame
-pickup precedes damage, expiry restores damage, another pickup refreshes without
-stacking. Preserve the new WebP token/ring art and actual-time expiry without pause.
-Fairness correction (2026-10-26): make challenges dodgeable, not forced losses.
-Keep constant sword trajectories without edge ricochet, reachable stable three-lane
-wall openings protected against overlapping swords, and the eased v5 cadence.
-PUBLIC SCREENS SHOW ONLY WIN CONDITIONS: 24 jade, 45 seconds, two shields. Never
-preannounce final-five/rage/pure-survival mechanics in start copy or HUD warnings.
-The user explicitly rejected that spoiler text. Taunts remain playful flavor.
-The user also rejected floating debug-like gap rectangles/text. Do not draw safe-gap
-boxes, dashed outlines or “缺口” labels; players identify the visible empty space.
-Current cloud maintenance source has now been recovered from production source maps
-and public assets into `sites/leonmingod-star-night/` (`/workspace/leonmingod-home`
-is a convenience symlink). Read its `WEBSITE_UPDATE_CN.md` and `README.md`. This is
-not a complete copy of the user's original non-Git Windows directory or its historical
-review files. Historical `sites/free-token-home/` is not the deployment authority.
-Use `.github/workflows/leonmingod-star-night.yaml` to stage then publish; it preserves
-existing assets, secrets, forwarding routes, and the GameRun namespace. Do not deploy
-the incomplete recovered public mirror as a replacement static asset set. Preserve
-both claim paths, the `GAME_RUNS` migration/state, star-night art and touch controls.
-Existing Actions CF/Render credentials remain usable. Re-read live versions before changes.
+The pool monitor now runs on the VPS with local CPA reads and SQLite: five-minute
+refresh, fifteen-minute history checkpoints. Its source is sites/yifu-vps-monitor.
+Personal-key auth/rate limits, email issuance and live game validation still use CF.
+Use yifu-vps.yaml for verify/status/backup/deploy-monitor. Old Render/standalone key
+and InstaBox workflows are disabled; do not reenable them for routine operations.
+The VPS workflow does not update CPA binaries. Follow the handoff for CI builds,
+backup and binary-only updates preserving private/auths/SQLite.
 
-### Security protocol v7 (2026-10-26)
+Keep per-email sk-lm- keys, signatures, saved keys, separate verification page,
+120-second resend and fixed two-hour human passes. Do not restore shared rewards,
+leaderboards, another-email prompts or game pause. Keep v8 rules, 45 seconds,
+24 jade/two shields, immutable live inputs, no gap boxes or final-five spoilers.
+Home v7/token v5 art, default-ON flow, independent floating orb and live-model
+CC Switch imports stay intact. Current clients: claim-v11/app-v18/verify-v3,
+saved-key-v2/ccswitch-v2; pool status-v7 uses state then request count ordering.
 
-The reported exploit was offline solving from the initial full seed, waiting 45
-seconds and submitting a winning trace. Live v7 commits input prefixes about once
-per second and uses fresh private server entropy for each three-second encounter
-block, revealed only after a live commitment. The server stores authoritative
-state and validates elapsed time, receipt order, immutable prefixes, identity,
-short connection gaps and single-use rewards. Finish accepts the current receipt,
-not a full trace. Exact progress retries are idempotent. Old v1-v6 runs must restart.
-Both game starts and oath claims require a server-verified human check: accept a
-valid fixed two-hour signed browser cookie or fresh Turnstile (hostname/action and
-single-use token checks). Preserve per-source rate limits. The HttpOnly/Secure pass
-is shared by apex/www and both claim paths, bound to browser UA, not IP; do not
-renew it on ordinary visits or store/reuse raw Cloudflare tokens. Client human-v2 /
-claim-v3 / app-v12 checks no-store security status before displaying the widget. Keep test-token bypass
-restricted to an explicit local-only binding AND localhost; never enable it on a
-production hostname. Real public mobile widgets have been visually checked.
-CF bindings: FREE_TOKEN_TURNSTILE_SITEKEY, FREE_TOKEN_TURNSTILE_SECRET,
-FREE_TOKEN_OPS_SECRET. Existing Actions use a private 30-second HMAC probe derived
-from RENDER_API_KEY; it binds method/path/raw body and bypasses Turnstile only,
-never game progress. Rerun security setup after rotating Render management auth.
-Use current add/remove workflows, whose verification is signed; historical bare
-claim scripts no longer authorize. Never expose these secrets or disable checks
-just to make a deployment probe pass. Continuous live automation and sharing an
-already issued shared key remain possible; do not claim perfect proof of humanity.
-Stage 40287641432, publish 40287743435, live security proof 40287817328 passed.
-Public QA used owner-signed start probes, continuously submitted 45 live packets
-and won with 24 jade/two shields; concurrent rewards were 200/409/409. Unauthenticated
-start/claim, fake tokens, wait-then-submit and one-shot batch progress were rejected.
-
-Client v10 isolates delayed successes/errors from old runs so weak-network restarts
-cannot overwrite the new receipt, stop a new game, or clear its pending submission.
-Both delayed-response browser scenarios passed; stage 40291321848 (18 checks),
-publish 40291450251 and 40 source resources on apex/www passed. Protocol/keys,
-gameplay/artwork and the real public 45-packet acceptance above remain unchanged.
-
-Two-hour browser-pass release (2026-10-26): stage 40345932586, publish 40346185218,
-owner-signed public acceptance 40346269266. Twenty checks, two local mobile browser
-sizes and 43 source resources per production host passed. Private acceptance checks
-repeat starts and same rewards using in-memory signed passes, never automatic human
-challenge solving. `leonmingod-security.yaml` mode `verify-pass` reproduces this check
-without changing config. Missing/expired/tampered cookies still fail; original
-Turnstile single-use checks remain. Evidence: `verification/human-pass-*.json`.
-The cookie only remembers verification; live-v7 gameplay and rate limits still apply.
-
-### Gameplay v8: ward contact and readable feedback
-
-Released: stage 40349972406 / publish 40350193310 / live acceptance 40350258134.
-27 checks, four layout/effect fixtures, three local touch/live sessions and 48
-resources per production host passed. Owner-signed start then 45 live packets won
-24 jade/two shields, two gold pickups, 20 deflections and six near misses. Reward
-concurrency 200/409/409, same existing key, models 200. See `verification/feel-v8-*.json`.
-
-Gold ward lasts five seconds. While active, BOTH jade and gold pickups use the
-radius-108 circle, and every touching red sword is removed by the shared engine
-and rendered flying outward; after expiry, restore ordinary sword-tip pickups and
-small damage hitbox. Gold refreshes duration, never stacks or heals. Sword walls
-show 24-frame arrival glints before launch; delay corridor protection accordingly.
-Keep stable reachable gaps, no debug boxes or spoilers. Near misses/pickups have
-capped visual feedback and optional quiet audio. Loss shows elapsed/jade deficits
-then the ten existing taunts. Preserve no pause, two shields, 24 jade, 45 seconds.
-Server dispatches existing v7 runs to their original physics; new runs are v8. Never
-restore v1-v6 full-trace rewards. All verification/pass/receipt guards stay active.
-
-### User-defined shorthand
-
-- **“暂时去掉 / 关闭义父 Token” means revoke the currently issued Yifu key in
-  Render and remove `FREE_TOKEN_RENDER_KEY`. Token clicks must stay on the token
-  artwork and show “暂未开放”. “开放 / 打开给别人用” means register/verify a new key
-  and publish that Secret; clicks automatically restore the original animation
-  and `/free-token/choose/` entry.** The frontend checks no-store
-  `GET /api/free-token/status` on every click, including reduced-motion/keyboard.
-  No new artwork/page redeploy is needed for routine open/close operations. Do not
-  restore a revoked old key or roll back an enabled Worker version to reopen.
-  Preserve this behavior and the unrelated original keys/login files. Website
-  stage/publish must retain a closed state if its issuance Secret is absent.
-
-Current Yifu issuance is OPEN. The sole published Yifu key fingerprint is
-`a6bbe9c75913e4ec`, registered/published by run `40290134078` after the
-security fix on 2026-10-26. Exposed `69ba11c6809909d7` was revoked (models 401)
-by run `40290264958`. Earlier `01db29c9e73f5fba` and `7fa19b84ca57a2ba`
-remain revoked. Render deploy `dep-dbfglagae00c73819490`.
-Render has four keys: the new Yifu key, two originals and standalone Karl
-(`162618109a2dc43b`, no automatic expiry). Karl is UNRELATED to website issuance;
-preserve it across website opening, closing and rotation. All twelve current
-login files were backed up/restored (the service now has twelve, not the earlier ten).
-Web claims are verified with signed management probes; anonymous direct calls
-require Turnstile and return 403 without it. The web/game reward remains identical.
-CPA management had a temporary failed-login ban. Preflight stopped without
-mutation; waiting preserved current credentials. Do not restart to clear such a
-ban without first preserving current login files. Optional add input
-`expected_current_fingerprint` guards a delayed operation against concurrent changes.
-Use default add/remove dry-run workflows to inspect a closed service; the historical
-`issue-yifu-key` inspect assumes an open claim endpoint.
-
-- **“更新义父 Key” / “换个新的义父 key” means ROTATE, not append-only.**
-  The user corrected this explicitly on 2026-10-26: retain only the newest Yifu
-  issuance key. Capture the currently issued key fingerprint before adding;
-  create/register a new key, publish it and verify models 200, then revoke the
-  captured prior Yifu key and verify 401. Use `yifu-remove-key.yaml` with that
-  explicit OLD fingerprint; never remove `current` after switching, which would
-  revoke the new key. Preserve unrelated pre-existing client keys and login files.
-  Only an explicit “add another key / keep the old Yifu key” request changes this.
-
-- “义父 Token” / “义父token” means the Free Token website at
-  `https://leonmingod.com/free-token/` in this repository.
-- “加一个义父密钥” means append a new **client API key** to the Render `cpa`
-  service configuration, preserving existing keys and other settings. It does not
-  mean creating another Render management API credential (`RENDER_API_KEY`).
-- “打开义父 Token 给别人用” means enable/publish issuance of the corresponding
-  Render client key through this website's claim flow, with the same key in the
-  parent Worker Secret and Render. This is an operational publishing request,
-  not merely an instruction to navigate to the page.
-- Creating a client key and publishing it on the website are distinct requests.
-  Add only the client key when asked to add one; wire it into the website when
-  asked to enable/share it. Use session context to identify the intended key.
-
-For routine key operations, use the default branch workflows:
-`.github/workflows/yifu-add-key.yaml` (add and publish by default; `publish=false` adds only),
-and `.github/workflows/yifu-remove-key.yaml` (remove the currently issued key by default;
-optional `fingerprint` targets another key). Both read live versions automatically;
-no script edits or temporary private keys are needed. `dry_run=true` is read-only.
-Use these workflows instead of the historical migration/issuance scripts.
-
-Before changing `leonmingod.com`, Free Token, either homepage Worker, or Render CPA,
-read [the operations record](vitepress-docs/docs/en/guide/feature/free-token-render.md)
-([中文](vitepress-docs/docs/zh/guide/feature/free-token-render.md)). It records the
-production resources, verified versions, secret locations, deployment evidence,
-and credential-preservation procedure. The website source and integration workflow
-are on `codex/free-token-home-20261024`; `main` also carries this record for discovery.
-The successful Render cutover was verified on 2026-10-24. Re-read live versions
-before any mutation. `connect` is a completed one-time migration, not a general
-redeploy command. Preserve existing keys, login files, artwork, and interactions.
-Use existing GitHub Actions secrets; their absence from a chat environment does not
-mean they are missing from GitHub. Never commit or print secret values.
+Old Render/shared-key instructions are archived in Git history. Existing API keys,
+Secrets and account IDs must not be printed, rotated or deleted by incidental edits.
 
 ## Project Structure
 

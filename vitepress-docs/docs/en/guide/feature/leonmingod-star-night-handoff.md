@@ -1,5 +1,7 @@
 # LeonMinGod star-night handoff (2026-10-25)
 
+> Current v62 uses the dedicated VPS. Read [VPS deployment](yifu-vps.md) and the root handoff first; the records below are historical.
+
 ## v8: ward deflection/pickups, arrival glints and feedback
 
 Released and verified: parent/source `98a305ea-8544-45ec-809a-3c1f26ccaf5e`, unchanged forwarder `51a33be8-6ca4-4b4f-886f-613bfea996b0`; fresh baseline `7018e442-e644-4bdf-a38f-ca8cf9e31e8e`. All 27 checks passed, plus four presentation/layout sizes, three real local touch/live-progress sizes, 48 resources per public host and actual mobile widget loading. An owner-signed start followed by 45 live packets completed v8 with 24 jade/two shields, two gold pickups, 20 deflected swords and six near-miss events. Concurrent finishes returned 200/409/409; final-only traces, single batch progress, anonymous calls and fake verification remained rejected. Game/oath rewards match the existing key (fingerprint `a6bbe9c75913e4ec`), models 200 / 33. No Render/key changes; retain two-hour verification and in-flight v7 runs.

@@ -10,6 +10,8 @@
 
 ### Features
 
+- feat: |公益 CPA VPS| 将 CPA 和号池采集迁到独立 VPS，固定 yifu.leonmingod.com，使用 SQLite 保存监控历史；保留原 Key/OAuth，更新 CC Switch 地址和加密备份，停用 Render/InstaBox 旧运维
+
 - feat: |义父 Token| 领取改为邮箱验证码后的一次性专属密钥（每邮箱一次），破阵页展示用量排行；首页封面保持原来的 v5 主视觉
 - feat: |御剑破阵| 金刚罩范围拾取青玉/金令并弹飞红剑，新增剑墙来向预兆、拾取/险避反馈及可关音效，失败展示通关差距；保留实时校验和在途 v7 局
 

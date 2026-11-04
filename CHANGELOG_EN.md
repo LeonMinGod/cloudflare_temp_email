@@ -10,6 +10,8 @@
 
 ### Features
 
+- feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
+
 - feat: |Yifu Token| Claim now sends an email code and reveals a one-time unique key (one claim per email); the trial page lists a usage leaderboard. The homepage keeps the original v5 cover illustration
 - feat: |Jade Trial| Add ward-wide pickups/red-sword deflection, arrival glints, pickup/near-miss feedback and optional audio; show defeat deficits while preserving live checks and in-flight v7 runs
 

@@ -23,7 +23,6 @@ jobs:
       YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
       YIFU_BACKUP_SECRET: ${{ secrets.YIFU_BACKUP_SECRET }}
       YIFU_OPS_SECRET: ${{ secrets.YIFU_OPS_SECRET }}
-      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       YIFU_MODE: ${{ inputs.mode }}
