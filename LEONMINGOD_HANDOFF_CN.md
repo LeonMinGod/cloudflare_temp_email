@@ -120,7 +120,7 @@ SSH与备份Secrets在两库已配置，网站原CFSecrets保留；VPS流程不�
 apex/www号池200、backend=vps、13账号/35模型、非stale、无私密字段。
 临时个人Key模型200/35，临时注册表记录已删除；未向真实邮箱发测试信或动用户Key。
 新脚本14项内容比对一致（统一CRLF/LF）；手机浏览器显示35模型卡且无横向溢出。
-证据 [v62-public.json](sites/leonmingod-star-night/verification/v62-public.json) 及 v62发布产物。
+证据 [v62-public.json](https://github.com/LeonMinGod/cloudflare_temp_email/blob/codex/free-token-home-20261024/sites/leonmingod-star-night/verification/v62-public.json) 及 v62发布产物。
 
 **推理尚未恢复验收：失效公益OAuth需要用户重新授权。** 不得把health、models或额度缓存200说成所有模型可用。
 此前模型映射/max_tokens、Gmail加号别名多领、旧排行榜数据、运维权限边界仍须按后续具体任务复验。
