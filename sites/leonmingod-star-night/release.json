@@ -1,7 +1,10 @@
 {
   "baseline_parent": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v62: isolate public CPA on public-cpa.leonmingod.com with persistent InstaBox hosting",
+  "message": "v62: Yifu public CPA and SQLite pool monitoring on dedicated VPS, separate from local CPA",
+  "plain_bindings": {
+    "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
+  },
   "files": [
     "index.html",
     "home-orb-v3.css",
@@ -103,5 +106,5 @@
     "free-token/saved-key-v2.mjs",
     "free-token/verify-v3.mjs"
   ],
-  "staged_version": "5a51e266-798f-480b-9537-d38c7972c618"
+  "staged_version": ""
 }

@@ -24,6 +24,13 @@ assert parent == release['baseline_parent'], 'Parent changed since source recove
 assert entrance == release['baseline_entrance'], 'Entrance changed since source recovery'
 settings = api.cf(worker + '/settings')
 bindings = settings['bindings']
+plain_bindings = release.get('plain_bindings', {})
+assert isinstance(plain_bindings, dict) and set(plain_bindings) <= {'VPS_POOL_ENDPOINT'}
+assert not plain_bindings or plain_bindings == {'VPS_POOL_ENDPOINT': 'https://yifu.leonmingod.com/_pool/status'}
+for name in plain_bindings:
+    assert all(b['type'] == 'plain_text' for b in bindings if b['name'] == name), 'Cannot replace a protected binding'
+extra_bindings = [{'name': name, 'type': 'plain_text', 'text': value} for name, value in plain_bindings.items()]
+expected_bindings = {(b['name'], b['type']) for b in bindings} | {(b['name'], b['type']) for b in extra_bindings}
 game = [b for b in bindings if b['name'] == 'GAME_RUNS']
 assert len(game) == 1 and game[0]['class_name'] == 'GameRun' and game[0]['namespace_id'] == '2dffacc2783647f0bec81263501de5e1'
 has_reward_binding = any(b['name'] == 'FREE_TOKEN_RENDER_KEY' and b['type'] == 'secret_text' for b in bindings)
@@ -153,7 +160,7 @@ if mode == 'stage':
         'compatibility_date':settings['compatibility_date'],
         'compatibility_flags':settings.get('compatibility_flags', []),
         'keep_bindings':['secret_text','plain_text','json'],
-        'bindings':[b for b in bindings if b['type'] not in ['secret_text','plain_text','json']],
+        'bindings':[b for b in bindings if b['type'] not in ['secret_text','plain_text','json']] + extra_bindings,
         'annotations':{'workers/message':release['message']},
     }
     boundary = 'lmg-' + secrets.token_hex(16)
@@ -172,7 +179,9 @@ elif mode == 'publish':
     annotated = (version.get('annotations') or {}).get('workers/message')
     assert annotated in [None, release['message']], 'Unrecognized staged version'
     staged_bindings = version['resources']['bindings']
-    assert {(b['name'],b['type']) for b in staged_bindings} == {(b['name'],b['type']) for b in bindings}, 'Staged bindings differ'
+    assert {(b['name'],b['type']) for b in staged_bindings} == expected_bindings, 'Staged bindings differ'
+    for name, value in plain_bindings.items():
+        assert next(b for b in staged_bindings if b['name'] == name).get('text') == value, 'Unexpected pool destination'
     assert [b for b in staged_bindings if b['name']=='GAME_RUNS'] == game, 'Staged game namespace differs'
     try:
         api.cf(worker+'/deployments','POST',{'strategy':'percentage','versions':[{'version_id':version_id,'percentage':100}],'annotations':{'workers/message':release['message']}})
@@ -199,7 +208,7 @@ elif mode == 'publish':
                 status = json.loads(api.request(api.ORIGIN + '/api/free-token/status')[2])
                 assert status['open'] is has_reward_binding, 'Token click availability differs from issuance state'
                 after=api.cf(worker+'/settings')['bindings']
-                assert {(b['name'],b['type']) for b in after} == {(b['name'],b['type']) for b in bindings}
+                assert {(b['name'],b['type']) for b in after} == expected_bindings
                 assert [b for b in after if b['name']=='GAME_RUNS'] == game
                 assert api.active('leonmingod-free-token') == entrance_after
                 break

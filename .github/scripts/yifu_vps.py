@@ -107,11 +107,11 @@ def deploy_monitor(client,sftp):
 
 
 def configure_pool():
-    before=api.cf('leonmingod-home/settings')['bindings']
-    api.cf('leonmingod-home/secrets','PUT',{'name':'VPS_POOL_ENDPOINT','type':'secret_text','text':ORIGIN+'/_pool/status'})
-    after=api.cf('leonmingod-home/settings')['bindings']
-    assert {(b['name'],b['type']) for b in before}<={(b['name'],b['type']) for b in after}
-    report('pool-routing',{'parent_version':api.active('leonmingod-home'),'bindings':len(after),'origin':ORIGIN,'existing_bindings_preserved':True})
+    bindings=api.cf('leonmingod-home/settings')['bindings']
+    current=next((b for b in bindings if b['name']=='VPS_POOL_ENDPOINT'),None)
+    report('pool-routing',{'parent_version':api.active('leonmingod-home'),'bindings':len(bindings),'origin':ORIGIN,
+                           'configured':bool(current and current.get('text')==ORIGIN+'/_pool/status'),
+                           'configuration_method':'release.json plain_bindings with reviewed stage/publish'})
 
 
 def seed_pool():
