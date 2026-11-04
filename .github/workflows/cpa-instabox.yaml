@@ -4,7 +4,7 @@ on:
     inputs:
       mode:
         type: choice
-        options: [inspect, restore, deploy-gateway, deploy-guard-origin, status, verify, stream-probe, refresh-active, diagnose, backup]
+        options: [inspect, restore, deploy-gateway, deploy-guard-origin, sync-pool-secret, status, verify, stream-probe, refresh-active, diagnose, backup]
         default: inspect
 permissions:
   contents: read

@@ -14,7 +14,7 @@ import yifu_key_api as api
 
 MACHINE = 'm_agqzojclrfglcpkfj43t7npojy'
 ROOT = '/data/workspace/leonmingod-cpa'
-ORIGIN = 'https://public-cpa.leonmingod.com'
+ORIGIN = 'https://yifu.leonmingod.com'
 
 
 def instabox(path='', method='GET', data=None, query=None):
@@ -200,12 +200,12 @@ def deploy_gateway():
     url='https://api.cloudflare.com/client/v4/accounts/'+os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()+'/workers/domains'
     registered=False
     try:
-        _,_,raw=api.request(url,'PUT',{'hostname':'public-cpa.leonmingod.com','service':name,'zone_id':'4f078f06b815a404337c3b5387c45275','environment':'production'},
+        _,_,raw=api.request(url,'PUT',{'hostname':'yifu.leonmingod.com','service':name,'zone_id':'4f078f06b815a404337c3b5387c45275','environment':'production'},
                             {'Authorization':'Bearer '+os.environ['CLOUDFLARE_API_TOKEN'].strip()})
         registered=bool(json.loads(raw).get('success'))
     except RuntimeError:
         pass
-    record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'public-cpa.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
+    record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'yifu.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
 
 
 def deploy_guard_origin():
@@ -331,6 +331,19 @@ print(json.dumps({'results':rows,'disabled_credentials_untouched':sum(bool(file.
     record('refresh',json.loads(execute(['python3','-c',code],timeout=140)))
 
 
+def sync_pool_secret():
+    request=urllib.request.Request('https://api.instabox.sh/v1/machines/'+MACHINE+'/files/content?'+urllib.parse.urlencode({'path':ROOT+'/private/runtime.env'}),
+                                  headers={'X-API-Key':os.environ['INSTABOX_API_KEY'].strip()})
+    with urllib.request.urlopen(request,timeout=30) as response:text=response.read().decode()
+    values={key:json.loads(value) for key,value in (line.split('=',1) for line in text.splitlines())}
+    settings=api.cf('leonmingod-home/settings')
+    preserved={(item['name'],item['type']) for item in settings['bindings']}
+    api.cf('leonmingod-home/secrets','PUT',{'name':'CPA_STATUS_MANAGEMENT_KEY','type':'secret_text','text':values['MANAGEMENT_PASSWORD']})
+    after=api.cf('leonmingod-home/settings')['bindings']
+    assert preserved=={(item['name'],item['type']) for item in after}
+    record('pool-secret',{'parent_version':api.active('leonmingod-home'),'bindings_preserved':True,'key_values_logged':False})
+
+
 if __name__ == '__main__':
     mode = os.environ.get('INSTABOX_MODE', 'inspect')
     if mode == 'inspect':
@@ -351,5 +364,7 @@ if __name__ == '__main__':
         diagnose()
     elif mode == 'refresh-active':
         refresh_active()
+    elif mode == 'sync-pool-secret':
+        sync_pool_secret()
     else:
         raise RuntimeError('Operation is not implemented: ' + mode)
