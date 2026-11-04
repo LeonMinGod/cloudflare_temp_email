@@ -3,7 +3,7 @@ import { attachModelUsage, mergeModelUsage } from './pool-metrics.js';
 import { loadPoolCache, savePoolCache } from './pool-storage.js';
 import { compareModels, compareAccounts, compareProviders } from '../public/model-status/order-v1.mjs';
 
-const ORIGIN='https://cpa-dhke.onrender.com';
+const ORIGIN='https://cpa.leonmingod.com';
 export const REFRESH_MS=300_000, QUOTA_MS=300_000, CHECKPOINT_MS=900_000, STALE_MS=1_800_000;
 const CONTROL='pool-status-control-v1', BUDGET_KEY='ops:do-write-budget:v1', DAILY_CACHE_WRITES=10_000;
 const PROVIDERS=new Set(['codex','antigravity','gemini','gemini-cli','claude','anthropic','aistudio','vertex','openai','qwen','iflow','kiro','copilot','xai','grok']);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { verificationEmail } from '../src/claim-email.js';
-import { EMAIL_KEY, SAVED_KEY, normalizeCode, readEmailLink, readRememberedEmail, readSavedKey, rememberEmail } from '../public/free-token/verify-flow-v2.mjs';
+import { EMAIL_KEY, SAVED_KEY, normalizeCode, readEmailLink, readRememberedEmail, readSavedKey, rememberEmail } from '../public/free-token/verify-flow-v3.mjs';
 
 test('OTP paste accepts complete messages, leading zeroes and full-width digits', () => {
   assert.equal(normalizeCode('012345'), '012345');

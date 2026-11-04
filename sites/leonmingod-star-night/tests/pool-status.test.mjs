@@ -142,7 +142,7 @@ test('read-only public routes reject mutations and malformed IDs before touching
 
 test('real Workers runtime coalesces reads and rejects redirects without forwarding the management credential',async()=>{
  let calls=0;const options={modules:true,scriptPath:'dist/index.js',compatibilityDate:'2025-06-01',bindings:{CPA_STATUS_MANAGEMENT_KEY:'management-runtime-test',FREE_TOKEN_OPS_SECRET:'ops-runtime-test'},durableObjects:{GAME_RUNS:{className:'GameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('not found',{status:404})}};
- const blocked=new Miniflare({...options,outboundService:request=>{calls++;assert.equal(request.headers.get('Authorization'),'Bearer management-runtime-test');assert(request.url.startsWith('https://cpa-dhke.onrender.com/'));return new Response(null,{status:302,headers:{Location:'https://untrusted.example/credentials'}});}});
+ const blocked=new Miniflare({...options,outboundService:request=>{calls++;assert.equal(request.headers.get('Authorization'),'Bearer management-runtime-test');assert(request.url.startsWith('https://cpa.leonmingod.com/'));return new Response(null,{status:302,headers:{Location:'https://untrusted.example/credentials'}});}});
  try{
   assert.equal((await blocked.dispatchFetch('https://leonmingod.com/api/pool-status',{method:'HEAD'})).status,503);assert.equal(calls,0);
   assert.equal((await blocked.dispatchFetch('https://leonmingod.com/api/pool-status')).status,503);assert.equal(calls,1);

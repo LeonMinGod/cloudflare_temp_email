@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "366eeb9c-ce76-4ba5-a695-11fc702a9724",
+  "baseline_parent": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v61: prioritize available credentials, models and providers, then descending request totals",
+  "message": "v62: migrate CPA to persistent InstaBox, stable cpa domain and saved-key endpoint compatibility",
   "files": [
     "index.html",
     "home-orb-v3.css",
@@ -94,7 +94,14 @@
     "model-status/status-v4.css",
     "model-status/status-v5.mjs",
     "model-status/status-v6.mjs",
-    "model-status/status-v7.mjs"
+    "model-status/status-v7.mjs",
+    "free-token/api-endpoint-v1.mjs",
+    "free-token/verify-flow-v3.mjs",
+    "free-token/ccswitch-v2.mjs",
+    "free-token/claim-v11.mjs",
+    "free-token/game/app-v18.mjs",
+    "free-token/saved-key-v2.mjs",
+    "free-token/verify-v3.mjs"
   ],
-  "staged_version": "de1909dc-78c8-4df2-9735-c3d3aaa225c0"
+  "staged_version": ""
 }

@@ -136,14 +136,14 @@ test('claim grants are signed, browser-scoped, expiring and clearable', async ()
 test('the pages use one clean email step, a dedicated auto-verify page, and no public leaderboard', async () => {
   const [claim, game, verify, claimScript, gameScript, verifyScript, flow, home] = await Promise.all([
     readFile('public/free-token/claim/index.html', 'utf8'), readFile('public/free-token/game/index.html', 'utf8'),
-    readFile('public/free-token/verify/index.html', 'utf8'), readFile('public/free-token/claim-v10.mjs', 'utf8'),
-    readFile('public/free-token/game/app-v17.mjs', 'utf8'), readFile('public/free-token/verify-v2.mjs', 'utf8'),
-    readFile('public/free-token/verify-flow-v2.mjs', 'utf8'), readFile('public/index.html', 'utf8'),
+    readFile('public/free-token/verify/index.html', 'utf8'), readFile('public/free-token/claim-v11.mjs', 'utf8'),
+    readFile('public/free-token/game/app-v18.mjs', 'utf8'), readFile('public/free-token/verify-v3.mjs', 'utf8'),
+    readFile('public/free-token/verify-flow-v3.mjs', 'utf8'), readFile('public/index.html', 'utf8'),
   ]);
-  assert.match(claim, /claim-v10\.mjs/);
+  assert.match(claim, /claim-v11\.mjs/);
   assert.equal((claim.match(/id="send-code"/g) || []).length, 1);
   assert.doesNotMatch(claim, /claim-code|claim-name|leaderboard/);
-  assert.match(game, /app-v17\.mjs/);
+  assert.match(game, /app-v18\.mjs/);
   assert.doesNotMatch(game, /player-name|player-code|reveal-key|id="leaderboard"/);
   assert.match(verify, /maxlength="6"/);
   assert.match(verify, /autocomplete="one-time-code"/);
@@ -225,7 +225,7 @@ test('the Worker enforces eligibility before email and returns the same key to a
     assert.equal(first.username, '青玉客');
     assert.equal(JSON.parse(await kv.get(emailKey('ada@example.com'))).username, '青玉客');
     assert.equal(JSON.parse(await kv.get(keyRecordKey(await sha256Hex(first.apiKey)))).username, '青玉客');
-    assert.equal(first.baseUrl, 'https://cpa-dhke.onrender.com/v1');
+    assert.equal(first.baseUrl, 'https://cpa.leonmingod.com/v1');
 
     const oathAgain = await post('/api/free-token/claim', { oath: '义父', confirmed: true });
     const grantAgain = oathAgain.headers.getSetCookie().find(value => value.startsWith('lmg_claim_local=')).split(';')[0];
