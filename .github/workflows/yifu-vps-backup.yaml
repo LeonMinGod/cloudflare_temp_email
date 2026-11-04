@@ -1,0 +1,38 @@
+name: Back up Yifu VPS daily
+on:
+  schedule:
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: yifu-vps-production
+  cancel-in-progress: false
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+      YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+      YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+      YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+      YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+      YIFU_BACKUP_SECRET: ${{ secrets.YIFU_BACKUP_SECRET }}
+      YIFU_MODE: backup
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: codex/free-token-home-20261024
+      - run: python -m pip install paramiko pyyaml cryptography
+      - name: Test encrypted backup validation
+        run: python -m unittest discover -s .github/scripts/tests -p test_yifu_safety.py -v
+      - name: Capture and verify an encrypted, consistent backup
+        run: python .github/scripts/yifu_vps.py
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: yifu-daily-backup-${{ github.run_id }}
+          path: yifu-operation/*.json
+          retention-days: 14
+          if-no-files-found: error
