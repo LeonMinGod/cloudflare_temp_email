@@ -4,7 +4,7 @@ on:
     inputs:
       mode:
         type: choice
-        options: [inspect, restore, status, verify, backup]
+        options: [inspect, restore, deploy-gateway, status, verify, backup]
         default: inspect
 permissions:
   contents: read

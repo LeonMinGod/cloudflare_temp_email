@@ -168,6 +168,35 @@ print(json.dumps({'schema':1,'files':files}))
     record('backup', {'encrypted':True,'files':len(json.loads(content)['files'])})
 
 
+def deploy_gateway():
+    name = 'cpa-instabox-gateway'
+    origin = 'https://8317-agqzojclrfglcpkfj43t7npojy.instabox.tech'
+    source = Path('sites/cpa-instabox-gateway/src/index.mjs').read_bytes()
+    metadata = {'main_module':'index.mjs','compatibility_date':'2026-11-04',
+                'observability':{'enabled':True,'head_sampling_rate':1,'traces':{'enabled':True}},
+                'bindings':[{'name':'CPA_ORIGIN','type':'plain_text','text':origin},
+                            {'name':'INSTABOX_MACHINE_ID','type':'plain_text','text':MACHINE},
+                            {'name':'AUTO_RESUME','type':'plain_text','text':'1'},
+                            {'name':'INSTABOX_API_KEY','type':'secret_text','text':os.environ['INSTABOX_API_KEY'].strip()}]}
+    boundary = 'cpa-instabox-' + os.urandom(12).hex()
+    chunks=[]
+    for part, mime, body in [('metadata','application/json',json.dumps(metadata).encode()),('index.mjs','application/javascript+module',source)]:
+        disposition='form-data; name="'+part+'"'+('' if part=='metadata' else '; filename="'+part+'"')
+        chunks.extend([('--'+boundary+'\r\nContent-Disposition: '+disposition+'\r\nContent-Type: '+mime+'\r\n\r\n').encode(),body,b'\r\n'])
+    chunks.append(('--'+boundary+'--\r\n').encode())
+    api.cf(name,'PUT',b''.join(chunks),{'Content-Type':'multipart/form-data; boundary='+boundary})
+    api.cf(name+'/schedules','PUT',{'schedules':[{'cron':'*/5 * * * *'}]})
+    url='https://api.cloudflare.com/client/v4/accounts/'+os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()+'/workers/domains'
+    registered=False
+    try:
+        _,_,raw=api.request(url,'PUT',{'hostname':'cpa.leonmingod.com','service':name,'zone_id':'4f078f06b815a404337c3b5387c45275','environment':'production'},
+                            {'Authorization':'Bearer '+os.environ['CLOUDFLARE_API_TOKEN'].strip()})
+        registered=bool(json.loads(raw).get('success'))
+    except RuntimeError:
+        pass
+    record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'cpa.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
+
+
 if __name__ == '__main__':
     mode = os.environ.get('INSTABOX_MODE', 'inspect')
     if mode == 'inspect':
@@ -178,5 +207,7 @@ if __name__ == '__main__':
         verify()
     elif mode == 'backup':
         backup()
+    elif mode == 'deploy-gateway':
+        deploy_gateway()
     else:
         raise RuntimeError('Operation is not implemented: ' + mode)
