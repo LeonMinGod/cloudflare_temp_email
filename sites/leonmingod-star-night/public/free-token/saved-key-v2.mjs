@@ -3,7 +3,7 @@ import { installCcSwitch } from './ccswitch-v2.mjs';
 
 let dialog,base,key,status;
 function field(tag,text,className){const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;}
-function credentials(){const saved=readSavedKey();return saved?{baseUrl:saved.baseUrl||'https://public-cpa.leonmingod.com/v1',apiKey:saved.key}:null;}
+function credentials(){const saved=readSavedKey();return saved?{baseUrl:saved.baseUrl||'https://yifu.leonmingod.com/v1',apiKey:saved.key}:null;}
 function createViewer(){
   dialog=field('dialog',undefined,'saved-key-modal');dialog.setAttribute('aria-labelledby','saved-local-key-title');
   const close=field('button','×','saved-key-close');close.type='button';close.setAttribute('aria-label','关闭保存的 Key');close.addEventListener('click',()=>dialog.close());

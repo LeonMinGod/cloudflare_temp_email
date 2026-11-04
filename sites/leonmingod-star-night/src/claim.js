@@ -3,7 +3,7 @@ import { RESEND_COOLDOWN_MS, beginCode, cancelCode, completeClaim, importEncKey,
 import { clearClaimGrant, issueClaimGrant, readClaimGrant } from './claim-grant.js';
 import { verificationEmail } from './claim-email.js';
 
-const BASE_URL = 'https://public-cpa.leonmingod.com/v1';
+const BASE_URL = 'https://yifu.leonmingod.com/v1';
 const FROM_DEFAULT = 'noreply@leonmingod.com';
 
 const reply = (status, body, extra = {}, carry = null) => {

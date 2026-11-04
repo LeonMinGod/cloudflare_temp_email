@@ -50,7 +50,7 @@ async function postGrant() {
 }
 
 function presentCredentials(data, saved = false) {
-  baseUrl.value = data.baseUrl || 'https://public-cpa.leonmingod.com/v1';
+  baseUrl.value = data.baseUrl || 'https://yifu.leonmingod.com/v1';
   apiKey.value = data.apiKey || data.key || '';
   if (saved) {
     title.textContent = '本浏览器保存的 API Key';

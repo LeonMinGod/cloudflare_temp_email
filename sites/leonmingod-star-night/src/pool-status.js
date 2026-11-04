@@ -2,8 +2,9 @@ import { passiveQuota, parseQuota, quotaProbe, quotaProbes } from './pool-quota.
 import { attachModelUsage, mergeModelUsage } from './pool-metrics.js';
 import { loadPoolCache, savePoolCache } from './pool-storage.js';
 import { compareModels, compareAccounts, compareProviders } from '../public/model-status/order-v1.mjs';
+import { relayPoolToVps } from './pool-vps.js';
 
-const ORIGIN='https://public-cpa.leonmingod.com';
+const ORIGIN='https://yifu.leonmingod.com';
 export const REFRESH_MS=300_000, QUOTA_MS=300_000, CHECKPOINT_MS=900_000, STALE_MS=1_800_000;
 const CONTROL='pool-status-control-v1', BUDGET_KEY='ops:do-write-budget:v1', DAILY_CACHE_WRITES=10_000;
 const PROVIDERS=new Set(['codex','antigravity','gemini','gemini-cli','claude','anthropic','aistudio','vertex','openai','qwen','iflow','kiro','copilot','xai','grok']);
@@ -70,7 +71,7 @@ export async function summarizePool(files,inventory,secret,now=Date.now()){
 async function management(path,env,fetcher,signal,body){
   const options={method:body?'POST':'GET',headers:{Authorization:`Bearer ${env.CPA_STATUS_MANAGEMENT_KEY}`,Accept:'application/json'},redirect:'manual',signal};
   if(body){options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}
-  const response=await fetcher(`${ORIGIN}/v8/management/${path}`,options);
+  const response=await fetcher(`${env.CPA_STATUS_ORIGIN||ORIGIN}/v8/management/${path}`,options);
   if(!response.ok)throw Object.assign(new Error('CPA status unavailable'),{status:response.status,managementAuth:[401,403].includes(response.status),code:`CPA_HTTP_${response.status}`});
   const reader=response.body.getReader(),chunks=[];let length=0;
   for(;;){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>4*1024*1024){await reader.cancel();throw new Error('CPA_RESPONSE_TOO_LARGE');}chunks.push(value);}
@@ -208,6 +209,7 @@ export class PoolStatusCoordinator{
     this.scheduled=true;
   }
   async alarm(){
+    if(this.env.VPS_POOL_ENDPOINT){await this.ctx.storage.deleteAlarm();this.scheduled=false;return;}
     await this.ready;
     try{if(!await this.budgetState())await this.modelMetrics();}finally{this.scheduled=false;await this.schedule();}
   }
@@ -258,6 +260,7 @@ export class PoolStatusCoordinator{
   reply(status,body){return Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Pool-Abuse-Exempt':'read-only-status'}});}
   async fetch(request){
     await this.ready;const {kind,id,peek}=await request.json();
+    if(kind==='export')return this.reply(200,{schema:1,cache:this.cache,control:this.control});
     if(!peek)await this.budgetState();
     if(!peek)await this.schedule();
     if(kind==='quota'){
@@ -284,10 +287,15 @@ export async function handlePoolStatus(request,env){
   const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Pool-Abuse-Exempt':'read-only-status'};
   const reply=(status,body)=>new Response(request.method==='HEAD'?null:JSON.stringify(body),{status,headers:{...headers,'Content-Type':'application/json; charset=utf-8',...(status===405?{Allow:'GET, HEAD'}:{})}});
   if(!['GET','HEAD'].includes(request.method))return reply(405,{error:'Method not allowed'});
-  if(!env.CPA_STATUS_MANAGEMENT_KEY||!env.FREE_TOKEN_OPS_SECRET||!env.GAME_RUNS)return reply(503,{error:'号池状态正在连接，请稍后查看。'});
+  if(!env.FREE_TOKEN_OPS_SECRET||(!env.VPS_POOL_ENDPOINT&&(!env.CPA_STATUS_MANAGEMENT_KEY||!env.GAME_RUNS)))return reply(503,{error:'号池状态正在连接，请稍后查看。'});
   const url=new URL(request.url),kind=url.pathname.endsWith('/quota')?'quota':'snapshot',id=url.searchParams.get('id');
   if(kind==='quota'&&!/^[a-f0-9]{8}$/.test(id||''))return reply(400,{error:'账号编号不正确。'});
   try{
+    if(env.VPS_POOL_ENDPOINT){
+      const response=await relayPoolToVps(env,{kind,id,peek:request.method==='HEAD'});
+      if(![200,400,404,503].includes(response.status))return reply(503,{error:'号池暂时无法连接，请稍后再试。',retry_after:300});
+      return new Response(request.method==='HEAD'?null:response.body,{status:response.status,headers:{...headers,'Content-Type':'application/json; charset=utf-8','X-Pool-Backend':'vps'}});
+    }
     const stub=env.GAME_RUNS.get(env.GAME_RUNS.idFromName('pool-status-cache-v2'));
     const response=await stub.fetch('https://pool.internal/pool-status',{method:'POST',body:JSON.stringify({kind,id,peek:request.method==='HEAD'})});
     return new Response(request.method==='HEAD'?null:response.body,{status:response.status,headers:{...headers,'Content-Type':'application/json; charset=utf-8'}});

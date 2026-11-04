@@ -38,7 +38,7 @@ test('an origin change clears only obsolete monitor backoff once and retains fiv
  const changed=new PoolStatusCoordinator(h.ctx,h.env,{fetcher:h.fetcher,clock:()=>now+1});
  const response=await changed.fetch(new Request('https://internal/pool-status',{method:'POST',body:JSON.stringify({kind:'snapshot'})}));
  assert.equal(response.status,200);assert.equal((await response.json()).totals.total,3);assert(h.calls.length>before);
- assert.equal((await h.ctx.storage.get('pool-status-control-v1')).origin,'https://public-cpa.leonmingod.com');
+ assert.equal((await h.ctx.storage.get('pool-status-control-v1')).origin,'https://yifu.leonmingod.com');
  const reloaded=new PoolStatusCoordinator(h.ctx,h.env,{fetcher:()=>{throw new Error('same origin must retain its refresh gate');},clock:()=>now+2});
  assert.equal((await reloaded.fetch(new Request('https://internal/pool-status',{method:'POST',body:JSON.stringify({kind:'snapshot'})}))).status,200);
 });
@@ -98,6 +98,14 @@ test('background model collection is coalesced, persists without visitors and le
  assert.equal(result.status,200);assert.equal((await result.json()).model_metrics_available,true);
 });
 
+test('VPS routing retires the old CF monitor alarm without changing its stored history',async()=>{
+ const h=harness();await h.send({kind:'snapshot'});
+ const before=await loadPoolCache(h.ctx.storage),calls=h.calls.length;
+ let deleted=0;h.ctx.storage.deleteAlarm=async()=>{deleted++;};h.env.VPS_POOL_ENDPOINT='https://yifu.leonmingod.com/_pool/status';
+ await h.coordinator.alarm();assert.equal(deleted,1);assert.equal(h.calls.length,calls);
+ assert.deepEqual(await loadPoolCache(h.ctx.storage),before);
+});
+
 test('failed quota preserves the old value and disabled credentials do not produce automatic upstream probes',async()=>{
  const h=harness();await h.send({kind:'snapshot'});h.advance(300001);h.setInner(429);
  const id=await accountId(files[0],h.env.FREE_TOKEN_OPS_SECRET),response=await h.send({kind:'quota',id}),body=await response.json();
@@ -155,7 +163,7 @@ test('read-only public routes reject mutations and malformed IDs before touching
 
 test('real Workers runtime coalesces reads and rejects redirects without forwarding the management credential',async()=>{
  let calls=0;const options={modules:true,scriptPath:'dist/index.js',compatibilityDate:'2025-06-01',bindings:{CPA_STATUS_MANAGEMENT_KEY:'management-runtime-test',FREE_TOKEN_OPS_SECRET:'ops-runtime-test'},durableObjects:{GAME_RUNS:{className:'GameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('not found',{status:404})}};
- const blocked=new Miniflare({...options,outboundService:request=>{calls++;assert.equal(request.headers.get('Authorization'),'Bearer management-runtime-test');assert(request.url.startsWith('https://public-cpa.leonmingod.com/'));return new Response(null,{status:302,headers:{Location:'https://untrusted.example/credentials'}});}});
+ const blocked=new Miniflare({...options,outboundService:request=>{calls++;assert.equal(request.headers.get('Authorization'),'Bearer management-runtime-test');assert(request.url.startsWith('https://yifu.leonmingod.com/'));return new Response(null,{status:302,headers:{Location:'https://untrusted.example/credentials'}});}});
  try{
   assert.equal((await blocked.dispatchFetch('https://leonmingod.com/api/pool-status',{method:'HEAD'})).status,503);assert.equal(calls,0);
   assert.equal((await blocked.dispatchFetch('https://leonmingod.com/api/pool-status')).status,503);assert.equal(calls,1);

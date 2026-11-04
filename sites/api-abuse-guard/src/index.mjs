@@ -84,13 +84,6 @@ export default {
     // Scope administrative capabilities to a separate secret never sent to CPA.
     return env.STATE.get(env.STATE.idFromName('cpa-v1')).fetch('https://state.internal/'+(admin?'admin':'rpc'),{method:'POST',body:JSON.stringify({...body,nonce})});
   },
-  async scheduled(_controller,_env,ctx){
-    // The InstaBox service can pause after inactivity. This health request is
-    // exempt from abuse accounting and keeps the API process warm.
-    ctx.waitUntil(fetch('https://public-cpa.leonmingod.com/healthz',{
-      headers:{'User-Agent':'LeonMinGod-CPA-Warmup/1.0','Cache-Control':'no-cache'}
-    }).then(response=>{if(!response.ok)throw new Error(`CPA health returned ${response.status}`)}));
-  }
 };
 
 export class AbuseState {

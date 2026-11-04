@@ -1,4 +1,4 @@
-export const API_ORIGIN = 'https://public-cpa.leonmingod.com';
+export const API_ORIGIN = 'https://yifu.leonmingod.com';
 export const BASE_URL = API_ORIGIN + '/v1';
 
 export function normalizeBaseUrl(value) {

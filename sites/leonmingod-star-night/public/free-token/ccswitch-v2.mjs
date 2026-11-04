@@ -4,7 +4,7 @@ const APPS = Object.freeze({
   codex: { title: 'Codex', format: 'openai_responses' },
   gemini: { title: 'Gemini', format: 'gemini_native' },
 });
-const API_ORIGIN = 'https://public-cpa.leonmingod.com';
+const API_ORIGIN = 'https://yifu.leonmingod.com';
 
 export function apiEndpoints(baseUrl) {
   const url = new URL(normalizeBaseUrl(baseUrl));
