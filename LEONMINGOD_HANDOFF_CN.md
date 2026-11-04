@@ -130,12 +130,15 @@ apex/www号池200、backend=vps、13账号/35模型、非stale、无私密字段
 
 ## 可复制给云端Codex的接手话术
 
+完整可复制版本：[CLOUD_CODEX_START_CN.md](CLOUD_CODEX_START_CN.md)，包含Tunnel拓扑与云端凭据使用方式。
+
 ```text
 请接手LeonMinGod项目，先读维护分支codex/free-token-home-20261024的LEONMINGOD_HANDOFF_CN.md和YIFU_VPS_HANDOFF_CN.md，再核对实时状态。
 公益CPA已从Render/InstaBox迁到新LXD VPS，唯一对外Base URL是https://yifu.leonmingod.com/v1；cpa.leonmingod.com是我本机，禁止修改或混用凭证。
+域名经Cloudflare Tunnel到VPS本地8317，/_pool/到8318；cloudflared由yifu-tunnel.service开机自启，保留原Tunnel/DNS/token，不必重建。
 网站v62仍在Cloudflare，源码sites/leonmingod-star-night；号池五分钟采集和SQLite历史已在VPS，源码sites/yifu-vps-monitor。个人Key鉴权/限流和游戏仍在CF，不要声称已全部迁移。
 运维使用默认分支yifu-vps.yaml，网站发布用维护分支leonmingod-star-night.yaml的stage/publish。不要重新启用Render/旧共享Key工具，不要直接wrangler覆盖不完整静态素材。
 保留邮箱专属Key、原静态Key、auths停用状态、落款/本地记忆、120秒重发、两小时真人凭证和实时游戏。失效公益OAuth由我迁移后重新授权，禁止借用本机账号或恢复旧bootstrap覆盖新文件。
-Secrets已在GitHub，无需在聊天中索取或输出。重新授权/更新前后做加密backup；当前还没有自动备份。
+Secrets已在GitHub，通过已有Actions使用，不会随clone自动进入云端会话，也不能用普通API读取明文。重新授权/更新前后做加密backup；当前还没有自动备份。
 按我的后续需求直接修改、验证、提交并发布授权范围内变更；用简体中文简洁沟通。
 ```

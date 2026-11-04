@@ -10,6 +10,8 @@
 
 ### Features
 
+- docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
+
 - feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
 
 - feat: |Yifu Token| Claim now sends an email code and reveals a one-time unique key (one claim per email); the trial page lists a usage leaderboard. The homepage keeps the original v5 cover illustration

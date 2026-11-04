@@ -68,6 +68,26 @@ Tunnel `yifu-cpa-lxd-20261104` / `de798c3f-002c-4a28-8e7f-baa9780cfe6b`。
 `yifu` 与诊断别名是 proxied CNAME 到该 Tunnel 的 `cfargotunnel.com` 地址。
 两域名下 `^/_pool/.*$` 先路由到 8318，其余到 8317，末尾 catchall 404。
 
+### 域名如何连到新 VPS
+
+新 VPS 已安装 `/opt/yifu-cpa/bin/cloudflared`，由 `yifu-tunnel.service` 管理，开机自启、异常自动重启。
+DNS 的完整目标是 `de798c3f-002c-4a28-8e7f-baa9780cfe6b.cfargotunnel.com`。
+cloudflared 主动向 Cloudflare 建立连接，公网请求经 Tunnel 到本地 CPA/监控，无需额外公开8317或8318。
+这是远程托管的 Tunnel，ingress 由 Cloudflare 配置；私密 token 位于 `private/cloudflared.token`，禁止输出其内容。
+更新网站或 CPA 时应保留此 Tunnel、DNS 和 token，不必另建隧道或把域名改到用户本机。
+
+SSH 登录后可先进行以下只读检查：
+
+```sh
+systemctl is-active yifu-cpa yifu-tunnel yifu-monitor
+systemctl is-enabled yifu-tunnel
+curl -fsS http://127.0.0.1:8317/healthz
+curl -fsS https://yifu.leonmingod.com/healthz
+```
+
+本地 healthz 正常但公网失败时先检查 Tunnel 连接和 DNS；公网 healthz 正常但网站号池失败时，
+先检查8318监控和签名转发，不要直接重启CPA、覆盖凭证或改用户本机域名。
+
 网站主 Worker v62：`8419c16f-c7c5-4b90-aa89-21e087b26b8c`。
 入口 `leonmingod-free-token`：`51a33be8-6ca4-4b4f-886f-613bfea996b0`，保留 `SITE` → 主站命名入口 `Site`。
 主站保留原 11 个绑定，新增一个普通配置 `VPS_POOL_ENDPOINT=https://yifu.leonmingod.com/_pool/status`。
@@ -91,6 +111,10 @@ CPA 私库 `LeonMinGod/cpa`，部署交接分支 `codex/instabox-deploy-20261104
 `YIFU_SSH_PRIVATE_KEY`、`YIFU_SSH_KNOWN_HOSTS`、`YIFU_BACKUP_SECRET`、`YIFU_OPS_SECRET`。
 网站库原 CF Secrets 保留。`YIFU_OPS_SECRET` 复用现有网站运维 Secret，未轮换用户 Key。
 `RENDER_API_KEY` 仅为历史加密产物/旧工具留存，新 VPS 工作流不依赖它。
+
+GitHub Secrets 的值不会随 clone 自动进入云端会话，也不能通过普通 GitHub API 读取明文。
+新会话应优先触发已有受保护 Actions；需要直接 SSH 时，使用云端环境已配置的凭据，
+不要把“看不到 Secrets 明文”误判为缺少部署信息。可复制的接手话术见 [CLOUD_CODEX_START_CN.md](CLOUD_CODEX_START_CN.md)。
 
 ```sh
 gh workflow run yifu-vps.yaml --repo LeonMinGod/cloudflare_temp_email --ref main -f mode=verify
@@ -126,6 +150,7 @@ Actions artifact `yifu-vps-<run_id>` 保留 90 天，其中 `backup.enc.json` �
 - 网站 65 项、监控 4 项、风控 22 项测试通过。
 - [stage 41853618316](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41853618316)；[publish 41854967863](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41854967863)。
 - [VPS verify 41854092824](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41854092824)：health200、13 凭证/10 停用、4 把静态 Key 各列出35模型。
+- [移除 Render 环境依赖后复验 41858538648](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41858538648)：2026-11-04通过，仍为13凭证/10停用、4把静态Key各35模型。这是当时快照，接手时重新查询实时状态。
 - [历史导入 41855170914](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41855170914)：35 模型快照及历史 modelUsage 保留。
 - 公网 apex/www 号池 API200、`X-Pool-Backend: vps`、13账号/35模型、非 stale、无私密字段。
 - 临时个人 `sk-lm-` canary 的 `/v1/models`200/35，验证远程鉴权链；临时 KV 记录已删除，另有15分钟过期兜底。
