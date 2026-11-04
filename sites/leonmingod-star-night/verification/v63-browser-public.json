@@ -1,0 +1,81 @@
+{
+  "checked_at": "2026-11-04T19:01:30.124Z",
+  "backend": "Chromium via session proxy",
+  "real_page_results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "real_pool_http": 200,
+      "backend": "vps",
+      "accounts": 13,
+      "module_examples": [
+        "约 5 分钟后",
+        "约 30 秒后"
+      ],
+      "horizontal_overflow": false,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "real_pool_http": 200,
+      "backend": "vps",
+      "accounts": 13,
+      "module_examples": [
+        "约 5 分钟后",
+        "约 30 秒后"
+      ],
+      "horizontal_overflow": false,
+      "errors": []
+    }
+  ],
+  "published_script_with_mocked_cooldown": {
+    "initial_minutes": 5,
+    "after_one_minute": 4,
+    "subminute_seconds": 30,
+    "model_and_account_and_quota": true,
+    "api_reads_in_270_seconds": 1
+  },
+  "source": [
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/index.html",
+      "http": 200,
+      "matched": true
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/status-v8.mjs",
+      "http": 200,
+      "matched": true
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/time-v1.mjs",
+      "http": 200,
+      "matched": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/index.html",
+      "http": 200,
+      "matched": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/status-v8.mjs",
+      "http": 200,
+      "matched": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/time-v1.mjs",
+      "http": 200,
+      "matched": true
+    }
+  ]
+}

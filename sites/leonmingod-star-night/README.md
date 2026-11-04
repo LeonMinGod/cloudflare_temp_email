@@ -17,7 +17,7 @@ Deploy through `.github/workflows/leonmingod-star-night.yaml`, staging before pu
 
 The game uses native image_gen raster art, optimized as WebP. The shared v8 engine with the live-v1 protocol drives 45-second, 24-jade, two-shield browser play and server replay. Rage begins at 19 collected jade (five remaining); at 24, pure survival continues to 45 seconds. Defeats show one of ten emoji/poetic taunts with a direct oath-claim link. Old v1-v6 reward protocols are retired: refresh and restart; the three-minute credential lifetime remains a run expiry, not an API key expiry. Offline simulated win rates are calibration evidence, not measured human pass rates.
 
-Production release v62: parent `8419c16f-c7c5-4b90-aa89-21e087b26b8c`, forwarder
+Production release v63: parent `fe123ce3-a104-43df-a4b8-abbf8ff07322`, forwarder
 `51a33be8-6ca4-4b4f-886f-613bfea996b0`. Public CPA is **https://yifu.leonmingod.com/v1**
 on the dedicated VPS; the user's local `cpa.leonmingod.com` must stay independent.
 Pool reads now use a signed VPS relay and SQLite, preserving five-minute refresh,
@@ -25,6 +25,24 @@ fifteen-minute checkpoints and imported history. Personal key auth/game state re
 on CF. See [VPS operations](../../YIFU_VPS_HANDOFF_CN.md). Original 11 bindings plus
 VPS_POOL_ENDPOINT are retained; never directly deploy the incomplete asset mirror.
 Old Render/InstaBox procedures below are historical and must not be executed.
+
+v63 uses `status-v8.mjs` and `time-v1.mjs`: cooldown, quota reset and renewal
+countdowns below one hour show minutes, below one minute show seconds. A local
+one-second timer updates text without extra network traffic; the shared five-minute
+refresh and fifteen-minute VPS checkpoints remain unchanged. Model and credential
+views both use this formatter. Published desktop/mobile checks passed, including a
+mocked five-minute cooldown using real published scripts and only one API read over
+270 seconds. See `verification/v63-*.json`.
+
+The VPS now has a loopback admission gateway on 8319, forwarding to the original
+CPA on 8317. Four generation requests globally, two per presented key, four queued
+requests and a two-second wait protect the small machine. Busy requests return
+429 with Retry-After: 2; there is no stream deadline or new IP ban. Daily encrypted
+backups at 04:30 Asia/Shanghai retain 14 days; manual operation artifacts retain
+90 days. Log caps and safe rollback are documented in the current VPS handoff.
+The original CPA/Tunnel/monitor PIDs, keys and credential disabled flags were
+preserved; real gpt-6.1-sol non-streaming and streaming generation passed before
+and after activation. This does not certify all models or all credentials.
 
 The live game uses `app-v18.mjs`, oath claim `claim-v11.mjs`, verification
 `verify-v3.mjs`, saved-key `saved-key-v2.mjs`, and CC Switch `ccswitch-v2.mjs`.

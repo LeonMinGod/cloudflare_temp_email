@@ -1,0 +1,81 @@
+{
+  "checked_at": "2026-11-04T19:05:01.254059+00:00",
+  "stage_run": 41891235425,
+  "publish_run": 41892132895,
+  "stage": {
+    "mode": "stage",
+    "version_id": "fe123ce3-a104-43df-a4b8-abbf8ff07322",
+    "production_unchanged": true,
+    "parent_version": "8419c16f-c7c5-4b90-aa89-21e087b26b8c",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "module_sha256": "2a6e5915ff737e6015bf8997080d4f2b6ef7b5bcacbb52997403e411edaec294",
+    "resources_summary": {
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CPA_STATUS_MANAGEMENT_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_CPA_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_OPS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_RENDER_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SITEKEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "GAME_RUNS",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "KEY_ENC_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KV",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "VPS_POOL_ENDPOINT",
+          "type": "plain_text"
+        }
+      ],
+      "assets_config": null
+    }
+  },
+  "publish": {
+    "mode": "publish",
+    "version_id": "fe123ce3-a104-43df-a4b8-abbf8ff07322",
+    "previous_version": "8419c16f-c7c5-4b90-aa89-21e087b26b8c",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "previous_entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "forwarder_source_unchanged": true,
+    "shared_key_not_exposed": true,
+    "website_open": true,
+    "issuance_state_preserved": true,
+    "game_namespace_preserved": true,
+    "source_pages_verified": 7,
+    "pool_api_verified": true,
+    "pool_preexisting_outage": false
+  }
+}
