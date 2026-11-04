@@ -268,6 +268,40 @@ def stream_probe():
     record('stream',{'origin':ORIGIN,'results':results})
 
 
+def diagnose():
+    import io
+    import zipfile
+    import base64
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    request=urllib.request.Request('https://api.github.com/repos/LeonMinGod/cloudflare_temp_email/actions/artifacts/13044371854/zip',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'User-Agent':'CPA-InstaBox-Migration'})
+    with urllib.request.urlopen(request,timeout=60) as response:archive=zipfile.ZipFile(io.BytesIO(response.read()))
+    name=next(name for name in archive.namelist() if name.endswith('cpa-before-rollout.enc.json'))
+    envelope=json.loads(archive.read(name))
+    key=hashlib.sha256((os.environ['RENDER_API_KEY'].strip()+'\ncpa-abuse-rollout-v1').encode()).digest()
+    restored=json.loads(AESGCM(key).decrypt(base64.b64decode(envelope['nonce']),base64.b64decode(envelope['ciphertext']),b'cpa-abuse-rollout-v1'))
+    _,_,_,bootstrap=render_snapshot()
+    initial={file['name']:file['content'] for file in bootstrap['files']}
+    comparisons=[]
+    for name,raw in restored['credentials'].items():
+        value=json.loads(raw);old=initial.get(name,{})
+        comparisons.append({'provider':value.get('type'),'different':value!=old,'refresh_changed':value.get('refresh_token')!=old.get('refresh_token'),
+                            'backup_refresh':value.get('last_refresh'),'bootstrap_refresh':old.get('last_refresh'),
+                            'backup_expiry':value.get('expired'),'bootstrap_expiry':old.get('expired')})
+    code='''import json,pathlib,urllib.request,urllib.error
+root=pathlib.Path(ROOT)
+env={k:json.loads(v) for k,v in (line.split('=',1) for line in (root/'private/runtime.env').read_text().splitlines())}
+req=urllib.request.Request('http://127.0.0.1:8317/v8/management/credentials',headers={'Authorization':'Bearer '+env['MANAGEMENT_PASSWORD']})
+with urllib.request.urlopen(req) as response:files=json.load(response)['files']
+rows=[]
+for file in files:
+    message=str(file.get('status_message','')).lower()
+    rows.append({'provider':file.get('provider'),'status':file.get('status'),'disabled':file.get('disabled'),'unavailable':file.get('unavailable'),'tags':[word for word in ['expired','revoked','refresh','invalid_grant','invalid','quota','unavailable','auth','token','account','401','403','429','503'] if word in message]})
+print(json.dumps({'states':rows}))
+'''.replace('ROOT',repr(ROOT))
+    current=json.loads(execute(['python3','-c',code]))
+    record('diagnose',{'encrypted_backup_created':envelope.get('created'),'comparisons':comparisons,**current})
+
+
 if __name__ == '__main__':
     mode = os.environ.get('INSTABOX_MODE', 'inspect')
     if mode == 'inspect':
@@ -284,5 +318,7 @@ if __name__ == '__main__':
         deploy_guard_origin()
     elif mode == 'stream-probe':
         stream_probe()
+    elif mode == 'diagnose':
+        diagnose()
     else:
         raise RuntimeError('Operation is not implemented: ' + mode)
