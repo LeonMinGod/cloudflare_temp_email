@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
+  "baseline_parent": "8419c16f-c7c5-4b90-aa89-21e087b26b8c",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v62: Yifu public CPA and SQLite pool monitoring on dedicated VPS, separate from local CPA",
+  "message": "v63: minute-precise live cooldown, quota reset and renewal countdowns",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -104,7 +104,8 @@
     "free-token/claim-v11.mjs",
     "free-token/game/app-v18.mjs",
     "free-token/saved-key-v2.mjs",
-    "free-token/verify-v3.mjs"
-  ],
-  "staged_version": "8419c16f-c7c5-4b90-aa89-21e087b26b8c"
+    "free-token/verify-v3.mjs",
+    "model-status/status-v8.mjs",
+    "model-status/time-v1.mjs"
+  ]
 }
