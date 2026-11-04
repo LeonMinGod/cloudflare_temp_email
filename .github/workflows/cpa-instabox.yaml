@@ -4,7 +4,7 @@ on:
     inputs:
       mode:
         type: choice
-        options: [inspect, restore, deploy-gateway, status, verify, backup]
+        options: [inspect, restore, deploy-gateway, deploy-guard-origin, status, verify, stream-probe, backup]
         default: inspect
 permissions:
   contents: read
@@ -25,6 +25,15 @@ jobs:
       INSTABOX_MODE: ${{ inputs.mode }}
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        if: inputs.mode == 'deploy-guard-origin'
+        with:
+          node-version: 22
+      - if: inputs.mode == 'deploy-guard-origin'
+        working-directory: sites/api-abuse-guard
+        run: |
+          npm ci --ignore-scripts
+          npm test
       - run: python -m pip install pyyaml cryptography
       - run: python .github/scripts/instabox_cpa.py
       - uses: actions/upload-artifact@v4

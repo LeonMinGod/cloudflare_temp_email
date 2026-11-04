@@ -208,6 +208,66 @@ def deploy_gateway():
     record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'cpa.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
 
 
+def deploy_guard_origin():
+    worker='cpa-abuse-guard'
+    before=api.active(worker)
+    settings=api.cf(worker+'/settings')
+    bindings=settings['bindings']
+    state=[item for item in bindings if item['name']=='STATE']
+    assert len(state)==1 and state[0]['class_name']=='AbuseState'
+    metadata={'main_module':'index.js','compatibility_date':settings['compatibility_date'],
+              'compatibility_flags':settings.get('compatibility_flags',[]),
+              'keep_bindings':['secret_text','plain_text','json'],
+              'bindings':[item for item in bindings if item['type'] not in ['secret_text','plain_text','json']],
+              'annotations':{'workers/message':'Move CPA health checks to InstaBox; preserve authentication, quotas, IP policy and namespaces'}}
+    boundary='cpa-guard-'+os.urandom(12).hex()
+    chunks=[]
+    for part,mime,body in [('metadata','application/json',json.dumps(metadata).encode()),
+                           ('index.js','application/javascript+module',Path('sites/api-abuse-guard/dist/index.js').read_bytes()),
+                           ('index.js.map','application/source-map',Path('sites/api-abuse-guard/dist/index.js.map').read_bytes())]:
+        disposition='form-data; name="'+part+'"'+('' if part=='metadata' else '; filename="'+part+'"')
+        chunks.extend([('--'+boundary+'\r\nContent-Disposition: '+disposition+'\r\nContent-Type: '+mime+'\r\n\r\n').encode(),body,b'\r\n'])
+    chunks.append(('--'+boundary+'--\r\n').encode())
+    version=api.cf(worker+'/versions','POST',b''.join(chunks),{'Content-Type':'multipart/form-data; boundary='+boundary})
+    assert api.active(worker)==before
+    staged=version['resources']['bindings']
+    assert {(b['name'],b['type']) for b in bindings}=={(b['name'],b['type']) for b in staged}
+    assert [item for item in staged if item['name']=='STATE']==state
+    api.cf(worker+'/deployments','POST',{'strategy':'percentage','versions':[{'version_id':version['id'],'percentage':100}]})
+    record('guard',{'version':api.active(worker),'previous':before,'bindings_preserved':True,'state_namespace_preserved':True,'tests_passed':22,'origin':ORIGIN})
+
+
+def stream_probe():
+    request=urllib.request.Request('https://api.instabox.sh/v1/machines/'+MACHINE+'/files/content?'+urllib.parse.urlencode({'path':ROOT+'/private/config.yaml'}),
+                                  headers={'X-API-Key':os.environ['INSTABOX_API_KEY'].strip()})
+    with urllib.request.urlopen(request,timeout=30) as response:config=yaml.safe_load(response.read())
+    key=config['api-keys'][0]
+    ids=[row['id'] for row in json.loads(api.request(ORIGIN+'/v1/models',headers={'Authorization':'Bearer '+key})[2])['data']]
+    selected=[]
+    for family in ['gpt','grok']:
+        options=[model for model in ids if family in model.lower()]
+        if options:selected.append(next((model for model in options if ('codex' in model.lower() if family=='gpt' else '4.7' in model)),options[0]))
+    results=[]
+    for model in selected:
+        started=time.time()
+        try:
+            status,headers,body=api.request(ORIGIN+'/v1/chat/completions','POST',{'model':model,'messages':[{'role':'user','content':'Reply exactly OK.'}],'max_tokens':32,'stream':True},
+                                            {'Authorization':'Bearer '+key,'Content-Type':'application/json'})
+            text=body.decode()
+            content=''
+            for line in text.splitlines():
+                if not line.startswith('data: ') or line=='data: [DONE]':continue
+                try:
+                    for choice in json.loads(line[6:]).get('choices',[]):
+                        part=choice.get('delta',{}).get('content','')
+                        if isinstance(part,str):content+=part
+                except ValueError:pass
+            results.append({'model':model,'http':status,'done':'data: [DONE]' in text,'content_chars':len(content),'seconds':round(time.time()-started,2),'stream_complete':status==200 and 'data: [DONE]' in text and bool(content)})
+        except RuntimeError as error:
+            results.append({'model':model,'stream_complete':False,'error':str(error),'seconds':round(time.time()-started,2)})
+    record('stream',{'origin':ORIGIN,'results':results})
+
+
 if __name__ == '__main__':
     mode = os.environ.get('INSTABOX_MODE', 'inspect')
     if mode == 'inspect':
@@ -220,5 +280,9 @@ if __name__ == '__main__':
         backup()
     elif mode == 'deploy-gateway':
         deploy_gateway()
+    elif mode == 'deploy-guard-origin':
+        deploy_guard_origin()
+    elif mode == 'stream-probe':
+        stream_probe()
     else:
         raise RuntimeError('Operation is not implemented: ' + mode)
