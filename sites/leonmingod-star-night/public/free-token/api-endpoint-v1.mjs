@@ -5,7 +5,7 @@ export function normalizeBaseUrl(value) {
   if (!value) return BASE_URL;
   try {
     const url = new URL(value);
-    if (url.origin === 'https://cpa-dhke.onrender.com' && /^\/v1\/?$/.test(url.pathname) && !url.username && !url.password && !url.search && !url.hash) return BASE_URL;
+    if (['https://cpa-dhke.onrender.com', 'https://public-cpa.leonmingod.com'].includes(url.origin) && /^\/v1\/?$/.test(url.pathname) && !url.username && !url.password && !url.search && !url.hash) return BASE_URL;
   } catch {}
   return value;
 }

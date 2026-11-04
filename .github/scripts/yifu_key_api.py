@@ -11,6 +11,7 @@ import urllib.request
 SERVICE = 'srv-d9c4kkvavr4c73ab3sfg'
 WORKSPACE = 'tea-d779tahr0fns73e1h3lg'
 RENDER_ORIGIN = 'https://cpa-dhke.onrender.com'
+CPA_ORIGIN = 'https://yifu.leonmingod.com'
 ORIGIN = 'https://leonmingod.com'
 
 
@@ -57,18 +58,18 @@ def site_claim():
     """Private signed operational verification; never weaken the public human gate."""
     body = json.dumps({'oath': '义父', 'confirmed': True}).encode()
     timestamp = str(int(time.time() * 1000))
-    signing = hmac.new(os.environ['RENDER_API_KEY'].strip().encode(), b'leonmingod-ops-probe-v1', hashlib.sha256).hexdigest()
+    signing = os.environ.get('YIFU_OPS_SECRET', '').strip() or hmac.new(os.environ['RENDER_API_KEY'].strip().encode(), b'leonmingod-ops-probe-v1', hashlib.sha256).hexdigest()
     message = timestamp + '\nPOST\n/api/free-token/claim\n' + body.decode()
     signature = hmac.new(signing.encode(), message.encode(), hashlib.sha256).hexdigest()
     return json.loads(request(ORIGIN + '/api/free-token/claim', 'POST', body,
         {'Origin': ORIGIN, 'Content-Type': 'application/json', 'X-LMG-Operation': timestamp + ':' + signature})[2])
 
 def management_request(key, path, method='GET', body=None):
-    return request(RENDER_ORIGIN + '/v8/management/' + path, method, body,
+    return request(CPA_ORIGIN + '/v8/management/' + path, method, body,
                    {'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'})[2]
 
 def models(key):
-    status, _, body = request(RENDER_ORIGIN + '/v1/models', headers={'Authorization': 'Bearer ' + key})
+    status, _, body = request(CPA_ORIGIN + '/v1/models', headers={'Authorization': 'Bearer ' + key})
     assert status == 200
     data = json.loads(body)
     assert isinstance(data.get('data'), list), 'Invalid models response'

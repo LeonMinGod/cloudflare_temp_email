@@ -105,12 +105,12 @@ export function installCcSwitch({ button, ownerDialog, readCredentials, document
     try { apiEndpoints(current?.baseUrl);if (!current?.apiKey) throw new Error('请先领取或找回你的 API Key。'); }
     catch { current = undefined;return; }
     app = 'codex';dialog.querySelectorAll('input[name="app"]').forEach(input => { input.checked = input.value === app; });
-    name.value = 'LeonMinGod · Codex';dialog.showModal();load();
+    name.value = '义父公益 · Codex';dialog.showModal();load();
   });
   dialog.querySelectorAll('input[name="app"]').forEach(input => input.addEventListener('change', () => {
     if (!input.checked) return;
-    const wasDefault = name.value === `LeonMinGod · ${APPS[app].title}`;
-    app = input.value;if (wasDefault) name.value = `LeonMinGod · ${APPS[app].title}`;
+    const wasDefault = name.value === `义父公益 · ${APPS[app].title}`;
+    app = input.value;if (wasDefault) name.value = `义父公益 · ${APPS[app].title}`;
     model.value = '';sent = false;launch.textContent = '打开 CC Switch ↗';showError();ready();
   }));
   reload.addEventListener('click', load);name.addEventListener('input', ready);
