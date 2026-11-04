@@ -308,6 +308,29 @@ print(json.dumps({'states':rows}))
     record('diagnose',{'encrypted_backup_created':envelope.get('created'),'comparisons':comparisons,**current})
 
 
+def refresh_active():
+    code='''import json,pathlib,urllib.request,urllib.error
+root=pathlib.Path(ROOT)
+env={k:json.loads(v) for k,v in (line.split('=',1) for line in (root/'private/runtime.env').read_text().splitlines())}
+base='http://127.0.0.1:8317/v8/management/'
+headers={'Authorization':'Bearer '+env['MANAGEMENT_PASSWORD'],'Content-Type':'application/json'}
+with urllib.request.urlopen(urllib.request.Request(base+'credentials',headers=headers)) as response:files=json.load(response)['files']
+rows=[]
+for file in files:
+    if file.get('disabled'):continue
+    payload=json.dumps({'name':file['name']}).encode()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(base+'credentials/refresh',data=payload,headers=headers,method='POST'),timeout=40) as response:result=json.load(response)
+        rows.append({'provider':file.get('provider'),'ok':result.get('ok') is True})
+    except urllib.error.HTTPError as error:
+        message=error.read(16384).decode(errors='replace').lower()
+        rows.append({'provider':file.get('provider'),'ok':False,'http':error.code,'tags':[word for word in ['invalid_grant','refresh_token_reused','invalid_refresh_token','unauthorized','forbidden','expired','revoked','already been used','invalid'] if word in message]})
+    except Exception as error:rows.append({'provider':file.get('provider'),'ok':False,'error_type':type(error).__name__})
+print(json.dumps({'results':rows,'disabled_credentials_untouched':sum(bool(file.get('disabled')) for file in files)}))
+'''.replace('ROOT',repr(ROOT))
+    record('refresh',json.loads(execute(['python3','-c',code],timeout=140)))
+
+
 if __name__ == '__main__':
     mode = os.environ.get('INSTABOX_MODE', 'inspect')
     if mode == 'inspect':
@@ -326,5 +349,7 @@ if __name__ == '__main__':
         stream_probe()
     elif mode == 'diagnose':
         diagnose()
+    elif mode == 'refresh-active':
+        refresh_active()
     else:
         raise RuntimeError('Operation is not implemented: ' + mode)
