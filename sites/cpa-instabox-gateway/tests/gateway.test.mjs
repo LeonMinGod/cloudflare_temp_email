@@ -29,7 +29,7 @@ test('healthy service needs no recovery command; stopped machines stay stopped',
 
 test('proxy preserves body, authorization, query and streaming without forwarding platform credentials', async () => {
   let received;
-  const response = await proxy(new Request('https://cpa.leonmingod.com/v1/chat/completions?stream=1', { method: 'POST', headers: { Authorization: 'Bearer dummy-client-key', 'CF-Connecting-IP': '192.0.2.2' }, body: '{"stream":true}' }), env, { waitUntil() {} }, async request => {
+  const response = await proxy(new Request('https://public-cpa.leonmingod.com/v1/chat/completions?stream=1', { method: 'POST', headers: { Authorization: 'Bearer dummy-client-key', 'CF-Connecting-IP': '192.0.2.2' }, body: '{"stream":true}' }), env, { waitUntil() {} }, async request => {
     received = request;
     assert.equal(await request.text(), '{"stream":true}');
     return new Response('data: hello\n\ndata: [DONE]\n\n', { headers: { 'Content-Type': 'text/event-stream' } });
@@ -44,7 +44,7 @@ test('proxy preserves body, authorization, query and streaming without forwardin
 
 test('proxy never replays a failed generation request during recovery', async () => {
   let generated = 0; const pending = [];
-  const response = await proxy(new Request('https://cpa.leonmingod.com/v1/responses', { method: 'POST', body: '{}' }), { ...env, AUTO_RESUME: '0' }, { waitUntil(p) { pending.push(p); } }, async () => { generated++; throw new TypeError('network'); });
+  const response = await proxy(new Request('https://public-cpa.leonmingod.com/v1/responses', { method: 'POST', body: '{}' }), { ...env, AUTO_RESUME: '0' }, { waitUntil(p) { pending.push(p); } }, async () => { generated++; throw new TypeError('network'); });
   await Promise.all(pending); assert.equal(response.status, 503); assert.equal(generated, 1);
   assert(!JSON.stringify(await response.json()).includes(env.INSTABOX_API_KEY));
 });

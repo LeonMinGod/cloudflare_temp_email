@@ -14,7 +14,7 @@ import yifu_key_api as api
 
 MACHINE = 'm_agqzojclrfglcpkfj43t7npojy'
 ROOT = '/data/workspace/leonmingod-cpa'
-ORIGIN = 'https://cpa.leonmingod.com'
+ORIGIN = 'https://public-cpa.leonmingod.com'
 
 
 def instabox(path='', method='GET', data=None, query=None):
@@ -200,12 +200,12 @@ def deploy_gateway():
     url='https://api.cloudflare.com/client/v4/accounts/'+os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()+'/workers/domains'
     registered=False
     try:
-        _,_,raw=api.request(url,'PUT',{'hostname':'cpa.leonmingod.com','service':name,'zone_id':'4f078f06b815a404337c3b5387c45275','environment':'production'},
+        _,_,raw=api.request(url,'PUT',{'hostname':'public-cpa.leonmingod.com','service':name,'zone_id':'4f078f06b815a404337c3b5387c45275','environment':'production'},
                             {'Authorization':'Bearer '+os.environ['CLOUDFLARE_API_TOKEN'].strip()})
         registered=bool(json.loads(raw).get('success'))
     except RuntimeError:
         pass
-    record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'cpa.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
+    record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'public-cpa.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
 
 
 def deploy_guard_origin():

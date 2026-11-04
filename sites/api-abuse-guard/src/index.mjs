@@ -87,7 +87,7 @@ export default {
   async scheduled(_controller,_env,ctx){
     // The InstaBox service can pause after inactivity. This health request is
     // exempt from abuse accounting and keeps the API process warm.
-    ctx.waitUntil(fetch('https://cpa.leonmingod.com/healthz',{
+    ctx.waitUntil(fetch('https://public-cpa.leonmingod.com/healthz',{
       headers:{'User-Agent':'LeonMinGod-CPA-Warmup/1.0','Cache-Control':'no-cache'}
     }).then(response=>{if(!response.ok)throw new Error(`CPA health returned ${response.status}`)}));
   }
