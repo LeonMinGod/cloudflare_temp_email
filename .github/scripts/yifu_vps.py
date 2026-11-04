@@ -179,6 +179,9 @@ def main():
             elif mode=='rollback-safety':
                 from yifu_safety import rollback_safety
                 rollback_safety(client,sftp)
+            elif mode=='verify-safety':
+                from yifu_safety import verify_safety
+                verify_safety(client,sftp)
             elif mode=='status':
                 from yifu_safety import inspect_resources
                 report('status',inspect_resources(client,sftp))

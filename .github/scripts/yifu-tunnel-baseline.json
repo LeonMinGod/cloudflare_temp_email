@@ -1,0 +1,28 @@
+{
+  "ingress": [
+    {
+      "path": "^/_pool/.*$",
+      "service": "http://127.0.0.1:8318",
+      "hostname": "yifu-origin.leonmingod.com"
+    },
+    {
+      "service": "http://127.0.0.1:8317",
+      "hostname": "yifu-origin.leonmingod.com"
+    },
+    {
+      "path": "^/_pool/.*$",
+      "service": "http://127.0.0.1:8318",
+      "hostname": "yifu.leonmingod.com"
+    },
+    {
+      "service": "http://127.0.0.1:8317",
+      "hostname": "yifu.leonmingod.com"
+    },
+    {
+      "service": "http_status:404"
+    }
+  ],
+  "warp-routing": {
+    "enabled": false
+  }
+}

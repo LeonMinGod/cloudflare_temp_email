@@ -3,6 +3,7 @@ import json
 import copy
 import base64
 import hashlib
+import hmac
 import os
 from pathlib import Path
 import shlex
@@ -66,20 +67,14 @@ def route_gateway(config):
     return result
 
 
-def tunnel(method='GET', config=None):
-    import yifu_key_api as api
-    path = '/accounts/' + os.environ['CLOUDFLARE_ACCOUNT_ID'].strip() + '/cfd_tunnel/' + TUNNEL + '/configurations'
-    body = {'config': config} if config is not None else None
-    raw = api.request('https://api.cloudflare.com/client/v4' + path, method, body,
-        {'Authorization': 'Bearer ' + os.environ['CLOUDFLARE_API_TOKEN'].strip()})[2]
-    result = json.loads(raw)
-    if not result.get('success'):
-        raise RuntimeError('Tunnel configuration request rejected')
-    return result['result']
-
 
 def keys_of(config):
     return (config.get('access') or {}).get('api-keys', config.get('api-keys', []))
+
+
+def config_mac(value):
+    from yifu_vps import ops_secret
+    return hmac.new(ops_secret().encode(), json.dumps(value, sort_keys=True, separators=(',', ':')).encode(), hashlib.sha256).hexdigest()
 
 
 def logging_values(config):
@@ -156,7 +151,7 @@ def apply_safety(client, sftp):
     credentials = auth_state(sftp)
     if before['bootstrap_enabled'] or before['services']['yifu-cpa']['ActiveState'] != 'active':
         raise RuntimeError('CPA baseline is not safe for an update')
-    old_tunnel = tunnel()['config']
+    old_tunnel = json.loads(Path('.github/scripts/yifu-tunnel-baseline.json').read_text())
     new_tunnel = route_gateway(old_tunnel)
     inventory = public_probe(original)
     if inventory.get('http') != 200 or not inventory.get('models'):
@@ -188,7 +183,6 @@ def apply_safety(client, sftp):
     unit = '[Unit]\nDescription=Yifu bounded streaming admission gateway\nAfter=network-online.target yifu-cpa.service\n\n[Service]\nType=simple\nUser=cpa\nGroup=cpa\nWorkingDirectory=/opt/yifu-cpa\nEnvironment=GOMEMLIMIT=32MiB\nExecStart=/opt/yifu-cpa/bin/yifu-gateway\nRestart=on-failure\nRestartSec=3\nTimeoutStopSec=infinity\nUMask=0077\nNoNewPrivileges=true\n\n[Install]\nWantedBy=multi-user.target\n'
     write(sftp, ROOT + '/systemd/yifu-gateway.service', unit, 0o644)
     run(client, 'install -m 0644 /opt/yifu-cpa/systemd/yifu-gateway.service /etc/systemd/system/yifu-gateway.service; systemctl daemon-reload; systemctl enable --now yifu-gateway >/dev/null 2>&1')
-    modified_tunnel = False
     try:
         ready = False
         for _ in range(20):
@@ -206,21 +200,6 @@ def apply_safety(client, sftp):
         write_config(client, sftp, patched)
         write(sftp, ROOT + '/systemd/yifu-journal.conf', JOURNAL, 0o644)
         run(client, 'install -d -m 0755 /etc/systemd/journald.conf.d; install -m 0644 /opt/yifu-cpa/systemd/yifu-journal.conf /etc/systemd/journald.conf.d/60-yifu-budget.conf; systemctl restart systemd-journald')
-        # Re-read before routing so a concurrent operator's Tunnel changes are preserved.
-        if tunnel()['config'] != old_tunnel:
-            raise RuntimeError('Tunnel changed concurrently; refusing to overwrite')
-        tunnel('PUT', new_tunnel);modified_tunnel = True
-        after_models = None
-        for _ in range(20):
-            after_models = public_probe(patched)
-            if after_models.get('http') == 200 and after_models.get('admission') == 'v1':break
-            time.sleep(1)
-        if after_models.get('http') != 200 or after_models.get('admission') != 'v1':
-            raise RuntimeError('Public gateway readiness failed')
-        after_inference = {kind: public_probe(patched, model, stream) for kind, stream in [('nonstream', False), ('stream', True)]} if model else {}
-        for kind, prior in baseline.items():
-            if prior.get('generated') and (not after_inference[kind].get('generated') or (kind == 'stream' and not after_inference[kind].get('done'))):
-                raise RuntimeError('Previously working generation failed after update')
         after = inspect_resources(client, sftp)
         current_config = yaml.safe_load(read(sftp, ROOT + '/private/config.yaml'))
         assert keys_of(current_config) == keys_of(original), 'Static key configuration changed'
@@ -233,15 +212,15 @@ def apply_safety(client, sftp):
         assert all(after_auth.get(name) == disabled for name, disabled in credentials.items()), 'Existing credential set/disabled state changed'
         assert not after['bootstrap_enabled']
         backup(client, sftp, 'backup-after')
-        report('safety', {'global_inflight': 4, 'per_key_inflight': 2, 'queued_maximum': 4, 'queue_wait_seconds': 2,
-            'maximum_body_mib': 16, 'retry_after_seconds': 2, 'binary_sha256': expected,
-            'cpa_tunnel_monitor_pids_unchanged': True, 'static_keys_unchanged': True, 'auths_disabled_flags_preserved': True,
-            'logging': LOGS, 'journald_persistent_max_mib': 32, 'journald_runtime_max_mib': 16,
-            'models': after_models['models'], 'model': model, 'baseline_inference': baseline, 'after_inference': after_inference,
-            'disk_bytes': after['disk_bytes'], 'database_bytes': after['database_bytes']})
+        state = {'before': before, 'config_mac': config_mac(config_without_limits(original)),
+                 'keys_mac': config_mac(keys_of(original)), 'credentials': credentials,
+                 'baseline_inference': baseline, 'model': model, 'binary_sha256': expected}
+        write(sftp, ROOT + '/private/safety-staged-v1.json', json.dumps(state))
+        report('safety-staged', {'local_gateway_ready': True, 'requires_tunnel_activation': True,
+            'global_inflight': 4, 'per_key_inflight': 2, 'queue': 4, 'logging': LOGS,
+            'existing_processes_unchanged': True, 'baseline_inference': baseline,
+            'binary_sha256': expected})
     except Exception:
-        if modified_tunnel and tunnel()['config'] == new_tunnel:
-            tunnel('PUT', old_tunnel)
         current_config = yaml.safe_load(read(sftp, ROOT + '/private/config.yaml'))
         if config_without_limits(current_config) == config_without_limits(original):
             write_config(client, sftp, patch_logs(current_config, logging_values(original)))
@@ -259,10 +238,6 @@ def rollback_safety(client, sftp):
     from yifu_vps import read, write, run, backup, report
     backup(client, sftp, 'backup-before')
     baseline = json.loads(read(sftp, ROOT + '/private/safety-baseline-v1.json'))
-    current = tunnel()['config']
-    if current not in [baseline['tunnel'], route_gateway(baseline['tunnel'])]:
-        raise RuntimeError('Tunnel changed since safety deployment; manual review required')
-    tunnel('PUT', baseline['tunnel'])
     config = yaml.safe_load(read(sftp, ROOT + '/private/config.yaml'))
     write_config(client, sftp, patch_logs(config, baseline['logging']))
     path = '/etc/systemd/journald.conf.d/60-yifu-budget.conf'
@@ -273,5 +248,35 @@ def rollback_safety(client, sftp):
         with sftp.open(path, 'wb') as file:file.write(base64.b64decode(baseline['journal'], validate=True))
     run(client, 'systemctl restart systemd-journald')
     backup(client, sftp, 'backup-after')
-    report('safety-rollback', {'direct_cpa_route_restored': True, 'gateway_left_running_to_drain': True,
+    report('safety-rollback', {'route_restore_via_connected_cloudflare_required': True, 'gateway_left_running_to_drain': True,
         'auths_and_keys_not_restored_from_snapshot': True})
+
+
+def verify_safety(client, sftp):
+    from yifu_vps import read, backup, report
+    state = json.loads(read(sftp, ROOT + '/private/safety-staged-v1.json'))
+    config = yaml.safe_load(read(sftp, ROOT + '/private/config.yaml'))
+    assert config_mac(keys_of(config)) == state['keys_mac'], 'Static keys changed'
+    assert config_mac(config_without_limits(config)) == state['config_mac'], 'Non-logging configuration changed'
+    assert logging_values(config) == LOGS
+    inventory = public_probe(config)
+    assert inventory.get('http') == 200 and inventory.get('admission') == 'v1', 'Gateway route not active'
+    inference = {kind: public_probe(config, state['model'], stream) for kind, stream in [('nonstream', False), ('stream', True)]} if state['model'] else {}
+    for kind, prior in state['baseline_inference'].items():
+        if prior.get('generated'):
+            assert inference[kind].get('generated') and (kind != 'stream' or inference[kind].get('done')), 'Previously working inference failed'
+    after = inspect_resources(client, sftp)
+    for name in ['yifu-cpa', 'yifu-tunnel', 'yifu-monitor']:
+        assert after['services'][name]['ActiveState'] == 'active'
+        assert after['services'][name]['MainPID'] == state['before']['services'][name]['MainPID'], 'Existing application restarted'
+    credentials = auth_state(sftp)
+    assert all(credentials.get(name) == disabled for name, disabled in state['credentials'].items()), 'Credential disabled state changed'
+    assert not after['bootstrap_enabled']
+    backup(client, sftp, 'backup-after')
+    report('safety', {'global_inflight': 4, 'per_key_inflight': 2, 'queued_maximum': 4,
+        'queue_wait_seconds': 2, 'maximum_body_mib': 16, 'retry_after_seconds': 2,
+        'binary_sha256': state['binary_sha256'], 'cpa_tunnel_monitor_pids_unchanged': True,
+        'static_keys_unchanged': True, 'auths_disabled_flags_preserved': True,
+        'logging': LOGS, 'journald_persistent_max_mib': 32, 'journald_runtime_max_mib': 16,
+        'models': inventory['models'], 'model': state['model'], 'after_inference': inference,
+        'resources': after})
