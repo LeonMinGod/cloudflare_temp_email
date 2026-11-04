@@ -4,7 +4,7 @@ on:
     inputs:
       mode:
         type: choice
-        options: [verify-stage, verify, status, deploy-monitor, publish-guard, configure-pool, seed-pool, backup, apply-safety, rollback-safety]
+        options: [verify-stage, verify, status, deploy-monitor, publish-guard, configure-pool, seed-pool, backup, apply-safety, verify-safety, rollback-safety]
         default: verify
 permissions:
   contents: read
