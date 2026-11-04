@@ -1,5 +1,29 @@
 # LeonMinGod 网站更新记录
 
+## v62：公益 CPA 迁到 VPS，号池采集和历史改用 SQLite
+
+生产主站 `8419c16f-c7c5-4b90-aa89-21e087b26b8c`，入口不变。公益 API 为
+`https://yifu.leonmingod.com/v1`，与用户本机 `cpa.leonmingod.com` 严格隔离。
+恢复的13份公益凭证（10停用）、四把静态Key和管理密码保留；移除启动时旧bootstrap恢复，
+失效的三份启用凭证由用户迁移后重新授权，不借本机账号。
+
+号池五分钟采集、十五分钟历史存档改在VPS运行，SQLite WAL持久化；网站只签名转发脱敏结果。
+原CF历史与modelUsage受保护导入，CF监控alarm退休。旧InstaBox保活、临时域名和8317发布端口撤下，
+本项目服务停用，其他共享项目未动。网站、邮箱Key注册表、鉴权限流及游戏仍在CF。
+
+旧Render和临时public-cpa地址在现有保存Key中自动迁为yifu，Key本身及本机地址不变。
+当前脚本claim-v11/app-v18/verify-v3/verify-flow-v3/saved-key-v2/ccswitch-v2，旧不可变资源保留。
+CC Switch默认名包含“义父公益”，模型仍用当前Key实时读取/v1/models。
+原11个绑定和存储命名空间保留，增加普通URL配置VPS_POOL_ENDPOINT。
+
+网站65项、监控4项、风控22项通过；stage41853618316、publish41854967863。
+apex/www真实号池200、backend=vps、13账号/35模型、非stale且脱敏；14个新脚本内容匹配（换行符归一）。
+四把静态Key与临时个人Key各返回35模型，临时记录已删除。手机浏览器35模型卡无横向溢出。
+导入41855170914与加密备份41855698933成功。推理未验收成功，仍待用户重新授权。
+运维详见根目录YIFU_VPS_HANDOFF_CN.md，证据verification/v62-*.json。
+旧Render更新记录属于历史，不能照下文旧流程重新部署。尚未配置自动备份。
+
+
 ## v61：状态优先，同状态按调用次数排序
 
 默认顺序为正常、冷却中、异常、未观测、已停用，再按同状态内的调用次数从多到少。

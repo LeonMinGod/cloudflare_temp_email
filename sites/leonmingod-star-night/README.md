@@ -17,9 +17,20 @@ Deploy through `.github/workflows/leonmingod-star-night.yaml`, staging before pu
 
 The game uses native image_gen raster art, optimized as WebP. The shared v8 engine with the live-v1 protocol drives 45-second, 24-jade, two-shield browser play and server replay. Rage begins at 19 collected jade (five remaining); at 24, pure survival continues to 45 seconds. Defeats show one of ten emoji/poetic taunts with a direct oath-claim link. Old v1-v6 reward protocols are retired: refresh and restart; the three-minute credential lifetime remains a run expiry, not an API key expiry. Offline simulated win rates are calibration evidence, not measured human pass rates.
 
-Production release: parent `366eeb9c-ce76-4ba5-a695-11fc702a9724` (v60), forwarder `51a33be8-6ca4-4b4f-886f-613bfea996b0`. The previous release is v59 `401ac7d3-59af-4c00-81fa-cc6a7b6d020b`; it restores one-minute polling, so prefer a forward fix during quota pressure. Older v54 is `f1872be0-f97d-4890-9800-0f2f3eb19cf5`. Read the handoff before rollback: its old alarm handler would clear the dedicated pool object; prefer a forward fix when retaining v55 counts. Older v52 with the status Secret is `8f82f2d1-4a50-4d5f-be05-2ac71c7e484d`. The unchanged forwarding code binds `SITE` to the parent's named `Site` entrypoint so existing HTML reaches the current handler before the retained asset set. Preserve this binding and the more specific routes. New root-level resources should use versioned URLs.
+Production release v62: parent `8419c16f-c7c5-4b90-aa89-21e087b26b8c`, forwarder
+`51a33be8-6ca4-4b4f-886f-613bfea996b0`. Public CPA is **https://yifu.leonmingod.com/v1**
+on the dedicated VPS; the user's local `cpa.leonmingod.com` must stay independent.
+Pool reads now use a signed VPS relay and SQLite, preserving five-minute refresh,
+fifteen-minute checkpoints and imported history. Personal key auth/game state remain
+on CF. See [VPS operations](../../YIFU_VPS_HANDOFF_CN.md). Original 11 bindings plus
+VPS_POOL_ENDPOINT are retained; never directly deploy the incomplete asset mirror.
+Old Render/InstaBox procedures below are historical and must not be executed.
 
-The live game page loads `app-v17.mjs`; the oath page loads `claim-v10.mjs`. Pause/resume controls, keyboard pause and automatic focus/background pause are removed by explicit user request. Advance combat/countdown by real elapsed time and settle hidden frames before accepting new input. Do not restore pause behavior from historical clients.
+The live game uses `app-v18.mjs`, oath claim `claim-v11.mjs`, verification
+`verify-v3.mjs`, saved-key `saved-key-v2.mjs`, and CC Switch `ccswitch-v2.mjs`.
+Only old Render/temporary public-cpa saved URLs normalize to yifu; local CPA stays
+unchanged and cannot be imported as a public provider. No keys/storage records rotate.
+Pause/resume, keyboard pause and focus/background auto-pause remain removed.
 
 Fairness: v5 uses constant sword paths without ricochet and stable three-lane wall gaps protected from overlapping swords. Public instructions list only win conditions; do not reveal upcoming final-five mechanics.
 

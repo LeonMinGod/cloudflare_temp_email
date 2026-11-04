@@ -1,5 +1,7 @@
 # LeonMinGod star-night handoff (2026-10-25)
 
+> Current v62 uses the dedicated VPS. Read [VPS deployment](yifu-vps.md) and the root handoff first; the records below are historical.
+
 > **Historical handoff archive.** Use the [current v52 handoff](https://github.com/928886540/cloudflare_temp_email/blob/codex/free-token-home-20261024/LEONMINGOD_HANDOFF_CN.md) for per-email keys and deployment instructions. Shared-key statements and current-version labels below describe historical releases.
 
 ## v8: ward deflection/pickups, arrival glints and feedback

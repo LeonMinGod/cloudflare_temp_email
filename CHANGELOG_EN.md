@@ -10,7 +10,7 @@
 
 ### Features
 
-- feat: |CPA InstaBox| Move CPA, pool reads, CC Switch and saved-key endpoints to yifu.leonmingod.com; persist original configuration and credentials, with cooldown-aware recovery, encrypted backups and cloud handoff
+- feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
 
 - feat: |LeonMinGod| Add CC Switch import with live models and an anonymous pool dashboard; refresh four star-sea backgrounds, animate an independent jade orb, and enable stronger flow by default
 

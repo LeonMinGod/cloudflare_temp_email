@@ -1,5 +1,9 @@
 # CPA 异常请求防护
 
+> 2026-11-04当前公益CPA已迁到 `https://yifu.leonmingod.com/v1`，不再使用Render。
+> 风控当前版本 `2a78e1ae-ed5b-4aec-8b05-4c024527dd3a`，鉴权/限流与IP策略及存储保留，保活cron已清空。
+> 下文Render版本是历史记录；运维以[根交接](../../YIFU_VPS_HANDOFF_CN.md)为准。
+
 当前生产版本：Cloudflare Worker `aa5ad0b9-61a2-4411-bba6-c7d9678a3304`；Render
 部署 `dep-dbgcpsuk1f9s73c08pg0`，CPA 提交
 `194c48ee7f8d8fd05b15bda6a0b1e5836251689e`。发布与真实阈值验收见

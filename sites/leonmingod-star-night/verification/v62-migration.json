@@ -1,0 +1,42 @@
+{
+  "deployed_cpa_source": "bf86b75181a2fff5b74a5345cf1e1057da3e45d3",
+  "cpa_documentation_commit": "dcc6be7f",
+  "stage_run": 41853618316,
+  "publish_run": 41854967863,
+  "verify_run": 41854092824,
+  "seed_history_run": 41855170914,
+  "encrypted_backup_run": 41855698933,
+  "website_tests": 65,
+  "monitor_tests": 4,
+  "guard_tests": 22,
+  "static_keys_verified": 4,
+  "model_counts": [
+    35,
+    35,
+    35,
+    35
+  ],
+  "public_credentials": 13,
+  "disabled_credentials": 10,
+  "pool_history_imported": true,
+  "sqlite_in_encrypted_backup": true,
+  "instabox_own_service": "inactive/disabled",
+  "instabox_own_port_8317_unpublished": true,
+  "other_instabox_port_8787_preserved": true,
+  "old_gateway_cron_cleared": true,
+  "old_gateway_instabox_secret_removed": true,
+  "temporary_public_cpa_domain_detached": true,
+  "retired_workflows": [
+    "cpa-instabox.yaml",
+    "connect-render-free-token.yaml",
+    "issue-yifu-key.yaml",
+    "stage-render-free-token.yaml",
+    "yifu-add-key.yaml",
+    "yifu-remove-key.yaml",
+    "deploy-free-token-home.yaml"
+  ],
+  "render_resumed": false,
+  "local_cpa_used_as_credential_source": false,
+  "inference_verified": false,
+  "user_reauthorization_required": true
+}

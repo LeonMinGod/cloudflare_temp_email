@@ -1,0 +1,28 @@
+{
+  "backend": "Cloudflare Browser Rendering",
+  "public_mobile_pool": {
+    "viewport": [
+      393,
+      852
+    ],
+    "model_cards": 35,
+    "horizontal_overflow": false,
+    "script": "model-status/status-v7.mjs"
+  },
+  "public_desktop_saved_key_and_ccswitch": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "base_url": "https://yifu.leonmingod.com/v1",
+    "dummy_key_preserved": true,
+    "local_cpa_origin_unchanged": true,
+    "default_name": "义父公益 · Codex",
+    "model_options_including_placeholder": 2,
+    "horizontal_overflow": false,
+    "models_mocked": true,
+    "native_app_launched": false,
+    "real_auth_request_sent": false
+  },
+  "screenshots_generated": true
+}

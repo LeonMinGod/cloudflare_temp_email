@@ -1,5 +1,7 @@
 # LeonMinGod 星夜版交接（2026-10-25）
 
+> 当前v62已迁移VPS，请先读[公益VPS部署](yifu-vps.md)和根目录最新交接；下文为历史记录。
+
 > **历史交接归档。** 当前 v52、邮箱专属 Key 与发布方式请以[最新交接文档](https://github.com/928886540/cloudflare_temp_email/blob/codex/free-token-home-20261024/LEONMINGOD_HANDOFF_CN.md)为准。下文的共享 Key 和“当前版本”均是当时状态，不可直接执行。
 
 ## v8：护罩弹剑与拾取、剑光预兆和反馈
