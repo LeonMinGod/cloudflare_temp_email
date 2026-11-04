@@ -160,7 +160,9 @@ def main():
             if mode in ['verify','verify-stage']:verify(client,sftp,mode=='verify-stage')
             elif mode=='deploy-monitor':deploy_monitor(client,sftp)
             elif mode=='backup':backup(client,sftp)
-            elif mode=='status':report('status',{'services':run(client,'systemctl is-active yifu-cpa yifu-tunnel yifu-monitor').splitlines(),'memory':run(client,'free -m'),'disk':run(client,'df -h /')})
+            elif mode=='status':
+                from yifu_safety import inspect_resources
+                report('status',inspect_resources(client,sftp))
             else:raise RuntimeError('Unknown VPS operation')
     finally:client.close()
 
