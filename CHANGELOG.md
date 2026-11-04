@@ -10,6 +10,8 @@
 
 ### Features
 
+- docs: |公益 CPA VPS| 补齐 Tunnel 域名映射、开机自启、只读排查和云端 Secrets 使用说明，提供可复制接手话术
+
 - feat: |公益 CPA VPS| 将 CPA 和号池采集迁到独立 VPS，固定 yifu.leonmingod.com，使用 SQLite 保存监控历史；保留原 Key/OAuth，更新 CC Switch 地址和加密备份，停用 Render/InstaBox 旧运维
 
 - feat: |LeonMinGod| 新增 CC Switch 实时模型导入与匿名号池状态页；重做星海天阙四张背景、独立浮动玉球，默认开启并增强流光

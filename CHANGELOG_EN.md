@@ -10,6 +10,8 @@
 
 ### Features
 
+- docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
+
 - feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
 
 - feat: |LeonMinGod| Add CC Switch import with live models and an anonymous pool dashboard; refresh four star-sea backgrounds, animate an independent jade orb, and enable stronger flow by default

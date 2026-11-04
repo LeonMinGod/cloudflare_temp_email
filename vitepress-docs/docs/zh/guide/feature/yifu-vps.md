@@ -21,3 +21,7 @@ GitHub Secrets使用YIFU_SSH_HOST/PORT/USER/PRIVATE_KEY/KNOWN_HOSTS、YIFU_BACKU
 旧Render/共享Key和InstaBox流程已禁用，不得作为常规工具重新启用。
 
 完整主机指纹、路径、版本、验收和恢复步骤见[当前VPS交接](https://github.com/LeonMinGod/cloudflare_temp_email/blob/codex/free-token-home-20261024/YIFU_VPS_HANDOFF_CN.md)。
+
+域名映射使用VPS上的cloudflared和开机自启yifu-tunnel.service，保留既有DNS/Tunnel/token。
+云端会话通过受保护Actions使用GitHub Secrets，clone不自动注入Secret明文。
+可复制接手话术见[云端接手入口](https://github.com/LeonMinGod/cloudflare_temp_email/blob/codex/free-token-home-20261024/CLOUD_CODEX_START_CN.md)。

@@ -31,3 +31,7 @@ Old Render/shared-key and InstaBox workflows are disabled and must not be reused
 
 See the [current operational handoff](https://github.com/LeonMinGod/cloudflare_temp_email/blob/codex/free-token-home-20261024/YIFU_VPS_HANDOFF_CN.md)
 for host verification, paths, versions, evidence and recovery steps.
+
+Domain routing uses cloudflared on the VPS with the boot-enabled yifu-tunnel.service; preserve existing DNS, Tunnel and token.
+Cloud sessions should use GitHub Secrets through protected Actions; cloning does not inject secret values.
+See the [copyable cloud handoff](https://github.com/LeonMinGod/cloudflare_temp_email/blob/codex/free-token-home-20261024/CLOUD_CODEX_START_CN.md).
