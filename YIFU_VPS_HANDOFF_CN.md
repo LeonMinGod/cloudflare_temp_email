@@ -1,6 +1,6 @@
 # 义父公益 CPA：VPS 运维交接
 
-更新于 2026-11-04。本文不含密钥值。公益 CPA 已迁到新 LXD VPS，Render 与 InstaBox 都不是生产后端。
+更新于 2026-11-05（北京时间）。本文不含密钥值。公益 CPA 已迁到新 LXD VPS，Render 与 InstaBox 都不是生产后端。
 
 ## 入口与隔离
 
@@ -14,11 +14,11 @@
 ## 实际资源与拓扑
 
 SSH `root@23.94.180.2 -p 55014`；Debian 13 amd64，LXD 容器 `lxd1145150976763`。
-实测内存 488 MiB、swap 488 MiB、根盘约 1.2 GiB；迁移后约 828 MiB 可用。
-CPA、隧道、监控服务的当前内存合计约 70 MiB，不代表高并发容量测试。
+实测内存 488 MiB、swap 488 MiB、根盘约 1.2 GiB；本轮验收约 824 MiB 磁盘可用。
+CPA、隧道、监控与网关的cgroup内存合计约75MiB，系统可用内存约412MiB；这是当时快照，不代表生产高并发容量测试。
 
 ```text
-模型客户端 → yifu.leonmingod.com → Cloudflare Tunnel → 127.0.0.1:8317 CPA
+模型客户端 → yifu.leonmingod.com → Cloudflare Tunnel → 127.0.0.1:8319 并发网关 → 8317 CPA
 网站 /api/pool-status → 签名 RPC /_pool/status → 127.0.0.1:8318 监控 → 本地 CPA
                                                          ↕
                                               /opt/yifu-cpa/data/pool.sqlite
@@ -38,6 +38,7 @@ Cloudflare Tunnel 不经过旧的保活 Worker。监控采集、五分钟刷新�
 | 路径或服务 | 用途 |
 | --- | --- |
 | `bin/CLIProxyAPI` | 公益 CPA 二进制 |
+| `bin/yifu-gateway` | 小型Go并发网关，源码 `sites/yifu-vps-gateway/` |
 | `bin/cloudflared`、`bin/node` | Tunnel；Node v24.22.2 监控运行时 |
 | `private/config.yaml` | 原配置及 4 把独立静态 Key |
 | `private/runtime.env` | 管理密码、远程鉴权配置、`GOMEMLIMIT=160MiB` |
@@ -48,16 +49,20 @@ Cloudflare Tunnel 不经过旧的保活 Worker。监控采集、五分钟刷新�
 | `static/management.html` | 保留的管理页面 |
 | `data/pool.sqlite` | WAL 模式的号池缓存、控制闸门及历史用量 |
 | `monitor/sites/` | 监控与复用的号池模块 |
-| `systemd/` | 三份 unit 文件的留档 |
+| `systemd/` | 四份 unit 和 journal 限额的留档 |
 | `yifu-cpa.service` | CPA，仅监听 `127.0.0.1:8317` |
 | `yifu-tunnel.service` | 受管理 Cloudflare Tunnel |
 | `yifu-monitor.service` | 监控，仅监听 `127.0.0.1:8318`，Node heap 上限 64 MiB |
+| `yifu-gateway.service` | 仅监听 `127.0.0.1:8319`，转8317，`GOMEMLIMIT=32MiB` |
+| `private/safety-baseline-v1.json` | 保护安装前的日志和Tunnel配置，仅供定向回滚 |
+| `private/safety-staged-v1.json` | 安装基线校验记录，不得公开其中凭证文件名 |
 
 **新 VPS 已删除 `CPA_OAUTH_BOOTSTRAP_FILE` 环境变量。不要恢复它，否则旧 Render 快照可能在重启后复活已删凭证。**
 不要重新运行历史迁移或 restore；用户后续重新授权的文件只能留在当前持久目录，并在更新前做新备份。
 
 部署 CPA 代码提交 `bf86b75181a2fff5b74a5345cf1e1057da3e45d3`；迁移没有改 Go 业务代码。
 二进制 SHA256 `0bb9b4db2fcb742f44e0a37283001d6db6800874094f8a973d2560c1d23700b6`。
+新增网关二进制 SHA256 `788a3388ed840d78607271d61bd96353ee72b5b46ba468772d5110271e799e17`，本轮未重新部署CPA二进制。
 cloudflared 2026.10.7，SHA256 `1f99fb518b83dec2ba8d870a7cc991d82a77e6196295a3d2754ba17ab9f91872`。
 SSH 主机指纹 `SHA256:8l68r+SGZt/kjBcHESsbnkpkGk2AsFaBwgJqXiAeF98`，工作流严格校验 known_hosts。
 
@@ -66,29 +71,30 @@ SSH 主机指纹 `SHA256:8l68r+SGZt/kjBcHESsbnkpkGk2AsFaBwgJqXiAeF98`，工作�
 账号 `855d4f34079c0fa88e70628ff65be84a`；zone `4f078f06b815a404337c3b5387c45275`。
 Tunnel `yifu-cpa-lxd-20261104` / `de798c3f-002c-4a28-8e7f-baa9780cfe6b`。
 `yifu` 与诊断别名是 proxied CNAME 到该 Tunnel 的 `cfargotunnel.com` 地址。
-两域名下 `^/_pool/.*$` 先路由到 8318，其余到 8317，末尾 catchall 404。
+两域名下 `^/_pool/.*$` 先路由到 8318，其余到 8319 再转8317，末尾 catchall 404。Tunnel配置当前version=3。
 
 ### 域名如何连到新 VPS
 
 新 VPS 已安装 `/opt/yifu-cpa/bin/cloudflared`，由 `yifu-tunnel.service` 管理，开机自启、异常自动重启。
 DNS 的完整目标是 `de798c3f-002c-4a28-8e7f-baa9780cfe6b.cfargotunnel.com`。
-cloudflared 主动向 Cloudflare 建立连接，公网请求经 Tunnel 到本地 CPA/监控，无需额外公开8317或8318。
+cloudflared 主动向 Cloudflare 建立连接，公网请求经 Tunnel 到本地网关/监控，无需额外公开8317、8318或8319。
 这是远程托管的 Tunnel，ingress 由 Cloudflare 配置；私密 token 位于 `private/cloudflared.token`，禁止输出其内容。
 更新网站或 CPA 时应保留此 Tunnel、DNS 和 token，不必另建隧道或把域名改到用户本机。
 
 SSH 登录后可先进行以下只读检查：
 
 ```sh
-systemctl is-active yifu-cpa yifu-tunnel yifu-monitor
+systemctl is-active yifu-cpa yifu-tunnel yifu-monitor yifu-gateway
 systemctl is-enabled yifu-tunnel
 curl -fsS http://127.0.0.1:8317/healthz
+curl -fsS http://127.0.0.1:8319/_gateway/healthz
 curl -fsS https://yifu.leonmingod.com/healthz
 ```
 
 本地 healthz 正常但公网失败时先检查 Tunnel 连接和 DNS；公网 healthz 正常但网站号池失败时，
 先检查8318监控和签名转发，不要直接重启CPA、覆盖凭证或改用户本机域名。
 
-网站主 Worker v62：`8419c16f-c7c5-4b90-aa89-21e087b26b8c`。
+网站主 Worker v63：`fe123ce3-a104-43df-a4b8-abbf8ff07322`，可回滚到仍使用VPS的v62 `8419c16f-c7c5-4b90-aa89-21e087b26b8c`。
 入口 `leonmingod-free-token`：`51a33be8-6ca4-4b4f-886f-613bfea996b0`，保留 `SITE` → 主站命名入口 `Site`。
 主站保留原 11 个绑定，新增一个普通配置 `VPS_POOL_ENDPOINT=https://yifu.leonmingod.com/_pool/status`。
 `GAME_RUNS` namespace `2dffacc2783647f0bec81263501de5e1` 与 KV `1b02d139375045f7a7d5ce2d994abd2c` 均保留。
@@ -120,6 +126,7 @@ GitHub Secrets 的值不会随 clone 自动进入云端会话，也不能通过�
 gh workflow run yifu-vps.yaml --repo LeonMinGod/cloudflare_temp_email --ref main -f mode=verify
 gh workflow run yifu-vps.yaml --repo LeonMinGod/cloudflare_temp_email --ref main -f mode=status
 gh workflow run yifu-vps.yaml --repo LeonMinGod/cloudflare_temp_email --ref main -f mode=backup
+gh workflow run yifu-vps.yaml --repo LeonMinGod/cloudflare_temp_email --ref main -f mode=verify-safety
 ```
 
 该 workflow 会显式 checkout 维护分支。`deploy-monitor` 更新监控文件并重启监控，**不更新 CPA 二进制**。
@@ -132,20 +139,51 @@ CPA 后续更新：在 CI 构建目标 Linux amd64 二进制、跑对应测试�
 保留上一个二进制再原子替换，启动后核对服务、凭证停用状态、四把静态 Key 与个人 Key。
 失败时恢复旧二进制；不要用旧 OAuth 快照覆盖刷新后的 auths。部署目录不是 Git 工作树，不能直接 git pull。
 
+## 并发与日志保护
+
+网关保护`/v1/`、`/v1beta/`、`/v1alpha/`生成POST及升级连接：全局4并发、每个呈现Key最多2并发，
+最多4个排队、等待2秒；繁忙429带`Retry-After: 2`，请求体最大16MiB。模型列表、健康检查、管理和OAuth回调不占生成槽位。
+HTTP流式与WebSocket连接保持到完成/取消，没有推理或流式截止时间；保留原Host、HTTPS与CF真实客户端头。
+原CPA/CF身份校验及持久化分钟/日限额继续生效；网关只在内存记录当前活跃连接，不新增IP封禁。
+
+日志配置热更新仅三项：`logs-max-total-size-mb: 50`、`error-logs-max-files: 5`、`request-log: false`。
+`/etc/systemd/journald.conf.d/60-yifu-budget.conf`限制持久32MiB、运行时16MiB、7天，保留盘空间256M/64M。
+首次安装只新增网关、重载systemd并重启journal，原CPA/Tunnel/monitor PID保持不变。未清除凭证、Key或历史。
+
+`apply-safety`先新备份、安装本地网关/日志、保留原路由；成功后才通过已连接CF插件把两条普通路由8317改8319。
+池路由8318、DNS、Tunnel ID/token均不改，再跑`verify-safety`检查真实非流式/流式与原数据。
+GitHub旧`CLOUDFLARE_API_TOKEN`访问Tunnel配置API返回401，不能让CI自动切换或回滚Tunnel。
+回滚顺序：用CF插件/控制台只把两条普通路由恢复8317，再执行`rollback-safety`恢复日志/journal。
+网关保持运行让已有流完成；不要恢复旧auths或整份旧config。安装器拒绝直接替换不同SHA的已有网关，后续更新要单独安排排空。
+
 ## 备份与恢复
 
-最近迁移后备份 [41855698933](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41855698933)。
-Actions artifact `yifu-vps-<run_id>` 保留 90 天，其中 `backup.enc.json` 用 AES-256-GCM 加密。
+最近保护安装/复验备份 [41892644325](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41892644325)。
+`yifu-vps-backup.yaml`每天20:30 UTC（北京时间次日04:30）备份，可手动触发，调度可能延迟；
+artifact `yifu-daily-backup-<run_id>`保留14天。手动运维artifact `yifu-vps-<run_id>`保留90天。
+新定时工作流已手动首跑验收 [41892900083](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41892900083)，
+34份文件、加解密回读、SQLite一致性和临时副本清理通过，artifact实际到期时间核对为14天。
+备份文件为`backup.enc.json`或更新前后的`backup-before.enc.json`、`backup-after.enc.json`，用AES-256-GCM加密。
 包含 private、auths、systemd，以及通过 Node SQLite backup API 获取的一致性数据库副本；不含可重新取得的运行二进制。
 密钥为 `SHA256(YIFU_BACKUP_SECRET + "\nyifu-vps-backup-v1")`，AAD 为 `yifu-vps-backup-v1`。
 明文 schema=1，files 映射为相对路径到 base64 内容。恢复时必须验证 AEAD、路径白名单和目标目录，不能盲解压外来路径。
+每次加密后立即解密回读比对、检查凭证JSON和路径；SQLite副本执行quick_check。
+数据库临时副本使用随机私密路径、0600权限，在finally中删除。测试包含篡改、越界路径及不完整凭证的拒绝。
 
 恢复前停止 CPA 与监控；还原到 `/opt/yifu-cpa`、设置 cpa 所有权和私密文件 0600，
 替换 SQLite 时处理停服后的旧 WAL/SHM，再启动服务并检查。整机丢失还须重装校验过的运行二进制及 unit，
-并检查 Tunnel token 与 SSH 主机身份。备份仅为执行时快照，**尚未配置自动定时备份，也未进行整机灾难恢复演练**。
+并检查 Tunnel token 与 SSH 主机身份。备份仅为执行时快照，已有每日自动备份，**尚未进行整机灾难恢复演练**。
 重新授权及每次升级前后都应再备份；artifact 到期前需要另行保存。
 
 ## 本次验收与未完成项
+
+- v63 [stage 41891235425](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41891235425)、[publish 41892132895](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41892132895)成功；66项网站测试通过，分钟/秒显示、手机/电脑及apex/www内容核对通过。
+- 网关9项Go测试和race、5项Python安全/备份测试通过；[安装 41891715566](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41891715566)、[切换复验 41892644325](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41892644325)成功。
+- 新每日备份工作流手动验收41892900083成功，公开证据 `sites/leonmingod-star-night/verification/v63-daily-backup.json`；尚未等待第一次cron触发或进行整机恢复演练。
+- 切换前后真实`gpt-6.1-sol`非流式和流式生成200、流式有DONE；当前模型列表51项。Key、停用状态保留，原CPA/Tunnel/monitor PID未变。不是全部模型的可用性保证。
+- 早期只读资源检查因VPS无Python失败，已改用现有Node；首次安装在CF Tunnel权限检查处401停止，未切业务路由，已改为分开安装/插件激活/复验。不得盲重跑部署以消除历史红灯。
+
+以下为v62迁移时历史验收，启用凭证状态此后可能被用户更新，必须重新查询：
 
 - 网站 65 项、监控 4 项、风控 22 项测试通过。
 - [stage 41853618316](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41853618316)；[publish 41854967863](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41854967863)。
