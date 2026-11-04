@@ -274,7 +274,13 @@ def diagnose():
     import base64
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     request=urllib.request.Request('https://api.github.com/repos/LeonMinGod/cloudflare_temp_email/actions/artifacts/13044371854/zip',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'User-Agent':'CPA-InstaBox-Migration'})
-    with urllib.request.urlopen(request,timeout=60) as response:archive=zipfile.ZipFile(io.BytesIO(response.read()))
+    class ArtifactRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, request, fp, code, message, headers, newurl):
+            redirected=super().redirect_request(request,fp,code,message,headers,newurl)
+            if urllib.parse.urlsplit(request.full_url).hostname!=urllib.parse.urlsplit(newurl).hostname:
+                redirected.remove_header('Authorization')
+            return redirected
+    with urllib.request.build_opener(ArtifactRedirect()).open(request,timeout=60) as response:archive=zipfile.ZipFile(io.BytesIO(response.read()))
     name=next(name for name in archive.namelist() if name.endswith('cpa-before-rollout.enc.json'))
     envelope=json.loads(archive.read(name))
     key=hashlib.sha256((os.environ['RENDER_API_KEY'].strip()+'\ncpa-abuse-rollout-v1').encode()).digest()
