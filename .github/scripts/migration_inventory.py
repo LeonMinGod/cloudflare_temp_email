@@ -48,6 +48,12 @@ def main():
     mode=os.environ['MIGRATION_MODE']
     role=os.environ['MIGRATION_ROLE']
     req=json.loads(Path('.github/migration-request.json').read_text())
+    if role=='source' and req.get('operation')=='combined-export':
+        from migration_snapshot import export
+        from migration_cloudflare import capture_export
+        app=export({**req,'object':req['app_object']})
+        code=capture_export({**req,'object':req['code_object']})
+        return {'status':'passed','role':'source','mode':'export','operation':'combined-export','application':app,'website_code':code}
     if role=='source' and req.get('operation')=='cloudflare-hooks':
         from migration_cloudflare import hooks
         return hooks()

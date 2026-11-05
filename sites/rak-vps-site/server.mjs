@@ -6,7 +6,9 @@ import { createApp } from './app.mjs';
 import { verifyBridge } from './bridge.mjs';
 
 const root=process.env.LMG_ROOT||'/opt/yifu-cpa';
-const config=JSON.parse(fs.readFileSync(root+'/private/site-secrets.json','utf8'));
+const stage=process.env.LMG_SITE_STAGE==='1';
+const marker=root+'/private/site'+(stage?'-stage':'')+'-active';
+const config=JSON.parse(fs.readFileSync(root+'/private/site-secrets'+(stage?'-stage':'')+'.json','utf8'));
 const live=JSON.parse(fs.readFileSync(root+'/website/live/metadata.json','utf8'));
 const site=await import(pathToFileURL(root+'/website/live/site/'+live.workers.site.main));
 const guard=await import(pathToFileURL(root+'/website/live/guard/'+live.workers.guard.main));
@@ -18,8 +20,8 @@ globalThis.fetch=(input,init)=>{
   if(value==='https://yifu.leonmingod.com/_pool/status')return originalFetch('http://127.0.0.1:8318/_pool/status',init);
   return originalFetch(input,init);
 };
-const app=createApp({root:root+'/data/website',site:site.default,guard:guard.default,GameRun:site.GameRun,AbuseState:guard.AbuseState,siteSecrets:config.site,guardSecrets:config.guard});
-if(fs.existsSync(root+'/private/site-active'))app.activate();
+const app=createApp({root:root+'/data/website'+(stage?'-stage':''),site:site.default,guard:guard.default,GameRun:site.GameRun,AbuseState:guard.AbuseState,siteSecrets:config.site,guardSecrets:config.guard});
+if(fs.existsSync(marker))app.activate();
 
 async function bodyOf(incoming){let size=0;const parts=[];for await(const part of incoming){size+=part.length;if(size>1048576)throw Error('Request exceeds limit');parts.push(part);}return Buffer.concat(parts);}
 async function send(outgoing,response,method){
@@ -42,20 +44,20 @@ const external=http.createServer(async(incoming,outgoing)=>{
     const secret=hint?.role==='site'?config.site.FREE_TOKEN_OPS_SECRET:config.guard.SERVICE_SECRET;
     const meta=secret&&verifyBridge(headers,incoming.method,body,secret);
     if(!meta)return send(outgoing,new Response(null,{status:403}),incoming.method);
-    if(!fs.existsSync(root+'/private/site-active'))return send(outgoing,new Response('Origin warming up',{status:503,headers:{'Retry-After':'5','Cache-Control':'no-store'}}),incoming.method);
+    if(!fs.existsSync(marker))return send(outgoing,new Response('Origin warming up',{status:503,headers:{'Retry-After':'5','Cache-Control':'no-store'}}),incoming.method);
     const request=reconstruct(meta,incoming.method,body);
     await send(outgoing,meta.role==='site'?await app.fetchSite(request,{legacy:meta.legacy||{}}):await app.fetchGuard(request),incoming.method);
   }catch{if(!outgoing.headersSent)outgoing.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});outgoing.end('{"error":"Service temporarily unavailable"}');}
 });
 const internal=http.createServer(async(incoming,outgoing)=>{
   try{
-    if(!fs.existsSync(root+'/private/site-active'))return send(outgoing,new Response(null,{status:503}),incoming.method);
+    if(!fs.existsSync(marker))return send(outgoing,new Response(null,{status:503}),incoming.method);
     const body=await bodyOf(incoming);
     const request=new Request('http://guard.local'+incoming.url,{method:incoming.method,headers:incoming.headers,body:['GET','HEAD'].includes(incoming.method)?undefined:body});
     await send(outgoing,await app.fetchGuard(request),incoming.method);
   }catch{outgoing.writeHead(503);outgoing.end();}
 });
-external.listen(8320,'127.0.0.1');internal.listen(8321,'127.0.0.1');
+external.listen(stage?18320:8320,'127.0.0.1');internal.listen(stage?18321:8321,'127.0.0.1');
 console.log('{"event":"website_started","host":"RAKsmart","storage":"sqlite"}');
 for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>{
   external.close(()=>internal.close(async()=>{await app.close();process.exit(0);}));

@@ -1,9 +1,9 @@
 """Consistent source snapshot, encrypted in memory and authenticated to the target."""
-import base64,hashlib,json,os,secrets,shlex,stat,time,urllib.request
+import base64,hashlib,io,json,os,secrets,shlex,stat,tarfile,time,urllib.request
 from pathlib import Path
 import yifu_vps as old
 from migration_crypto import checked_id,seal,sign
-from migration_archive import pack
+from migration_archive import pack,pathcheck,MAX_TOTAL
 
 NODE_SHA='904a6d3484241d466989f9df9ba3aab822b1496191bdb28230eb491a55c32a52'
 
@@ -13,20 +13,40 @@ def fastread(sftp,path):
         return stream.read()
 
 def collect(client,sftp,session,final=False):
-    files={}
-    def walk(relative):
-        for item in sftp.listdir_attr(old.ROOT+'/'+relative):
-            name=relative+'/'+item.filename
-            if stat.S_ISDIR(item.st_mode):
-                if item.filename not in ['node_modules','logs','cache','.git']:walk(name)
-            elif stat.S_ISREG(item.st_mode):
-                if name=='bin/node' or name.endswith(('.sqlite','.sqlite-wal','.sqlite-shm','.log')):continue
-                if item.filename.startswith('.') or item.filename.endswith('-signer.pem'):continue
-                if name.startswith('plus/') and item.filename!='data.key':continue
-                raw=fastread(sftp,old.ROOT+'/'+name)
-                if relative=='auths' and item.filename.endswith('.json'):json.loads(raw)
-                files[name]=(raw,stat.S_IMODE(item.st_mode))
-    for directory in ['private','auths','systemd','bin','monitor','static','plus']:walk(directory)
+    files={};stamp=secrets.token_hex(12);archive=old.ROOT+'/private/.migration-archive-'+stamp+'.tar.gz'
+    listing=old.ROOT+'/private/.migration-list-'+stamp
+    script="""import fs from 'node:fs';import {spawnSync} from 'node:child_process';
+const root='/opt/yifu-cpa',archive=process.argv[1],listing=process.argv[2],final=process.argv[3]==='1';
+const selected=[];
+const names=new Set(['config.yaml','runtime.env','cloudflared.token','cloudflared.yaml','cloudflared.yml','pool-runtime.json','plus-config.json','plus-admin.key']);
+function walk(relative){for(const item of fs.readdirSync(root+'/'+relative,{withFileTypes:true})){
+ const name=relative+'/'+item.name;if(item.isSymbolicLink())continue;
+ if(item.isDirectory()){if(!['logs','cache','node_modules','.git'].includes(item.name))walk(name);continue;}
+ if(!item.isFile()||item.name.startsWith('.')||name==='bin/node'||/\\.(sqlite|sqlite-wal|sqlite-shm|log)$/.test(name))continue;
+ if(relative==='private'&&!names.has(item.name))continue;
+ if(name.startsWith('plus/')&&name!=='plus/data.key')continue;
+ selected.push(name);
+}}
+for(const directory of (final?['private','auths','systemd','plus']:['private','auths','systemd','plus','bin','monitor','static']))walk(directory);
+fs.writeFileSync(listing,selected.join('\\0')+'\\0',{mode:0o600});
+const tar=spawnSync('tar',['--null','--verbatim-files-from','--no-recursion','--hard-dereference','-czf',archive,'-C',root,'-T',listing],{stdio:'ignore'});
+if(tar.status!==0&&tar.status!==1)throw Error('Archive failed');fs.chmodSync(archive,0o600);console.log(JSON.stringify({files:selected.length,bytes:fs.statSync(archive).size}));
+"""
+    try:
+        summary=json.loads(old.run(client,old.ROOT+'/bin/node --input-type=module -e '+shlex.quote(script)+' '+archive+' '+listing+' '+('1' if final else '0')))
+        if summary['bytes']>MAX_TOTAL:raise ValueError('Compressed source archive exceeds bound')
+        raw=fastread(sftp,archive);total=0
+        with tarfile.open(fileobj=io.BytesIO(raw),mode='r:gz') as tar:
+            for member in tar:
+                pathcheck(member.name);total+=member.size
+                if not member.isfile() or member.name in files or total>MAX_TOTAL:raise ValueError('Unsafe source archive')
+                body=tar.extractfile(member).read();files[member.name]=(body,member.mode&0o777)
+                if member.name.startswith('auths/') and member.name.endswith('.json'):json.loads(body)
+        if len(files)!=summary['files']:raise ValueError('Source archive is incomplete')
+    finally:
+        for path in [archive,listing]:
+            try:sftp.remove(path)
+            except FileNotFoundError:pass
     for database in ['data/pool.sqlite','plus/usage.sqlite']:
         temporary=old.ROOT+'/private/.migration-'+secrets.token_hex(12)+'.sqlite'
         try:
@@ -53,8 +73,8 @@ def deliver(raw,kind,req,signer):
     if not receipt.get('received') or receipt['sha256']!=hashlib.sha256(envelope).hexdigest():raise ValueError('Recipient receipt mismatch')
     return receipt
 
-def export():
-    req=json.loads(Path('.github/migration-request.json').read_text());session=checked_id(req['session']);kind=checked_id(req['object'])
+def export(req=None):
+    req=req or json.loads(Path('.github/migration-request.json').read_text());session=checked_id(req['session']);kind=checked_id(req['object'])
     client=old.connect()
     try:
         with client.open_sftp() as sftp:

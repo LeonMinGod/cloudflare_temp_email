@@ -73,7 +73,10 @@ async function migration(request,env){
   }
   return new Response(null,{status:400});
 }
-async function forward(request,env){
+async function forward(request,env,ctx){
+  const staticCache=request.method==='GET'&&!new URL(request.url).pathname.startsWith('/api/')&&/\.(webp|png|jpg|jpeg|gif|ico|svg|css|js|mjs|woff2?)$/.test(new URL(request.url).pathname)&&typeof caches!=='undefined';
+  const cacheKey=staticCache?new Request(request.url,{method:'GET'}):null;
+  if(cacheKey){const cached=await caches.default.match(cacheKey);if(cached)return cached;}
   const body=['GET','HEAD'].includes(request.method)?new Uint8Array():new Uint8Array(await request.arrayBuffer());
   if(body.length>1048576)return new Response(null,{status:413});
   const headers={};for(const name of ['accept','content-type','origin','referer','user-agent','cookie','cache-control','if-none-match','if-modified-since','range','x-lmg-operation','x-cpa-guard']){const value=request.headers.get(name);if(value!==null)headers[name]=value;}
@@ -87,9 +90,10 @@ async function forward(request,env){
   const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
   const message='lmg-origin-v1\n'+JSON.stringify(meta)+'\n'+request.method+'\n'+await hash(body);
   const signature=hex(await crypto.subtle.sign('HMAC',key,enc.encode(message)));
-  const response=await fetch('https://sj.leonmingod.com/_origin/lmg',{method:request.method,headers:{'X-LMG-Origin':b64(enc.encode(JSON.stringify(meta))),'X-LMG-Origin-Signature':signature},body:['GET','HEAD'].includes(request.method)?undefined:body,redirect:'manual'});
+  const response=await fetch('https://sj.leonmingod.com/_origin/lmg',{method:request.method,headers:{'X-LMG-Origin':b64(enc.encode(JSON.stringify(meta))),'X-LMG-Origin-Signature':signature},body:['GET','HEAD'].includes(request.method)?undefined:body,redirect:'manual',cache:'no-store'});
   // Historical public assets outside the current bundled routes remain readable.
   if(isSite&&response.status===404&&['GET','HEAD'].includes(request.method)&&!new URL(request.url).pathname.startsWith('/api/'))return env.ASSETS.fetch(request);
+  if(cacheKey&&response.status===200&&!response.headers.has('Set-Cookie')&&/immutable/.test(response.headers.get('Cache-Control')||'')){const pending=caches.default.put(cacheKey,response.clone());if(ctx?.waitUntil)ctx.waitUntil(pending);else await pending;}
   return response;
 }
 
@@ -99,7 +103,7 @@ async function fetchSite(request,env,ctx){
   const dynamic=!isSite||path.startsWith('/api/');
   const token=dynamic?crypto.randomUUID():null;
   const state=await command(env,{op:dynamic?'enter':'status',token});
-  if(state.phase==='forward')return forward(request,env);
+  if(state.phase==='forward')return forward(request,env,ctx);
   if(state.phase==='freeze'&&dynamic)return new Response('正在迁移，请稍后重试。',{status:503,headers:{'Retry-After':'10','Cache-Control':'no-store'}});
   try{return await original.fetch(request,env,ctx);}finally{if(token)await command(env,{op:'leave',token});}
 }

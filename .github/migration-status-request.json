@@ -1,3 +1,5 @@
 {
-  "request_id": "20261105T233152-source-status"
+  "request_id": "20261105T234304-source-status",
+  "cancel_run": 42129346189,
+  "expected_head": "7874dc001c20213130a5926af6a280031e86e00d"
 }

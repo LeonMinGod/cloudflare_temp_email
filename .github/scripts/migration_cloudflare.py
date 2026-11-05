@@ -26,8 +26,8 @@ def capture(worker):
     if api.active(worker)!=before:raise ValueError('Live Worker changed during capture')
     return {'worker':worker,'version':before,'settings':settings,'metadata':metadata,'main':main},modules
 
-def capture_export():
-    req=json.loads(Path('.github/migration-request.json').read_text());files={};metadata={'session':req['session'],'workers':{}}
+def capture_export(req=None):
+    req=req or json.loads(Path('.github/migration-request.json').read_text());files={};metadata={'session':req['session'],'workers':{}}
     for role,worker in WORKERS.items():
         row,modules=capture(worker);metadata['workers'][role]=row
         for name,(raw,mime) in modules.items():files['website/live/'+role+'/'+name]=(raw,0o600)
@@ -40,13 +40,6 @@ def capture_export():
     try:
         with client.open_sftp() as sftp:
             signer=old.read(sftp,old.ROOT+'/private/'+req['session']+'-signer.pem')
-            # Durable copy allows future staging to wrap the exact captured modules.
-            path=old.ROOT+'/private/'+req['session']+'-cf-code.json'
-            old.write(sftp,path,json.dumps({'metadata':metadata}))
-            for role,worker in WORKERS.items():
-                row=metadata['workers'][role]
-                modules={name.split('/'+role+'/',1)[1]:{'body':base64.b64encode(raw).decode(),'mime':'application/source-map' if name.endswith('.map') else 'application/javascript+module'} for name,(raw,mode) in files.items() if name.startswith('website/live/'+role+'/')}
-                old.write(sftp,old.ROOT+'/private/'+req['session']+'-cf-'+role+'.json',json.dumps({'metadata':row,'modules':modules}))
             receipt=deliver(payload,req['object'],req,signer)
     finally:client.close()
     return {'status':'passed','role':'source','mode':'export','kind':'cloudflare-code','object':req['object'],'files':len(files),'workers':{role:{'version':row['version'],'bindings':len(row['settings']['bindings'])} for role,row in metadata['workers'].items()},'encrypted_transfer_verified':True,'ciphertext_bytes':receipt['bytes'],'production_unchanged':True}
@@ -67,7 +60,9 @@ def hooks():
             config={'session':session,'signing_public_der':base64.b64encode(signer.public_key().public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo)).decode(),
                     'recipient_public_der':base64.b64encode(recipient.public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo)).decode()}
             for role,worker in WORKERS.items():
-                captured=json.loads(old.read(sftp,old.ROOT+'/private/'+session+'-cf-'+role+'.json'));row=captured['metadata'];settings=row['settings'];bindings=settings['bindings'];main=row['main'];modules=captured['modules']
+                row,captured=capture(worker)
+                if row['version']!=req['expected_versions'][role]:raise ValueError('Live version differs from captured target code')
+                settings=row['settings'];bindings=settings['bindings'];main=row['main'];modules={n:{'body':base64.b64encode(raw).decode(),'mime':mime} for n,(raw,mime) in captured.items()}
                 if api.active(worker)!=row['version']:raise ValueError('Captured production version changed')
                 object_name='GameRun' if role=='site' else 'AbuseState'
                 wrapper=Path('sites/rak-vps-site/cf-wrapper.mjs').read_text().replace('__OBJECT__',object_name).replace('__CONFIG__',json.dumps({**config,'role':role},separators=(',',':')))

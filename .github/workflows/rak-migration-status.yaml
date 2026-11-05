@@ -4,7 +4,7 @@ on:
     branches: [codex/free-token-home-20261024]
     paths: ['.github/migration-status-request.json']
 permissions:
-  actions: read
+  actions: write
   contents: write
 jobs:
   status:
@@ -21,8 +21,15 @@ jobs:
           req=json.loads(Path('.github/migration-status-request.json').read_text())
           url='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/workflows/rak-migration.yaml/runs?per_page=10'
           with urllib.request.urlopen(urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}),timeout=30) as response:data=json.load(response)
+          cancelled=False
+          if req.get('cancel_run'):
+              run=next(r for r in data['workflow_runs'] if r['id']==req['cancel_run'])
+              assert run['head_sha']==req['expected_head'] and run['status']!='completed'
+              cancel='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+str(run['id'])+'/cancel'
+              with urllib.request.urlopen(urllib.request.Request(cancel,data=b'',method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}),timeout=30) as response:assert response.status==202
+              cancelled=True
           root=Path('migration-operation');root.mkdir()
-          result={'status':'passed','request_id':req['request_id'],'runs':[{k:run[k] for k in ['id','status','conclusion','head_sha','created_at','updated_at']} for run in data['workflow_runs']]}
+          result={'status':'passed','request_id':req['request_id'],'cancel_requested':cancelled,'runs':[{k:run[k] for k in ['id','status','conclusion','head_sha','created_at','updated_at']} for run in data['workflow_runs']]}
           (root/'report.json').write_text(json.dumps(result,indent=2))
           with open(os.environ['GITHUB_ENV'],'a') as stream:stream.write('MIGRATION_REQUEST_ID='+req['request_id']+'\nMIGRATION_MODE=verify\n')
           PY

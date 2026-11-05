@@ -1,9 +1,11 @@
 {
-  "request_id": "20261105T233122-source-cf-code-ad9c04",
+  "request_id": "20261105T234304-source-compressed-374a57",
   "mode": "export",
   "session": "rak-20261105-bd1662793abe",
   "object": "cf-code-01",
   "recipient_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUF0bk9JbFVJYjRZRGdZRDJCY2xXMgo5aUFmZGhPMVNaYTRRcjBBTmJ0Nyt4Rkc4amJiMzUyWDNJeVJwTTBiRnREV2hZYmYrWERtOFdkczNsRzhRY1k2CmVOcndTRFpSZWIwQ0dkSStSS3dDVkVYTDdQbUtyUE1IMGtGRHpMM21iQ0hXZjR2S1phQTF1VjlsVmw2TkJvVGMKdmI1NEQ0N0FXUkVPQnlpTzFMZ1VZd2xvT3pBTTFVUkJVZENtSUJwVExEd0tIZEdsNENUMENyRDdQUUNiMWhILwpJTG1VVWhDVXBVN05HNGtOeU5YRit0eWloVjdyN2RTS2owY0VZOGxidnQxR2V5eG14L20vR2JDYUFjZXU1bVYzCnRKOTNmMHFiYkZsYnYwQjdSZTV3cHB4aCtaOTJIODJIcm92Q2ZXZGlzVHZzbjRHc0VBSTZKd2kxWE90d3JHRGYKbEtuL01UUFdJR0hjYmJ5TTVtSitIV3ZIVGhUWXdTMHF6c0RUaGtBVVhEbkFENU85cGVTWno5YS80QW1SNE5paQpGN3owQi92ZW1YczFrVkloR1F1M3l0Z1BFTStmY1hKcXdUbVRhcTI1UnRKc2ozelhxQ1pVQmprVEYwcUI2SFdOCkZiQXlsZ0dyOEUybWFCcnRYM0xibzlZSGxmaURySFV2eHZoUVpXMDJmanZUQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
   "receiver_url": "https://sj.leonmingod.com/_migration/rak-20261105-bd1662793abe/upload",
-  "operation": "cloudflare-code"
+  "operation": "combined-export",
+  "app_object": "app-stage-02",
+  "code_object": "cf-code-02"
 }
