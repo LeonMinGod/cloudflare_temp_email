@@ -47,6 +47,8 @@ def target():
 def main():
     mode=os.environ['MIGRATION_MODE']
     role=os.environ['MIGRATION_ROLE']
+    if Path('.github/migration-paused.json').exists():
+        return {'status':'passed','role':role,'migration_cancelled':True,'changes_applied':False}
     req=json.loads(Path('.github/migration-request.json').read_text())
     if role=='source' and req.get('operation')=='combined-export':
         from migration_snapshot import export

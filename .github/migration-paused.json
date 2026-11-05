@@ -1,0 +1,6 @@
+{
+  "migration_cancelled": true,
+  "cancelled_at_utc": "20261105T235109",
+  "reason": "User cancelled migration; keep public station on Wuliao and reserve RAK for personal VPN",
+  "reactivation_requires_explicit_user_instruction": true
+}

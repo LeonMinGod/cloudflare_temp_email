@@ -6,7 +6,7 @@ from pathlib import Path
 def select():
     path=Path('.github/migration-request.json')
     changed=subprocess.check_output(['git','diff-tree','--root','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines()
-    if not path.exists() or str(path) not in changed:
+    if Path('.github/migration-paused.json').exists() or not path.exists() or str(path) not in changed:
         values={'MIGRATION_MODE':'none','MIGRATION_REQUEST_ID':''}
     else:
         request=json.loads(path.read_text())
@@ -27,6 +27,11 @@ def publish():
     paths=[report]
     for name in ['public.json','diagnostics.json']:
         if (root/name).exists():paths.append(root/name)
+    data=json.loads(report.read_text())
+    share=root/'vpn-share.enc.json'
+    vpn=data.get('checks',{}).get('vpn_verification',{})
+    if share.exists() and data.get('status')=='passed' and vpn.get('status')=='passed' and vpn.get('trusted_tls_verified') is True and vpn.get('external_native_client_egress_ip')=='198.247.1.206':
+        paths.append(share)
     manifest={'request_id':request,'mode':os.environ['MIGRATION_MODE'],'run_id':os.environ['GITHUB_RUN_ID'],
         'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         'files':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
