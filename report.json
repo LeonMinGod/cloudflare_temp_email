@@ -1,0 +1,72 @@
+{
+  "role": "source",
+  "operation": "cancel-migration-and-restore-original-services",
+  "workflow_control": {
+    "disabled_workflows": [
+      "rak-migration.yaml",
+      "rak-migration-status.yaml"
+    ],
+    "cancelled_runs": [
+      42131527916
+    ],
+    "active_migration_runs": 0
+  },
+  "checks": {
+    "source_services": {
+      "yifu-cpa": "active",
+      "yifu-gateway": "active",
+      "yifu-monitor": "active",
+      "yifu-plus": "active",
+      "yifu-tunnel": "active"
+    },
+    "services_started": [],
+    "public_api": "https://yifu.leonmingod.com/v1",
+    "source_egress_ip": "23.94.180.2",
+    "verification": {
+      "origin": "https://yifu.leonmingod.com",
+      "health": 200,
+      "credentials": 13,
+      "disabled": 9,
+      "static_keys_verified": 4,
+      "model_counts": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "services": [
+        "active",
+        "active"
+      ],
+      "disk": "default/containers/lxd1145150976763 1277558784 491520000 786038784  39% /"
+    },
+    "website_http_checks": {
+      "leonmingod.com/": 200,
+      "leonmingod.com/free-token/": 200,
+      "leonmingod.com/api/free-token/status": 200,
+      "leonmingod.com/api/leaderboard": 200,
+      "leonmingod.com/api/pool-status": 200,
+      "www.leonmingod.com/": 200,
+      "www.leonmingod.com/free-token/": 200,
+      "www.leonmingod.com/api/free-token/status": 200,
+      "www.leonmingod.com/api/leaderboard": 200,
+      "www.leonmingod.com/api/pool-status": 200
+    },
+    "worker_versions": {
+      "leonmingod-home": "fe123ce3-a104-43df-a4b8-abbf8ff07322",
+      "leonmingod-free-token": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+      "cpa-abuse-guard": "616ff1c7-9019-42d5-8ed4-5753be0708d1"
+    },
+    "cloudflare_business_and_state_unchanged": true,
+    "source_configuration_unchanged": true,
+    "plus_authenticated_http": 200,
+    "generation": {
+      "http": 200,
+      "sse_done": true,
+      "response_bytes": 782
+    },
+    "staged_files_retained": true,
+    "business_cutover": false
+  },
+  "status": "passed"
+}
