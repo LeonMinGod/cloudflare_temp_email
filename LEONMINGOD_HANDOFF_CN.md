@@ -133,6 +133,11 @@ Plus的原生安装与验证使用`yifu-vps.yaml`的`deploy-plus` / `verify-plus
 
 ## 验证与已知限制
 
+2026-11-05 KV写入50%告警已定位并修复：Guard预算信号不能只用实例内标记去重，现持久保存到control表id=2。
+Guard当前`616ff1c7-9019-42d5-8ed4-5753be0708d1`，发布41986362066、24项测试及临时个人Key真实生成通过；
+原Key、HMAC、限额/IP策略与存储namespace保留，测试记录已清理。仅为保护信号写入优化，不是迁走鉴权或付费升级。
+详见 [KV事故与证据](sites/api-abuse-guard/KV_WRITE_INCIDENT_20261105_CN.md)。
+
 v63 stage41891235425、publish41892132895成功；66项网站测试，分钟边界与手机/电脑公开页面通过。
 VPS安装41891715566、激活后验证41892644325通过，原CPA/Tunnel/monitor PID未变，Key和停用状态保留；
 真实`gpt-6.1-sol`非流式/流式200且收到DONE。证据见`sites/leonmingod-star-night/verification/v63-*.json`。

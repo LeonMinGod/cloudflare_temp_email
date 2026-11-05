@@ -1,0 +1,85 @@
+{
+  "checked_at": "2026-11-05T07:24:18.452705+00:00",
+  "run": 41986362066,
+  "guard_release": {
+    "version": "616ff1c7-9019-42d5-8ed4-5753be0708d1",
+    "previous": "2a78e1ae-ed5b-4aec-8b05-4c024527dd3a",
+    "bindings_preserved": true,
+    "state_namespace_preserved": true,
+    "origin": "https://yifu.leonmingod.com"
+  },
+  "guard_before": {
+    "version": "2a78e1ae-ed5b-4aec-8b05-4c024527dd3a",
+    "compatibility_date": "2026-10-27",
+    "bindings": [
+      {
+        "name": "ADMIN_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "KEYS",
+        "type": "kv_namespace"
+      },
+      {
+        "name": "SERVICE_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "STATE",
+        "type": "durable_object_namespace"
+      }
+    ],
+    "state_binding": [
+      {
+        "class_name": "AbuseState",
+        "name": "STATE",
+        "namespace_id": "73670c63f6e64753b5402345406cd140",
+        "type": "durable_object_namespace"
+      }
+    ],
+    "rollback_uses_previous_version": true
+  },
+  "schedules": {
+    "crons": [],
+    "authentication_and_ip_policy_preserved": true
+  },
+  "tests": 24,
+  "all_passed": true,
+  "cold_start_recreation_test": {
+    "instances": 100,
+    "kv_publications": 1
+  },
+  "concurrent_publication_test": {
+    "requests": 50,
+    "kv_publications": 1
+  },
+  "failed_publication_retry_verified": true,
+  "before_canary": {
+    "http": 200,
+    "models": 43,
+    "admission": "v1"
+  },
+  "after_canary": {
+    "models_http": 200,
+    "model_count": 43,
+    "admission": "v1",
+    "model": "gpt-6.1-sol",
+    "inference": {
+      "nonstream": {
+        "http": 200,
+        "generated": true
+      },
+      "stream": {
+        "http": 200,
+        "generated": true,
+        "done": true
+      }
+    }
+  },
+  "temporary_canary_deleted": true,
+  "temporary_secret_file_deleted": true,
+  "reset_utc": "2026-11-06T00:00:00Z",
+  "reset_asia_shanghai": "2026-11-06 08:00:00",
+  "limits_source": "https://developers.cloudflare.com/kv/platform/pricing/",
+  "important_limit": "Synthetic recreation tests and a short live analytics window; not a whole-day account usage guarantee. Existing consumption is not refunded."
+}

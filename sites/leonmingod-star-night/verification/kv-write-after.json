@@ -1,0 +1,208 @@
+{
+  "checked_at": "2026-11-05T07:23:06.447Z",
+  "result": {
+    "data": {
+      "viewer": {
+        "accounts": [
+          {
+            "recent": [
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "datetimeMinute": "2026-11-05T07:18:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 3
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:20:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 9
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "datetimeMinute": "2026-11-05T07:17:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 3
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "datetimeMinute": "2026-11-05T07:19:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 2
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:21:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 6
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:16:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 16
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:17:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 11
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "datetimeMinute": "2026-11-05T07:15:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 1
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:15:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 12
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:18:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 7
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "datetimeMinute": "2026-11-05T07:16:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 1
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "datetimeMinute": "2026-11-05T07:19:00Z",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c"
+                },
+                "sum": {
+                  "requests": 14
+                }
+              }
+            ],
+            "totals": [
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "namespaceId": "0f35d6f073d0469ca4ab1d3ee592f132",
+                  "responseStatusCode": 404
+                },
+                "sum": {
+                  "requests": 2
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c",
+                  "responseStatusCode": 404
+                },
+                "sum": {
+                  "requests": 13
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c",
+                  "responseStatusCode": 200
+                },
+                "sum": {
+                  "requests": 525
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c",
+                  "responseStatusCode": 200
+                },
+                "sum": {
+                  "requests": 1221
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "write",
+                  "namespaceId": "0f35d6f073d0469ca4ab1d3ee592f132",
+                  "responseStatusCode": 200
+                },
+                "sum": {
+                  "requests": 1
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "read",
+                  "namespaceId": "0f35d6f073d0469ca4ab1d3ee592f132",
+                  "responseStatusCode": 200
+                },
+                "sum": {
+                  "requests": 1
+                }
+              },
+              {
+                "dimensions": {
+                  "actionType": "delete",
+                  "namespaceId": "1b02d139375045f7a7d5ce2d994abd2c",
+                  "responseStatusCode": 200
+                },
+                "sum": {
+                  "requests": 3
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "errors": null
+  }
+}
