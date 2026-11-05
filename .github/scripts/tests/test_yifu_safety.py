@@ -34,6 +34,15 @@ class SafetyTests(unittest.TestCase):
             with self.assertRaises(ValueError):validate_files({name: 'e30='})
         with self.assertRaises(ValueError):validate_files({'auths/test.json': 'ew=='})
 
+    def test_cpamp_database_requires_matching_data_key_and_safe_paths(self):
+        files = {'plus/usage.sqlite': base64.b64encode(b'test-db').decode(),
+                 'plus/data.key': base64.b64encode(b'test-key').decode()}
+        self.assertEqual(decrypt_files(encrypt_files(files, 'test-secret'), 'test-secret'), files)
+        for name in files:
+            with self.assertRaises(ValueError):validate_files({name: files[name]})
+        for name in ['plus/other.key', 'plus/subdir/data.key', 'plus/../private/file']:
+            with self.assertRaises(ValueError):validate_files({**files, name: 'e30='})
+
     def test_only_logging_changes_for_all_config_shapes(self):
         for config in [
             {'api-keys': ['preserve'], 'remote-key-auth': {'enabled': True}},

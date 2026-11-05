@@ -13,12 +13,14 @@ PURPOSE = 'yifu-vps-backup-v1'
 def validate_files(files):
     if not isinstance(files, dict) or not files or len(files) > 1024:
         raise ValueError('Invalid backup file set')
+    if ('plus/usage.sqlite' in files) != ('plus/data.key' in files):
+        raise ValueError('CPAMP database and encryption key must be backed up together')
     total = 0
     for name, encoded in files.items():
         path = PurePosixPath(name)
         if path.is_absolute() or '..' in path.parts or str(path) != name:
             raise ValueError('Unsafe backup path')
-        if not ((len(path.parts) == 2 and path.parts[0] in ['private', 'auths', 'systemd']) or name == 'data/pool.sqlite'):
+        if not ((len(path.parts) == 2 and path.parts[0] in ['private', 'auths', 'systemd']) or name in ['data/pool.sqlite', 'plus/usage.sqlite', 'plus/data.key']):
             raise ValueError('Backup path outside allowlist')
         raw = base64.b64decode(encoded, validate=True)
         total += len(raw)

@@ -141,20 +141,23 @@ def backup(client,sftp,label='backup'):
                         if attempt==2:raise RuntimeError('Credential changed during backup; retry later') from None
                         time.sleep(0.2);raw=read(sftp,ROOT+'/'+path)
             files[path]=base64.b64encode(raw).decode()
-    temporary=ROOT+'/private/.pool-backup-'+secrets.token_hex(12)+'.sqlite'
-    try:
-        sftp.stat(ROOT+'/data/pool.sqlite')
-        source="import {DatabaseSync,backup} from 'node:sqlite';import {chmodSync} from 'node:fs';const db=new DatabaseSync('/opt/yifu-cpa/data/pool.sqlite',{readOnly:true});await backup(db,"+json.dumps(temporary)+");db.close();chmodSync("+json.dumps(temporary)+",0o600);const copy=new DatabaseSync("+json.dumps(temporary)+",{readOnly:true});if(copy.prepare('PRAGMA quick_check').all().some(row=>Object.values(row)[0]!=='ok'))throw new Error('Invalid SQLite backup');copy.close();"
-        run(client,ROOT+'/bin/node --input-type=module -e '+shlex.quote(source))
-        files['data/pool.sqlite']=base64.b64encode(read(sftp,temporary)).decode()
-    except FileNotFoundError:pass
-    finally:
-        try:sftp.remove(temporary)
+    for database in ['data/pool.sqlite','plus/usage.sqlite']:
+        temporary=ROOT+'/private/.pool-backup-'+secrets.token_hex(12)+'.sqlite'
+        try:
+            sftp.stat(ROOT+'/'+database)
+            source="import {DatabaseSync,backup} from 'node:sqlite';import {chmodSync} from 'node:fs';const db=new DatabaseSync("+json.dumps(ROOT+'/'+database)+",{readOnly:true});await backup(db,"+json.dumps(temporary)+");db.close();chmodSync("+json.dumps(temporary)+",0o600);const copy=new DatabaseSync("+json.dumps(temporary)+",{readOnly:true});if(copy.prepare('PRAGMA quick_check').all().some(row=>Object.values(row)[0]!=='ok'))throw new Error('Invalid SQLite backup');copy.close();"
+            run(client,ROOT+'/bin/node --input-type=module -e '+shlex.quote(source))
+            files[database]=base64.b64encode(read(sftp,temporary)).decode()
         except FileNotFoundError:pass
+        finally:
+            try:sftp.remove(temporary)
+            except FileNotFoundError:pass
+    if 'plus/usage.sqlite' in files:
+        files['plus/data.key']=base64.b64encode(read(sftp,ROOT+'/plus/data.key')).decode()
     envelope=encrypt_files(files,os.environ['YIFU_BACKUP_SECRET'])
     Path('yifu-operation').mkdir(exist_ok=True)
     target=Path('yifu-operation/'+label+'.enc.json');target.write_text(json.dumps(envelope));target.chmod(0o600)
-    report(label,{'encrypted':True,'files':len(files),'database_included':'data/pool.sqlite' in files,'roundtrip_verified':True,'database_consistency_checked':'data/pool.sqlite' in files,'temporary_database_removed':True})
+    report(label,{'encrypted':True,'files':len(files),'database_included':'data/pool.sqlite' in files,'plus_database_included':'plus/usage.sqlite' in files,'plus_data_key_included':'plus/data.key' in files,'roundtrip_verified':True,'database_consistency_checked':'data/pool.sqlite' in files,'temporary_database_removed':True})
 
 
 def main():

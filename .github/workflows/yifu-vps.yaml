@@ -4,7 +4,7 @@ on:
     inputs:
       mode:
         type: choice
-        options: [verify-stage, verify, status, deploy-monitor, publish-guard, configure-pool, seed-pool, backup, apply-safety, verify-safety, rollback-safety]
+        options: [verify-stage, verify, status, deploy-monitor, publish-guard, configure-pool, seed-pool, backup, apply-safety, verify-safety, rollback-safety, deploy-plus, verify-plus]
         default: verify
 permissions:
   contents: read
@@ -55,7 +55,13 @@ jobs:
       - run: python -m pip install paramiko pyyaml cryptography
       - name: Validate backup format and safety configuration
         run: python -m unittest discover -s .github/scripts/tests -p test_yifu_safety.py -v
-      - run: python .github/scripts/yifu_vps.py
+      - name: Download the pinned native CPAMP release
+        if: inputs.mode == 'deploy-plus'
+        run: curl --fail --location --retry 2 --output cpamp-native.tar.gz https://github.com/seakee/CPA-Manager-Plus/releases/download/v1.14.10/cpa-manager-plus_v1.14.10_linux_amd64.tar.gz
+      - if: inputs.mode == 'deploy-plus' || inputs.mode == 'verify-plus'
+        run: python .github/scripts/yifu_plus.py
+      - if: inputs.mode != 'deploy-plus' && inputs.mode != 'verify-plus'
+        run: python .github/scripts/yifu_vps.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
