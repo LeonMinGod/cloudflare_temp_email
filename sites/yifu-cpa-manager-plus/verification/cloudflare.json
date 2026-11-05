@@ -1,0 +1,50 @@
+{
+  "tunnel": {
+    "tunnel_id": "de798c3f-002c-4a28-8e7f-baa9780cfe6b",
+    "version": 4,
+    "config": {
+      "ingress": [
+        {
+          "path": "^/_pool/.*$",
+          "service": "http://127.0.0.1:8318",
+          "hostname": "yifu-origin.leonmingod.com"
+        },
+        {
+          "service": "http://127.0.0.1:8319",
+          "hostname": "yifu-origin.leonmingod.com"
+        },
+        {
+          "path": "^/_pool/.*$",
+          "service": "http://127.0.0.1:8318",
+          "hostname": "yifu.leonmingod.com"
+        },
+        {
+          "service": "http://127.0.0.1:8319",
+          "hostname": "yifu.leonmingod.com"
+        },
+        {
+          "service": "http://127.0.0.1:18317",
+          "hostname": "yifuplus.leonmingod.com"
+        },
+        {
+          "service": "http_status:404"
+        }
+      ],
+      "warp-routing": {
+        "enabled": false
+      }
+    },
+    "source": "cloudflare",
+    "created_at": "2026-11-05T01:05:21.687436Z"
+  },
+  "dns": [
+    {
+      "id": "beaf6158321f51fde46e28beddb8ecaf",
+      "name": "yifuplus.leonmingod.com",
+      "type": "CNAME",
+      "content": "de798c3f-002c-4a28-8e7f-baa9780cfe6b.cfargotunnel.com",
+      "proxied": true
+    }
+  ],
+  "existing_routes_preserved": true
+}

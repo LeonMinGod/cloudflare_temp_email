@@ -1,0 +1,94 @@
+{
+  "checked_at": "2026-11-05T01:11:05.254338+00:00",
+  "install_run": 41945816965,
+  "verify_run": 41946117061,
+  "notice_run": 41946392323,
+  "install": {
+    "version": "v1.14.10",
+    "archive_sha256": "113a651af78f4dd8c5279e03348729411d964043d74bbd338147dafa2bcb8d86",
+    "binary_sha256": "965c5b9b26df1eb61bbca50a14638b761bc38512e31c6ef726067fc07b9fd074",
+    "loopback_port": 18317,
+    "local_admin_login_http": 200,
+    "unauthenticated_http": 401,
+    "credential_proxy_http": 200,
+    "admin_password_matches_cpa": true,
+    "connection_encrypted": true,
+    "collector": {
+      "collector": "stopped",
+      "mode": "auto",
+      "transport": "",
+      "lastConsumedAt": 0,
+      "lastInsertedAt": 0,
+      "totalInserted": 0,
+      "totalSkipped": 0,
+      "deadLetters": 0,
+      "has_error": false
+    },
+    "existing_processes_unchanged": true,
+    "cpa_config_and_keys_unchanged": true,
+    "credential_states_preserved": true,
+    "memory_limit_mib": 128,
+    "cpu_quota_percent": 35,
+    "disk_pause_threshold_mib": 32,
+    "minimum_free_disk_mib": 200,
+    "requires_tunnel_and_dns_activation": true,
+    "memory_available_bytes": 418621440,
+    "disk_free_bytes": 850657280
+  },
+  "verification": {
+    "origin": "https://yifuplus.leonmingod.com",
+    "version": "v1.14.10",
+    "admin_password_matches_cpa": true,
+    "public_admin_api_http": 200,
+    "public_unauthenticated_http": 401,
+    "collector": {
+      "collector": "running",
+      "mode": "auto",
+      "transport": "subscribe",
+      "lastConsumedAt": 1793840772793,
+      "lastInsertedAt": 1793840772835,
+      "totalInserted": 2,
+      "totalSkipped": 0,
+      "deadLetters": 0,
+      "has_error": false
+    },
+    "events_increased": true,
+    "model": "gpt-6.1-sol",
+    "inference": {
+      "nonstream": {
+        "http": 200,
+        "admission": "v1",
+        "generated": true
+      },
+      "stream": {
+        "http": 200,
+        "admission": "v1",
+        "generated": true,
+        "done": true
+      }
+    },
+    "cpa_config_and_keys_unchanged": true,
+    "existing_processes_unchanged": true,
+    "credential_states_preserved": true,
+    "service": [
+      "MemoryCurrent=33456128",
+      "MemoryMax=134217728",
+      "ActiveState=active"
+    ]
+  },
+  "post_install_backup": {
+    "encrypted": true,
+    "files": 52,
+    "database_included": true,
+    "plus_database_included": true,
+    "plus_data_key_included": true,
+    "roundtrip_verified": true,
+    "database_consistency_checked": true,
+    "temporary_database_removed": true
+  },
+  "notice": {
+    "upstream_license_installed": true,
+    "authenticated_status_http": 200,
+    "processes_not_restarted": true
+  }
+}

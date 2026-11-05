@@ -13,6 +13,7 @@ CPA 私库：LeonMinGod/cpa，main 已包含部署交接；当前生产二进制
 公益 API 固定 https://yifu.leonmingod.com/v1，管理页 https://yifu.leonmingod.com/management.html。cpa.leonmingod.com 是我的本机 CPA，禁止修改 DNS、配置或借用凭证。
 生产已迁到 Debian13 LXD VPS，SSH 23.94.180.2:55014，根目录 /opt/yifu-cpa。实际约488MiB内存、1.2GiB盘，不要在上面编译Go或安装多套数据库。
 域名通过 Cloudflare Tunnel 连接：cloudflared 由 yifu-tunnel.service 开机自启，普通请求到127.0.0.1:8319并发网关再转原CPA8317，/_pool/到8318；保留现有Tunnel、DNS和token。
+另有 https://yifuplus.leonmingod.com 独立完整扩展后台，官方CPA Manager Plus v1.14.10，yifu-plus.service监听127.0.0.1:18317、只连接本机公益8317，密码同公益CPA；原管理页保留。Tunnel当前version=4，原规则不变。详情见sites/yifu-cpa-manager-plus/README.md；安装/验证走yifu-vps.yaml的deploy-plus/verify-plus，不要用上游一键脚本覆盖CPA。实际本机subscribe采集，不增加CF监控写入，自动停用/删除账号保持关闭；MemoryMax128M、CPU35%，Plus超32MiB或磁盘少于200MiB时预算任务只暂停可选Plus。备份同时包含Plus数据库和data.key，必须成对恢复。
 
 网站当前v63，源码 sites/leonmingod-star-night；号池status-v8/time-v1显示分钟/秒冷却倒计时，每秒本地更新不增加网络请求。号池采集和SQLite历史已迁到VPS，源码 sites/yifu-vps-monitor，五分钟共享刷新、十五分钟存档。网站静态资源、邮箱领Key、个人Key鉴权/严格限流和游戏实时校验仍在CF，不要当成全部已迁走。
 保留所有现有Key、auths、停用状态和SQLite。原13份公益凭证中10份停用；此前启用的2份Codex和1份xAI失效，我已同意迁移后重新授权。先查当前状态，不要覆盖我随后授权的新文件；不得恢复旧bootstrap或借用本机账号。
