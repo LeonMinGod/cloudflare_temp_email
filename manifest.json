@@ -1,0 +1,9 @@
+{
+  "request_id": "20261105T223644-source-prepare-d90d1d",
+  "mode": "prepare",
+  "run_id": "42122984813",
+  "source_commit": "c6f8faa2d04713b97006670a1ea1210f48a0e85f",
+  "files": {
+    "report.json": "08f21469731a985991f7bc4b2dc35d7b667877cca224a4b70ee03de0e8b83ad8"
+  }
+}

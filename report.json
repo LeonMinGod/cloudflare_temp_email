@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "role": "source",
+  "mode": "prepare",
+  "session": "rak-20261105-bd1662793abe",
+  "source_signing_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUEyb1ZUdXJUeE5WeGJFbEZiSXArUQpKWi9yWXY2WlJrS3E2NEFVNHNYMzNkYXlmWHpPT2V3ODF0OU16ajVFeCtFWGZ6cFE2RFlzbm1MaDl4WUoyQmVGCk1hMm11ZTZMc0FZSUROYmhQamkzakt1aHFadTJpSGxmWEpacVdyT1pxZFBjbk1vSXFRbkh3ZXUxdGxHZUF3UCsKa01wM0ZEUWVaZ3VFaDhzSUlNaFBSYldyS3o1ZG5EQXJVd1dwUzVJUDVlaFZQOUxXeUNPMjJRU2FtMFVPQVppZApLbmoyWWtnUkVKY0dXTEo4TkpoZG14bVVVZlN1cllzM1NpcDEyNy9mbzFBRlhZYyttZDNEZGZDakRnY2V1dDhVCkp1NWYwM2JudmVJUlNYcGJsdlNnbWFmdXA0a2RoK24rL3JLTEJTR0V6Qjh1N0J2aDZ0QWJLRlV6T0hCZmVJODYKVEJzaWNBWW5wdWcwYUFCclUwaVE5YWRndlpkU1VEaHVwSVBxZ0xDWC9CUWwrYVcyekpmcFkvdmRIQTg0ZHRidwpXblZnMytGb1JvaFoweWIyZTdSc3R5QkJ5b2drOE9KbytyRDIyNkNOOG5iWUdiOGtDeW15M2h5em8rUm5pSEgrCnBoYXdlNlVyakRpMm5rc1lqcDBwOW9CZDhWdjJzenErdEFudU1jWnRrUEpMQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
+  "source_host_fingerprint": "SHA256:8l68r+SGZt/kjBcHESsbnkpkGk2AsFaBwgJqXiAeF98",
+  "backup": {
+    "encrypted": true,
+    "files": 60,
+    "database_included": true,
+    "plus_database_included": true,
+    "plus_data_key_included": true,
+    "roundtrip_verified": true,
+    "database_consistency_checked": true,
+    "temporary_database_removed": true
+  },
+  "production_services": [
+    "active",
+    "active",
+    "active",
+    "active",
+    "active"
+  ],
+  "source_not_stopped": true,
+  "backup_artifact_filename": "backup-before.enc.json"
+}
