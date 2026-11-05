@@ -104,7 +104,9 @@ curl -fsS https://yifu.leonmingod.com/healthz
 入口 `leonmingod-free-token`：`51a33be8-6ca4-4b4f-886f-613bfea996b0`，保留 `SITE` → 主站命名入口 `Site`。
 主站保留原 11 个绑定，新增一个普通配置 `VPS_POOL_ENDPOINT=https://yifu.leonmingod.com/_pool/status`。
 `GAME_RUNS` namespace `2dffacc2783647f0bec81263501de5e1` 与 KV `1b02d139375045f7a7d5ce2d994abd2c` 均保留。
-风控 Worker 当前 `2a78e1ae-ed5b-4aec-8b05-4c024527dd3a`，原鉴权/IP 策略及存储保留，cron 已清空。
+风控 Worker 当前 `616ff1c7-9019-42d5-8ed4-5753be0708d1`，原鉴权/IP 策略及存储保留，cron 已清空。
+2026-11-05修复KV预算信号随DO冷启动重复写入，成功发布标记存在原control表id=2，id=1仍为原IP策略。
+原个人Key、HMAC、持久化限额不变；详情见 [KV写入事故记录](sites/api-abuse-guard/KV_WRITE_INCIDENT_20261105_CN.md)。
 
 监控 RPC 只接受签名 POST，30 秒窗口，签名覆盖时间戳、方法、路径和原始 body。
 `/_pool/status` 只接受 snapshot/quota；公开 GET API 由网站转发，输出匿名账号和白名单字段。

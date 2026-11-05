@@ -21,6 +21,7 @@ CPA 私库：LeonMinGod/cpa，main 已包含部署交接；当前生产二进制
 运维优先使用网站库默认分支 yifu-vps.yaml 的 verify/status/backup/deploy-monitor；该工作流自动checkout维护分支。deploy-monitor只更新监控，不更新CPA二进制；seed-pool已执行，禁止当作日常刷新覆盖新历史。
 网关源码sites/yifu-vps-gateway，全局4/每Key2并发、队列4/等2秒，忙时429 Retry-After:2，请求体16MiB，无流式截止时间，不增加IP封禁。日志上限50MiB/错误5份，journal持久32MiB/运行时16MiB、7天。已上线保护可用verify-safety复验，apply-safety不可当日常刷新。GitHub CF凭据无Tunnel权限，安装仅在VPS暂存，路由激活/回滚用已连接CF插件；回滚先将两条普通路由恢复8317，再rollback-safety，网关保留排空，不恢复旧OAuth。
 GitHub Secrets已配置，应通过受保护Actions使用；它们不会随clone自动注入云端会话，普通API也不能读取明文，不要索取或输出私密值。
+Guard现版本616ff1c7-9019-42d5-8ed4-5753be0708d1，2026-11-05修复KV预算信号在DO实例重建后重复写入；成功标记持久保存control表id=2，id=1仍是原IP策略。个人Key注册表/HMAC/持久化限额不变，不能恢复仅内存去重、随意清零预留预算或用故障放行代替鉴权。事故证据见sites/api-abuse-guard/KV_WRITE_INCIDENT_20261105_CN.md。
 网站发布使用维护分支 leonmingod-star-night.yaml，先stage、核对绑定和产物、再publish；保留ASSETS、原KV/DO和全部Secrets，不要直接wrangler覆盖不完整静态镜像。
 旧Render/InstaBox/共享Key工作流已禁用，不要恢复旧后端。CPA更新须在CI构建并测试、先备份、只替换二进制并保留旧版及当前持久化数据。
 
