@@ -1,0 +1,40 @@
+name: Operate RAK San Jose VPN
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [inspect, deploy, verify]
+        default: inspect
+      output_public_key:
+        description: Base64 PEM RSA public key for encrypting the private node result
+        type: string
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: rak-sj-vpn-production
+  cancel-in-progress: false
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RAK_SSH_PASSWORD: ${{ secrets.RAK_SSH_PASSWORD }}
+      RAK_VPN_MODE: ${{ inputs.mode }}
+      RAK_OUTPUT_PUBLIC_KEY: ${{ inputs.output_public_key }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: codex/free-token-home-20261024
+      - run: python -m pip install paramiko cryptography pyyaml
+      - run: python .github/scripts/rak_vpn.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rak-vpn-${{ github.run_id }}
+          path: |
+            rak-operation/report.json
+            rak-operation/share.enc.json
+          retention-days: 7
+          if-no-files-found: ignore
