@@ -47,7 +47,10 @@ def target():
 def main():
     mode=os.environ['MIGRATION_MODE']
     role=os.environ['MIGRATION_ROLE']
-    if mode!='inventory':raise ValueError('This phase supports inventory only')
+    if mode=='prepare' and role=='source':
+        from migration_source import prepare
+        return prepare()
+    if mode!='inventory':raise ValueError('Unsupported migration phase')
     return source() if role=='source' else target()
 
 

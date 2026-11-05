@@ -1,4 +1,5 @@
 {
-  "request_id": "20261105T222805-source-0aa2d8",
-  "mode": "inventory"
+  "request_id": "20261105T223644-source-prepare-d90d1d",
+  "mode": "prepare",
+  "session": "rak-20261105-bd1662793abe"
 }
