@@ -1,0 +1,29 @@
+name: RAK migration read-only run status
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/migration-status-request.json']
+permissions:
+  actions: read
+  contents: write
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          from pathlib import Path
+          req=json.loads(Path('.github/migration-status-request.json').read_text())
+          url='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/workflows/rak-migration.yaml/runs?per_page=10'
+          with urllib.request.urlopen(urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}),timeout=30) as response:data=json.load(response)
+          root=Path('migration-operation');root.mkdir()
+          result={'status':'passed','request_id':req['request_id'],'runs':[{k:run[k] for k in ['id','status','conclusion','head_sha','created_at','updated_at']} for run in data['workflow_runs']]}
+          (root/'report.json').write_text(json.dumps(result,indent=2))
+          with open(os.environ['GITHUB_ENV'],'a') as stream:stream.write('MIGRATION_REQUEST_ID='+req['request_id']+'\nMIGRATION_MODE=verify\n')
+          PY
+      - run: python .github/scripts/migration_io.py publish
