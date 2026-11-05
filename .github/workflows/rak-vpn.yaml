@@ -23,6 +23,7 @@ jobs:
       RAK_SSH_PASSWORD: ${{ secrets.RAK_SSH_PASSWORD }}
       RAK_VPN_MODE: ${{ inputs.mode }}
       RAK_OUTPUT_PUBLIC_KEY: ${{ inputs.output_public_key }}
+      IPQS_API_KEY: ${{ secrets.IPQS_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:
