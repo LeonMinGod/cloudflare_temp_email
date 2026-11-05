@@ -50,6 +50,9 @@ def main():
     if mode=='prepare' and role=='source':
         from migration_source import prepare
         return prepare()
+    if mode=='export' and role=='source':
+        from migration_snapshot import export
+        return export()
     if mode=='verify' and role=='source':
         from migration_source import state_permissions
         return state_permissions()
