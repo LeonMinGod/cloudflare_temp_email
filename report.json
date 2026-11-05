@@ -1,0 +1,133 @@
+{
+  "origin": "https://yifu.leonmingod.com",
+  "health": 200,
+  "credentials": 13,
+  "disabled": 9,
+  "static_keys_verified": 4,
+  "model_counts": [
+    44,
+    44,
+    44,
+    44
+  ],
+  "services": [
+    "active",
+    "active",
+    "active",
+    "active",
+    "active"
+  ],
+  "disk": "default/containers/lxd1145150976763 1277558784 467009536 810549248  37% /",
+  "status": "passed",
+  "role": "source",
+  "root_exists": true,
+  "node_version": "v24.22.2",
+  "binaries_sha256": "0bb9b4db2fcb742f44e0a37283001d6db6800874094f8a973d2560c1d23700b6  /opt/yifu-cpa/bin/CLIProxyAPI\n788a3388ed840d78607271d61bd96353ee72b5b46ba468772d5110271e799e17  /opt/yifu-cpa/bin/yifu-gateway\n1f99fb518b83dec2ba8d870a7cc991d82a77e6196295a3d2754ba17ab9f91872  /opt/yifu-cpa/bin/cloudflared\n904a6d3484241d466989f9df9ba3aab822b1496191bdb28230eb491a55c32a52  /opt/yifu-cpa/bin/node",
+  "sizes": "30049\t/opt/yifu-cpa/private\n42\t/opt/yifu-cpa/auths\n460\t/opt/yifu-cpa/data\n7369\t/opt/yifu-cpa/plus\n139550\t/opt/yifu-cpa/bin",
+  "runtime_variable_names": [
+    "CPA_ABUSE_SECRET",
+    "CPA_ABUSE_URL",
+    "CPA_REMOTE_KEY_AUTH",
+    "GOMEMLIMIT",
+    "MANAGEMENT_PASSWORD",
+    "MANAGEMENT_STATIC_PATH",
+    "TZ"
+  ],
+  "shell_tools": "/usr/bin/tar\n/usr/bin/sha256sum",
+  "cloudflare_workers": {
+    "leonmingod-home": {
+      "version": "fe123ce3-a104-43df-a4b8-abbf8ff07322",
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CPA_STATUS_MANAGEMENT_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_CPA_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_OPS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_RENDER_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SITEKEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "GAME_RUNS",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "KEY_ENC_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KV",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "VPS_POOL_ENDPOINT",
+          "type": "plain_text"
+        }
+      ]
+    },
+    "leonmingod-free-token": {
+      "version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+      "bindings": [
+        {
+          "name": "SITE",
+          "type": "service"
+        }
+      ]
+    },
+    "cpa-abuse-guard": {
+      "version": "616ff1c7-9019-42d5-8ed4-5753be0708d1",
+      "bindings": [
+        {
+          "name": "ADMIN_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KEYS",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "SERVICE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "STATE",
+          "type": "durable_object_namespace"
+        }
+      ]
+    }
+  },
+  "credential_bindings_present": {
+    "YIFU_SSH_PRIVATE_KEY": true,
+    "YIFU_BACKUP_SECRET": true,
+    "YIFU_OPS_SECRET": true,
+    "CLOUDFLARE_API_TOKEN": true,
+    "KEY_ENC_SECRET": false,
+    "RESEND_API_KEY": false,
+    "FREE_TOKEN_OPS_SECRET": false,
+    "FREE_TOKEN_TURNSTILE_SECRET": false,
+    "FREE_TOKEN_TURNSTILE_SITEKEY": false
+  }
+}
