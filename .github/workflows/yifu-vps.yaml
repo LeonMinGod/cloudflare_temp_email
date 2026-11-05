@@ -66,6 +66,9 @@ jobs:
         if: always()
         with:
           name: yifu-vps-${{ github.run_id }}
-          path: yifu-operation/
+          path: |
+            yifu-operation/
+            instabox-operation/guard-before.json
+            instabox-operation/guard.json
           if-no-files-found: ignore
           retention-days: 90

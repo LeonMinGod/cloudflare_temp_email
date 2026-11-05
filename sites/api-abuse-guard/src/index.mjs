@@ -180,13 +180,25 @@ export class AbuseState {
   }
   async publishBudget(){
     if(!this.env?.KEYS)return;
+    // A KV write yields to other requests. Coalesce publication without holding
+    // a storage transaction or blocking unrelated quota/authentication work.
+    while(this.budgetPublication)await this.budgetPublication;
     const signal=this.budget.signal(),key=signal.day+':'+signal.level;
     if(key===this.lastBudgetSignal)return;
-    this.lastBudgetSignal=key;
-    try{
-      await this.env.KEYS.put(BUDGET_KEY,JSON.stringify(signal));
-      if(signal.level!=='normal')console.log(JSON.stringify({event:'do_write_budget',...signal}));
-    }catch{console.log(JSON.stringify({event:'do_budget_signal_failed'}));}
+    // id=1 remains the existing IP policy. Persist the successful day/level in
+    // id=2 so object eviction does not turn every cold start into a KV write.
+    const published=[...this.sql.exec('SELECT value FROM control WHERE id=2')][0]?.value;
+    if(published===key){this.lastBudgetSignal=key;return;}
+    const publication=(async()=>{
+      try{
+        await this.env.KEYS.put(BUDGET_KEY,JSON.stringify(signal));
+        this.sql.exec('INSERT OR REPLACE INTO control (id,value) VALUES (2,?)',key);
+        this.lastBudgetSignal=key;
+        if(signal.level!=='normal')console.log(JSON.stringify({event:'do_write_budget',...signal}));
+      }catch{console.log(JSON.stringify({event:'do_budget_signal_failed'}));}
+    })();
+    this.budgetPublication=publication;
+    try{await publication;}finally{this.budgetPublication=null;}
   }
   async alarm(){
     const now=Date.now();

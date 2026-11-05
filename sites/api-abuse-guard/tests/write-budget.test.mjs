@@ -19,7 +19,7 @@ function database() {
     catch (error) { db.exec('ROLLBACK'); throw error; }
   }, getAlarm: async () => Date.now() + 3600000, setAlarm: async () => { writes++; } }};
   const state = new AbuseState(ctx, {});
-  return { sql, state, writes: () => writes, close: () => db.close() };
+  return { sql, state, ctx, writes: () => writes, close: () => db.close() };
 }
 
 test('unknown/revoked keys deny without SQLite; active keys never bypass failed quota storage', async () => {
@@ -112,4 +112,44 @@ test('budget conservation stops diagnostic writes while malicious evidence still
     } }, {});
     assert.equal(replacement.budget.level(), 'conserve', 'Budget must survive object eviction');
   } finally { db.close(); }
+});
+
+test('budget KV publication survives 100 object evictions and preserves the separate IP configuration', async () => {
+  const db=database(),writes=[],env={KEYS:{put:async(key,value)=>writes.push({key,value:JSON.parse(value)})}};
+  let signal={schema:1,day:'2026-11-05',level:'critical',reserved_guard_rows:500736};
+  const fresh=()=>{const state=new AbuseState(db.ctx,env);state.budget.signal=()=>({...signal});return state;};
+  try{
+    const policy=JSON.stringify({enabled:true,allowlist:['8.8.8.8']});
+    db.sql.exec('INSERT INTO control (id,value) VALUES (1,?)',policy);
+    for(let i=0;i<100;i++)await fresh().publishBudget();
+    assert.equal(writes.length,1,'Cold starts must reuse the durable publication marker');
+    assert.equal(writes[0].key,'ops:do-write-budget:v1');
+    assert.equal(db.sql.exec('SELECT value FROM control WHERE id=1')[0].value,policy);
+    signal={...signal,day:'2026-11-06',level:'normal',reserved_guard_rows:1024};
+    await fresh().publishBudget();
+    signal={...signal,level:'warning',reserved_guard_rows:50176};await fresh().publishBudget();
+    signal={...signal,level:'conserve',reserved_guard_rows:70656};await fresh().publishBudget();
+    signal={...signal,level:'critical',reserved_guard_rows:90112};await fresh().publishBudget();
+    for(let i=0;i<100;i++)await fresh().publishBudget();
+    assert.equal(writes.length,5,'One successful KV write per day/level, including next-day recovery');
+  }finally{db.close();}
+});
+
+test('overlapping budget publications share one KV write and failed writes remain retryable', async () => {
+  const db=database();let calls=0,release;
+  const gate=new Promise(resolve=>release=resolve);
+  const state=new AbuseState(db.ctx,{KEYS:{put:async()=>{calls++;await gate;}}});
+  state.budget.signal=()=>({day:'2026-11-05',level:'normal'});
+  try{
+    const pending=Array.from({length:50},()=>state.publishBudget());
+    assert.equal(calls,1);release();await Promise.all(pending);assert.equal(calls,1);
+    let fail=true;
+    const replacement=new AbuseState(db.ctx,{KEYS:{put:async()=>{calls++;if(fail)throw new Error('temporary failure');}}});
+    replacement.budget.signal=()=>({day:'2026-11-06',level:'normal'});
+    await replacement.publishBudget();
+    assert.equal(db.sql.exec('SELECT value FROM control WHERE id=2')[0].value,'2026-11-05:normal');
+    fail=false;await replacement.publishBudget();await replacement.publishBudget();
+    assert.equal(calls,3,'One failed attempt and one successful retry; no false success marker');
+    assert.equal(db.sql.exec('SELECT value FROM control WHERE id=2')[0].value,'2026-11-06:normal');
+  }finally{db.close();}
 });

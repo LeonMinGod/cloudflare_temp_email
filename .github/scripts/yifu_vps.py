@@ -164,8 +164,9 @@ def main():
     mode=os.environ.get('YIFU_MODE','verify')
     if mode=='publish-guard':
         from instabox_cpa import deploy_guard_origin
-        deploy_guard_origin()
+        result=deploy_guard_origin('Persist budget publication markers across DO eviction; preserve key authentication, quotas and IP policy')
         api.cf('cpa-abuse-guard/schedules','PUT',[])
+        report('guard-release',result)
         report('guard-schedule',{'crons':[],'authentication_and_ip_policy_preserved':True})
         return
     if mode=='configure-pool':configure_pool();return

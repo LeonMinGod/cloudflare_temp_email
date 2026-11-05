@@ -208,7 +208,7 @@ def deploy_gateway():
     record('gateway',{'worker':name,'version':api.active(name),'origin':origin,'hostname':'yifu.leonmingod.com','domain_registered':registered,'cron':'*/5 * * * *','platform_key_server_only':True})
 
 
-def deploy_guard_origin():
+def deploy_guard_origin(message='Preserve CPA authentication, quotas, IP policy and namespaces'):
     worker='cpa-abuse-guard'
     before=api.active(worker)
     settings=api.cf(worker+'/settings')
@@ -219,7 +219,10 @@ def deploy_guard_origin():
               'compatibility_flags':settings.get('compatibility_flags',[]),
               'keep_bindings':['secret_text','plain_text','json'],
               'bindings':[item for item in bindings if item['type'] not in ['secret_text','plain_text','json']],
-              'annotations':{'workers/message':'Move CPA health checks to InstaBox; preserve authentication, quotas, IP policy and namespaces'}}
+              'annotations':{'workers/message':message}}
+    record('guard-before',{'version':before,'compatibility_date':settings['compatibility_date'],
+        'bindings':[{'name':item['name'],'type':item['type']} for item in bindings],
+        'state_binding':state,'rollback_uses_previous_version':True})
     boundary='cpa-guard-'+os.urandom(12).hex()
     chunks=[]
     for part,mime,body in [('metadata','application/json',json.dumps(metadata).encode()),
@@ -234,7 +237,9 @@ def deploy_guard_origin():
     assert {(b['name'],b['type']) for b in bindings}=={(b['name'],b['type']) for b in staged}
     assert [item for item in staged if item['name']=='STATE']==state
     api.cf(worker+'/deployments','POST',{'strategy':'percentage','versions':[{'version_id':version['id'],'percentage':100}]})
-    record('guard',{'version':api.active(worker),'previous':before,'bindings_preserved':True,'state_namespace_preserved':True,'tests_passed':22,'origin':ORIGIN})
+    result={'version':api.active(worker),'previous':before,'bindings_preserved':True,'state_namespace_preserved':True,'origin':ORIGIN}
+    record('guard',result)
+    return result
 
 
 def stream_probe():
