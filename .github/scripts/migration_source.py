@@ -38,3 +38,45 @@ def prepare():
                 'source_not_stopped':True,'backup_artifact_filename':'backup-before.enc.json'}
             return metadata
     finally:client.close()
+
+
+def state_permissions():
+    import urllib.parse
+    import yifu_key_api as api
+    account=os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()
+    base='https://api.cloudflare.com/client/v4/accounts/'+account
+    def get(path):
+        data=json.loads(api.request(base+path,headers={'Authorization':'Bearer '+os.environ['CLOUDFLARE_API_TOKEN'].strip()})[2])
+        if not data.get('success'):raise RuntimeError('CF metadata lookup rejected')
+        return data
+    result={'status':'passed','role':'source','mode':'verify','state_permissions':{}}
+    for worker,binding in [('leonmingod-home','GAME_RUNS'),('cpa-abuse-guard','STATE')]:
+        settings=api.cf(worker+'/settings')
+        namespace=next(b.get('namespace_id') for b in settings['bindings'] if b['name']==binding)
+        key=worker+'-objects'
+        try:
+            cursor='';count=0;seen=set()
+            while True:
+                data=get('/workers/durable_objects/namespaces/'+namespace+'/objects?limit=1000'+('&cursor='+urllib.parse.quote(cursor,safe='') if cursor else ''))
+                rows=data.get('result') or [];count+=len(rows)
+                more=(data.get('result_info') or {}).get('cursor')
+                if not rows or not more or more in seen or len(rows)<1000:break
+                seen.add(more);cursor=more
+            result['state_permissions'][key]={'readable':True,'objects':count,'namespace_id':namespace}
+        except Exception as exc:result['state_permissions'][key]={'readable':False,'error_type':type(exc).__name__,'error':str(exc)[:150],'namespace_id':namespace}
+    namespace='1b02d139375045f7a7d5ce2d994abd2c'
+    try:
+        cursor='';count=0;prefixes={};seen=set()
+        while True:
+            data=get('/storage/kv/namespaces/'+namespace+'/keys?limit=1000'+('&cursor='+urllib.parse.quote(cursor,safe='') if cursor else ''))
+            rows=data.get('result') or [];count+=len(rows)
+            for row in rows:
+                prefix=row['name'].split(':',1)[0]
+                if prefix not in ['email','key','code','stats','leaderboard','ops','rate','grant']:prefix='other'
+                prefixes[prefix]=prefixes.get(prefix,0)+1
+            more=(data.get('result_info') or {}).get('cursor')
+            if not rows or not more or more in seen or len(rows)<1000:break
+            seen.add(more);cursor=more
+        result['state_permissions']['kv']={'readable':True,'records':count,'prefix_counts':prefixes}
+    except Exception as exc:result['state_permissions']['kv']={'readable':False,'error_type':type(exc).__name__,'error':str(exc)[:150]}
+    return result
