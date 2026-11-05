@@ -6,6 +6,7 @@
 
 - 公益 API：<https://yifu.leonmingod.com/v1>
 - 公益管理：<https://yifu.leonmingod.com/management.html>，原管理密码保留。
+- 独立扩展后台：<https://yifuplus.leonmingod.com/>，官方CPA Manager Plus v1.14.10，密码同公益CPA；保留原管理页。
 - 公益号池：<https://leonmingod.com/model-status/>
 - **`cpa.leonmingod.com` 是用户本机 CPA，禁止改 DNS、绑定、配置或借用其凭证。**
 - `public-cpa.leonmingod.com` 是本次迁移中临时使用的旧入口，已撤下。
@@ -24,6 +25,7 @@ CPA、隧道、监控与网关的cgroup内存合计约75MiB，系统可用内存
                                               /opt/yifu-cpa/data/pool.sqlite
 网站静态资源、邮箱领 Key、真人验证、游戏实时校验 → 原 Cloudflare 服务
 个人 Key 注册表、鉴权与严格限流 → 原 KV / cpa-abuse-guard / Durable Object
+扩展管理后台 → yifuplus.leonmingod.com → 同一Tunnel → 127.0.0.1:18317 CPAMP → 本机8317
 ```
 
 Cloudflare Tunnel 不经过旧的保活 Worker。监控采集、五分钟刷新与十五分钟历史存档已迁到 VPS；
@@ -56,6 +58,9 @@ Cloudflare Tunnel 不经过旧的保活 Worker。监控采集、五分钟刷新�
 | `yifu-gateway.service` | 仅监听 `127.0.0.1:8319`，转8317，`GOMEMLIMIT=32MiB` |
 | `private/safety-baseline-v1.json` | 保护安装前的日志和Tunnel配置，仅供定向回滚 |
 | `private/safety-staged-v1.json` | 安装基线校验记录，不得公开其中凭证文件名 |
+| `yifu-plus.service`、`plus/` | 可选扩展后台及独立SQLite/data.key，监听18317 |
+| `private/plus-config.json`、`private/plus-admin.key` | Plus配置及0600管理员初始化输入；不输出内容 |
+| `yifu-plus-budget.timer` | 每五分钟检查本机磁盘预算，必要时仅暂停可选Plus |
 
 **新 VPS 已删除 `CPA_OAUTH_BOOTSTRAP_FILE` 环境变量。不要恢复它，否则旧 Render 快照可能在重启后复活已删凭证。**
 不要重新运行历史迁移或 restore；用户后续重新授权的文件只能留在当前持久目录，并在更新前做新备份。
@@ -71,13 +76,14 @@ SSH 主机指纹 `SHA256:8l68r+SGZt/kjBcHESsbnkpkGk2AsFaBwgJqXiAeF98`，工作�
 账号 `855d4f34079c0fa88e70628ff65be84a`；zone `4f078f06b815a404337c3b5387c45275`。
 Tunnel `yifu-cpa-lxd-20261104` / `de798c3f-002c-4a28-8e7f-baa9780cfe6b`。
 `yifu` 与诊断别名是 proxied CNAME 到该 Tunnel 的 `cfargotunnel.com` 地址。
-两域名下 `^/_pool/.*$` 先路由到 8318，其余到 8319 再转8317，末尾 catchall 404。Tunnel配置当前version=3。
+两原域名下 `^/_pool/.*$` 先路由到8318，其余到8319再转8317；新增yifuplus单域名到18317，末尾catchall404。
+Tunnel配置当前version=4；新CNAME `beaf6158321f51fde46e28beddb8ecaf` 仅为yifuplus，原路由/DNS/token保留。
 
 ### 域名如何连到新 VPS
 
 新 VPS 已安装 `/opt/yifu-cpa/bin/cloudflared`，由 `yifu-tunnel.service` 管理，开机自启、异常自动重启。
 DNS 的完整目标是 `de798c3f-002c-4a28-8e7f-baa9780cfe6b.cfargotunnel.com`。
-cloudflared 主动向 Cloudflare 建立连接，公网请求经 Tunnel 到本地网关/监控，无需额外公开8317、8318或8319。
+cloudflared 主动向 Cloudflare 建立连接，公网请求经 Tunnel 到本地服务，无需额外公开8317、8318、8319或18317。
 这是远程托管的 Tunnel，ingress 由 Cloudflare 配置；私密 token 位于 `private/cloudflared.token`，禁止输出其内容。
 更新网站或 CPA 时应保留此 Tunnel、DNS 和 token，不必另建隧道或把域名改到用户本机。
 
@@ -156,6 +162,21 @@ GitHub旧`CLOUDFLARE_API_TOKEN`访问Tunnel配置API返回401，不能让CI自�
 回滚顺序：用CF插件/控制台只把两条普通路由恢复8317，再执行`rollback-safety`恢复日志/journal。
 网关保持运行让已有流完成；不要恢复旧auths或整份旧config。安装器拒绝直接替换不同SHA的已有网关，后续更新要单独安排排空。
 
+## CPA Manager Plus（可选独立后台）
+
+已安装官方原生v1.14.10，`yifu-plus.service`开机自启，使用本机8317公益CPA；不替换原management.html，
+不经过CF用量采集链。实际collector为subscribe长连接；auto降级本机HTTP队列时30秒轮询，避免超过队列默认60秒保留期。
+自动巡检、自动冷却/停用/删除保持关闭。完整请求历史从安装后开始，旧公开监控历史保留。
+
+`GOMEMLIMIT=64MiB`、MemoryHigh96M/Max128M、CPUQuota35%、Nice10；测试时内存约32MiB。
+Plus目录超过32MiB或盘空闲少于200MiB时，五分钟预算检查仅停止可选Plus并保留文件，CPA继续运行；
+需整理/导出Plus历史并核对空间后手动启动。不是文件系统硬配额，不自动删除历史。
+
+使用`yifu-vps.yaml`的`verify-plus`复验，`deploy-plus`只用于首次安装并拒绝覆盖已有数据库。
+回滚只撤yifuplus新增DNS/单条Tunnel规则，再停Plus及其budget.timer；保留Plus文件，不碰原业务。
+同密码已验证；以后修改CPA管理密码时，必须按上游文件输入方式重置Plus管理员凭证，并同步加密连接。
+完整文件路径、安装包校验值和公开证据见 [Plus运维](sites/yifu-cpa-manager-plus/README.md)。
+
 ## 备份与恢复
 
 最近保护安装/复验备份 [41892644325](https://github.com/LeonMinGod/cloudflare_temp_email/actions/runs/41892644325)。
@@ -165,6 +186,8 @@ artifact `yifu-daily-backup-<run_id>`保留14天。手动运维artifact `yifu-vp
 34份文件、加解密回读、SQLite一致性和临时副本清理通过，artifact实际到期时间核对为14天。
 备份文件为`backup.enc.json`或更新前后的`backup-before.enc.json`、`backup-after.enc.json`，用AES-256-GCM加密。
 包含 private、auths、systemd，以及通过 Node SQLite backup API 获取的一致性数据库副本；不含可重新取得的运行二进制。
+Plus安装后还包含`plus/usage.sqlite`的一致性副本和`plus/data.key`；两者必须成对，解密验证会拒绝缺失一项的Plus备份。
+Plus管理密码输入和配置已随private一起加密备份，不能把新后台数据和原pool.sqlite混在一起恢复。
 密钥为 `SHA256(YIFU_BACKUP_SECRET + "\nyifu-vps-backup-v1")`，AAD 为 `yifu-vps-backup-v1`。
 明文 schema=1，files 映射为相对路径到 base64 内容。恢复时必须验证 AEAD、路径白名单和目标目录，不能盲解压外来路径。
 每次加密后立即解密回读比对、检查凭证JSON和路径；SQLite副本执行quick_check。

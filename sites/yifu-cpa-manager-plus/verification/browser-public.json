@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-11-05T01:08:09.179Z",
+  "browser": "Chromium via session proxy",
+  "authenticated_browser_tested": false,
+  "actual_password_login_and_credential_api_verified_in_protected_actions": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "origin": "https://yifuplus.leonmingod.com",
+      "login_password_input_visible": true,
+      "already_configured": true,
+      "anonymous_admin_http": 401,
+      "horizontal_overflow": false,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "origin": "https://yifuplus.leonmingod.com",
+      "login_password_input_visible": true,
+      "already_configured": true,
+      "anonymous_admin_http": 401,
+      "horizontal_overflow": false,
+      "errors": []
+    }
+  ]
+}

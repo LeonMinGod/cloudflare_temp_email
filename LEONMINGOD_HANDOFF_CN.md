@@ -9,6 +9,7 @@
 - 号池：<https://leonmingod.com/model-status/>。
 - **公益 API：<https://yifu.leonmingod.com/v1>**。
 - 管理页：<https://yifu.leonmingod.com/management.html>，原密码保留。
+- 扩展完整后台：<https://yifuplus.leonmingod.com/>，CPA Manager Plus v1.14.10，登录密码与公益CPA相同；原管理页保留。
 - **`cpa.leonmingod.com` 属于用户本机，与公益池独立，禁止修改或借用凭证。**
 - Render 和 InstaBox 已退出生产；临时 `public-cpa` 已撤下。
 
@@ -38,6 +39,8 @@ GitHub 旧用户名928886540有重定向，但CF workers.dev子域、资源ID与
 这是实时快照，尚未做生产高并发容量验证。生产根目录 `/opt/yifu-cpa`；四个 systemd 服务
 `yifu-cpa`、`yifu-tunnel`、`yifu-monitor`、`yifu-gateway`。公网通过受管理Cloudflare Tunnel到
 127.0.0.1:8319并发网关，再转原CPA8317；号池路径直接到8318。
+另有可选 `yifu-plus` 服务监听127.0.0.1:18317，只连接本机公益CPA；内置独立Web后台和SQLite，
+实际本机subscribe采集、不走CF监控写入。详情、磁盘暂停阈值与独立回滚见 [Plus运维](sites/yifu-cpa-manager-plus/README.md)。
 
 号池采集改为VPS访问本地CPA，五分钟共享刷新、十五分钟历史存档，SQLite WAL持久化。
 网站 `/api/pool-status` 只签名转发脱敏结果，返回 `X-Pool-Backend: vps`。
@@ -114,6 +117,10 @@ VPS保护：全局4、每Key2个生成并发，最多4个排队、等待2秒，�
 日志总上限50MiB、错误日志5份、详细请求日志关闭；journal持久32MiB/运行时16MiB、最多7天。
 `apply-safety`只安装本地网关与日志设置，Tunnel激活须用已连接CF插件，随后跑`verify-safety`；
 GitHub旧CF凭据不能编辑Tunnel。回滚先恢复两条普通路由到8317，再跑`rollback-safety`，不停止网关中已有流。
+
+Plus的原生安装与验证使用`yifu-vps.yaml`的`deploy-plus` / `verify-plus`，有数据时安装器拒绝覆盖。
+当前Tunnel version=4只新增yifuplus→18317；不要把它当作模型API入口，原yifu→8319/池8318保持原值。
+每日备份已同时保存Plus一致性SQLite和data.key，必须成对恢复；后续修改CPA密码时需同步Plus管理员凭证与加密连接。
 
 旧 `cpa-instabox.yaml`、Render connect/stage/issue、Render中文添加/移除Key、历史入口发布工作流已禁用。
 原文件与历史加密备份保留，只用于考古恢复。不要重新启用它们当作当前VPS发Key工具。

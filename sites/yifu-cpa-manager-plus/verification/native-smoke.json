@@ -1,0 +1,11 @@
+{
+  "release": "v1.14.10",
+  "archive_checksum_verified": true,
+  "isolated_mock_cpa": true,
+  "matching_nonprefixed_password_accepted": true,
+  "anonymous_status": 401,
+  "credential_proxy": 200,
+  "management_key_encrypted_in_database": true,
+  "collector_poll_ms": 30000,
+  "automatic_account_inspection_disabled": true
+}
