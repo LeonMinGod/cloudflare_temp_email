@@ -1,0 +1,9 @@
+{
+  "request_id": "20261105T233152-source-status",
+  "mode": "verify",
+  "run_id": "42130089734",
+  "source_commit": "0e077f22bf24900e2aee2fb8913be2994801b435",
+  "files": {
+    "report.json": "f5eb105a4d65fe10adf7849f640a14a6d21aec08988114bfbd5aba2570be9e91"
+  }
+}
