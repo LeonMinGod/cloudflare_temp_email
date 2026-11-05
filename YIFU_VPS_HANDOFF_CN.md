@@ -1,5 +1,8 @@
 # 义父公益 CPA：VPS 运维交接
 
+> 最新决定：迁往 RAKsmart 的公益站迁移已取消。继续使用原无聊云和 Cloudflare；RAK 只用于个人 VPN。先读 [取消记录](MIGRATION_CANCELLED_CN.md)，不得自行恢复迁移。
+
+
 更新于 2026-11-05（北京时间）。本文不含密钥值。公益 CPA 已迁到新 LXD VPS，Render 与 InstaBox 都不是生产后端。
 
 ## 入口与隔离
