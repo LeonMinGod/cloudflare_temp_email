@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "role": "source",
+  "mode": "verify",
+  "state_permissions": {
+    "leonmingod-home-objects": {
+      "readable": true,
+      "objects": 403,
+      "namespace_id": "2dffacc2783647f0bec81263501de5e1"
+    },
+    "cpa-abuse-guard-objects": {
+      "readable": true,
+      "objects": 1,
+      "namespace_id": "73670c63f6e64753b5402345406cd140"
+    },
+    "kv": {
+      "readable": false,
+      "error_type": "RuntimeError",
+      "error": "GET /client/v4/accounts/855d4f34079c0fa88e70628ff65be84a/storage/kv/namespaces/1b02d139375045f7a7d5ce2d994abd2c/keys: HTTP 401"
+    }
+  }
+}
