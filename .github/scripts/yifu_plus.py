@@ -137,6 +137,10 @@ def collector_summary(value):
     return {**{name: value[name] for name in fields if name in value}, 'has_error': bool(value.get('lastError'))}
 
 
+def install_notice(sftp):
+    write(sftp, PLUS + '/LICENSE', Path('sites/yifu-cpa-manager-plus/LICENSE').read_bytes(), 0o644)
+
+
 def deploy(client, sftp):
     backup(client, sftp, 'backup-before')
     before = inspect_resources(client, sftp)
@@ -151,6 +155,7 @@ def deploy(client, sftp):
         pass
     raw = native_binary('cpamp-native.tar.gz')
     run(client, 'install -d -o cpa -g cpa -m 0700 ' + PLUS)
+    install_notice(sftp)
     write(sftp, BINARY + '.next', raw, 0o755)
     assert run(client, 'sha256sum ' + BINARY + '.next').split()[0] == hashlib.sha256(raw).hexdigest()
     sftp.posix_rename(BINARY + '.next', BINARY)
@@ -260,6 +265,12 @@ def main():
                 deploy(client, sftp)
             elif mode == 'verify-plus':
                 verify(client, sftp)
+            elif mode == 'finalize-plus':
+                install_notice(sftp)
+                assert local_request(client, '/status')['http'] == 200
+                report('plus-notice', {'upstream_license_installed': True, 'authenticated_status_http': 200,
+                    'processes_not_restarted': True})
+                backup(client, sftp, 'backup-after')
             else:
                 raise ValueError('Unsupported CPAMP operation')
     finally:
