@@ -1,5 +1,5 @@
 """Read-only source and destination inventory for the owner's staged migration."""
-import collections,hashlib,json,os,sys
+import collections,hashlib,json,os,sys,traceback
 from pathlib import Path
 
 
@@ -47,9 +47,19 @@ def target():
 def main():
     mode=os.environ['MIGRATION_MODE']
     role=os.environ['MIGRATION_ROLE']
+    req=json.loads(Path('.github/migration-request.json').read_text())
+    if role=='source' and req.get('operation')=='cloudflare-hooks':
+        from migration_cloudflare import hooks
+        return hooks()
+    if role=='source' and req.get('operation')=='cloudflare-state':
+        from migration_cloudflare import state_export
+        return state_export()
     if mode=='prepare' and role=='source':
         from migration_source import prepare
         return prepare()
+    if mode=='export' and role=='source' and json.loads(Path('.github/migration-request.json').read_text()).get('operation')=='cloudflare-code':
+        from migration_cloudflare import capture_export
+        return capture_export()
     if mode=='export' and role=='source':
         from migration_snapshot import export
         return export()
@@ -64,7 +74,7 @@ if __name__=='__main__':
     Path('migration-operation').mkdir(exist_ok=True)
     try:data=main()
     except Exception as exc:
-        data={'status':'failed','role':os.environ.get('MIGRATION_ROLE'),'error_type':type(exc).__name__,'error':'Read-only inventory failed; inspect prerequisite status without dumping credentials'}
+        data={'status':'failed','role':os.environ.get('MIGRATION_ROLE'),'error_type':type(exc).__name__,'error':'Migration operation failed; private outputs withheld','location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(exc.__traceback__)]}
     Path('migration-operation/report.json').write_text(json.dumps(data,indent=2))
     print(json.dumps(data),flush=True)
     if data['status']!='passed':sys.exit(1)
