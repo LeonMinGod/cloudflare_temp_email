@@ -107,7 +107,10 @@ def main():
     OUT.mkdir(exist_ok=True)
     try:
         req=json.loads(Path('.github/production-request.json').read_text())
-        if req['mode']=='browser-publish':
+        if req['mode']=='linuxserver-publish':
+            from production_linuxserver_cf import publish
+            result=publish(req)
+        elif req['mode']=='browser-publish':
             from production_browser_cf import publish
             result=publish(req)
         elif req['mode']=='muse-publish':
