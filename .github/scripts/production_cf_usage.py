@@ -1,5 +1,5 @@
 """Read-only quota investigation. Calls Cloudflare control-plane APIs, never site URLs."""
-import base64,datetime,json,os,sys,urllib.request,urllib.error
+import base64,datetime,json,os,re,sys,urllib.request,urllib.error
 from pathlib import Path
 from production_crypto import seal,checked_id
 
@@ -40,7 +40,8 @@ def fields(name):
 def main():
     OUT.mkdir(exist_ok=True)
     request=json.loads(Path('.github/cf-usage-audit-request.json').read_text())
-    checked_id(request['request_id']);checked_id(request['session'])
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{5,100}',request['request_id']):raise ValueError('Invalid audit request identity')
+    checked_id(request['session'])
     with open(os.environ['GITHUB_ENV'],'a') as env:env.write('OPS_REQUEST_ID='+request['request_id']+'\n')
     account=os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()
     days=[datetime.date.fromisoformat(value) for value in request['days']]
