@@ -1,6 +1,7 @@
 export default {
  async fetch(request, env) {
   const incoming=new URL(request.url), origin=new URL('https://sj.leonmingod.com');
+  if(incoming.protocol!=='https:'){incoming.protocol='https:';return Response.redirect(incoming.href,308)}
   origin.pathname=env.BROWSER_ORIGIN_PREFIX+incoming.pathname;origin.search=incoming.search;
   const headers=new Headers(request.headers);
   headers.set('Host','sj.leonmingod.com');
