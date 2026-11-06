@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "mode": "remove-beszel",
+  "role": "source",
+  "offline_backup": "/opt/rak-production/rak-prod-20261106-7d8f1224ab99/beszel-offline-source.tar.gz",
+  "hub_removed": false,
+  "agent_removed": true,
+  "old_workflow_disabled": true,
+  "vpn_or_business_unchanged": true
+}

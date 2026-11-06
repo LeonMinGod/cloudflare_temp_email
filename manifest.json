@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T043523-source-retire-beszel-1db98d",
+  "run_id": "42163409918",
+  "source_commit": "64b7fae7c23a06b863e0cabf5e10db823ef8a54b",
+  "files": {
+    "report.json": "9a296a33e1d1ac3e10cea92d0254669fc72f44a7cb8520faa9ec530c5c06b5a6",
+    "diagnostics.json": "1b64a38a00ad08c808c5eeadc938e9e624078f2240d0da55b7491bbea2b6b052"
+  }
+}
