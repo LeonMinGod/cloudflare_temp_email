@@ -91,14 +91,14 @@ def _publish(req):
     with sync_playwright() as playwright:
         chrome=shutil.which('google-chrome') or shutil.which('google-chrome-stable')
         if not chrome:raise RuntimeError('Actions image lacks its documented Google Chrome executable')
-        browser=playwright.chromium.launch(headless=True,executable_path=chrome,args=['--disable-quic','--disable-http2'])
+        browser=playwright.chromium.launch(headless=True,executable_path=chrome)
         try:
             context=browser.new_context(viewport={'width':1440,'height':1000})
             page=context.new_page();errors=[];network=[]
             page.on('pageerror',lambda error:errors.append(str(error)[:600]))
             page.on('console',lambda event:errors.append(event.type+': '+event.text[:600]) if event.type=='error' else None)
             page.on('request',lambda request:errors.append('login origin: '+request.headers.get('origin','missing')) if request.url==base+'/login' else None)
-            page.on('request',lambda request:network.append({'event':'request','url':request.url,'type':request.resource_type,'has_cookie':bool(request.headers.get('cookie'))}) if DOMAIN in request.url else None)
+            page.on('request',lambda request:network.append({'event':'request','url':request.url,'type':request.resource_type}) if DOMAIN in request.url else None)
             page.on('requestfailed',lambda request:network.append({'event':'failed','url':request.url,'error':request.failure}))
             page.on('response',lambda response:network.append({'event':'response','url':response.url,'http':response.status,'type':response.headers.get('content-type')}) if DOMAIN in response.url else None)
             page.on('response',lambda response:errors.append(str(response.status)+' '+response.url) if response.status>=400 and DOMAIN in response.url else None)
