@@ -213,6 +213,8 @@ def cutover(req):
             config=yaml.safe_load(read(sftp,ROOT+'/private/config.yaml'));env=private_env(sftp)
             inventory=public_probe(config)
             if inventory.get('http')!=200:raise RuntimeError('Existing production preflight failed')
+            model=next((m for m in ['gpt-6.1-sol','gpt-6.1-terra','grok-4.7'] if m in inventory.get('model_ids',[])),None)
+            if not model:raise RuntimeError('No suitable canary model before cutover')
             directory=source_restore_assets(source,sftp,req,peer)
             run(source,'systemctl stop rak-business-rollback.timer rak-business-rollback.service >/dev/null 2>&1 || true')
             run(source,'systemd-run --unit=rak-business-rollback --on-active=900 /bin/sh '+directory+'/rollback-source.sh');armed=True
@@ -240,8 +242,7 @@ def cutover(req):
             for key in keys_of(config):
                 r=urllib.request.Request('https://yifu.leonmingod.com/v1/models',headers={'Authorization':'Bearer '+key,'User-Agent':'Yifu-Safety-Verification/1.0'})
                 with urllib.request.urlopen(r,timeout=30) as response:static.append(len(json.load(response)['data']))
-            model=next((m for m in ['gpt-6.1-sol','gpt-6.1-terra','grok-4.7'] if m in model_check.get('model_ids',[])),None)
-            if not model:raise RuntimeError('No suitable canary model')
+            if model not in model_check.get('model_ids',[]):raise RuntimeError('Canary model registry changed during cutover')
             inference={kind:public_probe(config,model,stream) for kind,stream in [('nonstream',False),('stream',True)]}
             if not all(r.get('generated') for r in inference.values()) or not inference['stream'].get('done'):raise RuntimeError('Upstream inference failed')
             plus=[]
