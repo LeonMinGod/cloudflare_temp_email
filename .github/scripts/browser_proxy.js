@@ -12,6 +12,8 @@ export default {
     redirect:'manual',cf:{cacheTtl:0,cacheEverything:false}});
    if(upstream.status===101)return upstream;
    const responseHeaders=new Headers(upstream.headers);
+   const csp=responseHeaders.get('Content-Security-Policy');
+   if(csp)responseHeaders.set('Content-Security-Policy',csp.replace("connect-src 'self';","connect-src 'self' wss://browser.leonmingod.com;"));
    responseHeaders.set('Cache-Control','no-store');responseHeaders.set('Referrer-Policy','no-referrer');
    responseHeaders.set('X-Content-Type-Options','nosniff');responseHeaders.set('X-Frame-Options','DENY');
    return new Response(upstream.body,{status:upstream.status,headers:responseHeaders});
