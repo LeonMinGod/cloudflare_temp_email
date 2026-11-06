@@ -3,7 +3,7 @@
   "mode": "migration-observe",
   "owner_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUEwSzZtK2R2UXlWVDdDRGprQlAybApuYzErdmZqZEFZR2JJVElkUytOeGtLb0ZMQ2dWdjZWUjkva1dFaWZ6aXIxdEtaYjBXTFg4aWxmMTVxaWw3c1BYCjFjRmE0WnBMN05OTnFoY29LU1pjbU4zc2JlNDlrc2tVaklYcExicStiNjNEMjYxZ0pkY3pnbGFxVElVMzMyU1oKRHE2ZXBOOWVTQWpNbGZRVUY1Y3h1aHc5VDFlYmI3aXdXZGtsSmJ5dW9GSS8xN1V0MFFncm5YbEw0Yi9KTy9hQQpHb05BamZHMWNibXJDM2QvOG5ZbTFFWVBOaHp3UlJNTEFpdHNNYitzVmZXK2tkdXJpTGxtWWdmVzVGTEsvZTFBCk41TzYxR29GYUsycmY4SmVGNHo1OTNjTGJudllHRDlFZHBWcW1iQit0a3I5ZXAyMytrOWcraFhNNVRIQWw0blkKQVVGNGJwV2FjR0h6UFVadUF6Q3BlQzVMOW51d1c3eVVGNDdWU0xmNjUxd2RUeG8rQnd6RytINDlvdUtib1VGcAp0QnlqUUhuNjQvaGY5MHViaEYreXpLcVQyeFRweVdMSStWZWRNNUZ3VVdHMHBZMVRiU3ZGSndHbzBIbEVjbDdyCkM5UjJJWGhSWkt0ZjFrSlFUaEw1dlhmL29lVUhMUTJZK0ZoNjB4MWc2Q1FuQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
   "authorization": "User explicitly reauthorizes full migration and Komari replacement; preserve VPN and production data",
-  "request_id": "20261106T102736-cf-final-verification-33fb92",
+  "request_id": "20261106T103014-cf-final-observe-d90001",
   "peer_envelope": {
     "format": "AES-256-GCM+RSA-OAEP-SHA256",
     "purpose": "lmg-production-ops-v1",

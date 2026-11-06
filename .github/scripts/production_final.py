@@ -31,9 +31,12 @@ def observe(req):
             if public.get('http')!=200 or not public.get('models'):raise RuntimeError('Public API unavailable while source stopped')
             disabled=[]
             for name in ['yifu-vps.yaml','yifu-vps-backup.yaml']:
-                request=urllib.request.Request('https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/workflows/'+name+'/disable',method='PUT',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
-                with urllib.request.urlopen(request,timeout=30) as response:
-                    if response.status!=204:raise RuntimeError('Old VPS writer workflow not disabled')
+                url='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/workflows/'+name
+                headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}
+                with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as response:state=json.load(response)['state']
+                if not state.startswith('disabled'):
+                    with urllib.request.urlopen(urllib.request.Request(url+'/disable',method='PUT',headers=headers),timeout=30) as response:
+                        if response.status!=204:raise RuntimeError('Old VPS writer workflow not disabled')
                 disabled.append(name)
             data['public_api_with_source_stopped']={'http':public['http'],'models':public['models']};data['old_vps_writer_workflows_disabled']=disabled
             if req.get('expected_cf_versions'):
