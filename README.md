@@ -1,3 +1,5 @@
+> **2026-11-06 生产位置已更新：** 公益 VPS 业务已迁至 RAKsmart `198.247.1.206:22881`；无聊云旧业务停止并禁用。请先读 [最新接手说明](CLOUD_CODEX_START_CN.md) 和 [RAK 验收报告](https://github.com/LeonMinGod/RAKsmart/blob/main/PRODUCTION_20261106_CN.md)。本文旧机地址、资源和旧工作流说明仅作历史参考；CF 前端、Key 和身份存储继续保留原架构。
+
 <!-- markdownlint-disable-file MD033 MD045 -->
 # Cloudflare 临时邮箱 - 免费搭建临时邮件服务
 
