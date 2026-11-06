@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T125340-browser-http-41998a",
+  "run_id": "42221153136",
+  "source_commit": "1a3d6b9f1f66cc45cbcf4a991f3a2f7dd41d2c14",
+  "files": {
+    "report.json": "54ea3dcb67d19fa2ea076567ee1a7395b83767261b4db3f666932a561dbc69c4",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c"
+  }
+}
