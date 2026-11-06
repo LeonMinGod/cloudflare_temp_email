@@ -10,6 +10,8 @@
 
 ### Features
 
+- feat: |Cloudflare operations| Add a read-only control-plane audit of daily Worker requests and time series with encrypted diagnostics, without visiting production pages or changing deployments
+
 - docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
 
 - feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
