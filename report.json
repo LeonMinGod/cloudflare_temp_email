@@ -1,0 +1,47 @@
+{
+  "status": "failed",
+  "role": "source",
+  "error_type": "HTTPError",
+  "location": [
+    {
+      "file": "production_ops.py",
+      "function": "main",
+      "line": 137
+    },
+    {
+      "file": "production_final.py",
+      "function": "observe",
+      "line": 35
+    },
+    {
+      "file": "request.py",
+      "function": "urlopen",
+      "line": 215
+    },
+    {
+      "file": "request.py",
+      "function": "open",
+      "line": 521
+    },
+    {
+      "file": "request.py",
+      "function": "http_response",
+      "line": 630
+    },
+    {
+      "file": "request.py",
+      "function": "error",
+      "line": 559
+    },
+    {
+      "file": "request.py",
+      "function": "_call_chain",
+      "line": 492
+    },
+    {
+      "file": "request.py",
+      "function": "http_error_default",
+      "line": 639
+    }
+  ]
+}
