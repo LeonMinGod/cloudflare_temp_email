@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "role": "source",
+  "mode": "verify",
+  "operation": "domain-diagnostics",
+  "public_monitor": {
+    "http": 200,
+    "content_type": "application/json",
+    "server": "cloudflare",
+    "body_bytes_sampled": 50,
+    "title": null,
+    "health_json_status": 200
+  },
+  "direct_private_origin": {
+    "http": 200,
+    "content_type": "application/json",
+    "server": null,
+    "body_bytes_sampled": 50,
+    "title": null,
+    "health_json_status": 200
+  },
+  "applicable_zone_routes": [],
+  "domain_binding": [
+    {
+      "hostname": "vps.leonmingod.com",
+      "service": "leonmingod-private-vps"
+    }
+  ]
+}
