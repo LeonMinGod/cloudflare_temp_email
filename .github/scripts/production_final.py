@@ -30,7 +30,7 @@ def observe(req):
             public=public_probe(cfg)
             if public.get('http')!=200 or not public.get('models'):raise RuntimeError('Public API unavailable while source stopped')
             disabled=[]
-            for name in ['yifu-vps.yaml','yifu-vps-backup.yaml']:
+            for name in ['yifu-vps.yaml','yifu-vps-backup.yaml','rak-vpn.yaml']:
                 url='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/workflows/'+name
                 headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}
                 with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as response:state=json.load(response)['state']
