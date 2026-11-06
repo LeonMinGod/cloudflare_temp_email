@@ -120,6 +120,9 @@ def main():
         elif req['mode']=='os-upgrade-audit':
             from production_business import os_audit
             result=os_audit(req)
+        elif req['mode']=='komari-agent-probes':
+            from production_komari import agent_probes
+            result=agent_probes(req)
         elif req['mode']=='migration-switch':
             from production_business import cutover
             result=cutover(req)

@@ -9,6 +9,9 @@ from vps_monitor_install import protect_unchanged
 LAUNCH='/opt/lmg-runtime/v1/lib/ld-linux-x86-64.so.2 --library-path /opt/lmg-runtime/v1/lib /opt/lmg-runtime/v1/node'
 USERNAME='leonming0107@gmail.com'
 
+def node_launcher(client):
+    return '/usr/local/bin/node' if run(client,'test -x /usr/local/bin/node && echo native || true').strip()=='native' else LAUNCH
+
 def credentials(sftp,req):
     private=read(sftp,BASE+'/private/recipient.pem')
     value=json.loads(unseal(json.dumps(req['credential_envelope']).encode(),private,req['session'],'komari-admin'))
@@ -67,7 +70,7 @@ def admin(req):
             write(sftp,directory+'/komari-admin.enc.json',json.dumps(req['credential_envelope']))
             try:
                 phase('komari-consistent-backup-password')
-                updated=json.loads(run(client,LAUNCH+' --input-type=module -e '+shlex.quote(PASSWORD_UPDATE)+' '+path,timeout=120))
+                updated=json.loads(run(client,node_launcher(client)+' --input-type=module -e '+shlex.quote(PASSWORD_UPDATE)+' '+path,timeout=120))
                 phase('komari-private-login-and-monthly-quota')
                 configured=json.loads(run(client,'python3 -c '+shlex.quote(CONFIGURE)+' '+path,timeout=120))
             finally:sftp.remove(path)
@@ -223,14 +226,21 @@ def browser(req):
             browser=p.webkit.launch()
             device=dict(p.devices['iPhone 13']);device['user_agent']=UA
             context=browser.new_context(**device,locale='zh-CN',color_scheme='light')
-            page=context.new_page();response=page.goto(DOMAIN+'/admin/login',wait_until='networkidle',timeout=60000)
+            page=context.new_page();network_errors=[];console_errors=[]
+            page.on('response',lambda r:network_errors.append({'path':urllib.parse.urlsplit(r.url).path,'status':r.status}) if r.status>=400 else None)
+            page.on('pageerror',lambda e:console_errors.append(str(e)))
+            response=page.goto(DOMAIN+'/admin/login',wait_until='networkidle',timeout=60000)
             evidence['initial']={'status':response.status,'title':page.title(),'html':page.content()[:100000]}
             OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(evidence).encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-browser-evidence'))
             page.locator('input[name="username"]').fill(auth['username']);page.locator('input[name="password"]').fill(auth['password'])
             with page.expect_response(lambda r:r.url.endswith('/api/login')) as login:
                 page.locator('form').filter(has=page.locator('input[name="password"]')).locator('button[type="submit"]').click()
             if login.value.status!=200:raise RuntimeError('WebKit form login failed')
-            page.goto(DOMAIN,wait_until='networkidle',timeout=60000)
+            home=page.goto(DOMAIN,wait_until='networkidle',timeout=60000)
+            page.wait_for_timeout(6000)
+            evidence['home']={'status':home.status,'url':page.url,'html':page.content()[:120000],'text':page.inner_text('body')[:12000],'network_errors':network_errors,'page_errors':console_errors,'cookie_names':[c['name'] for c in context.cookies()]}
+            evidence['screenshots']['home-diagnostic']=base64.b64encode(page.screenshot(full_page=True)).decode()
+            OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(evidence).encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-browser-evidence'))
             page.locator('.km-node-card').nth(1).wait_for(timeout=60000)
             page.wait_for_function("document.querySelectorAll('.rak-month-budget').length===2",timeout=45000)
             for width,scheme in [(390,'light'),(375,'dark')]:
@@ -239,8 +249,15 @@ def browser(req):
                 if layout['scroll']>width+1 or len(layout['cards'])!=2 or any(c['width']>width or c['x']<0 for c in layout['cards']):raise RuntimeError('Mobile card layout overflow')
                 evidence['checks'].append({'width':width,'scheme':scheme,'layout':layout})
                 evidence['screenshots'][str(width)+'-'+scheme]=base64.b64encode(page.screenshot(full_page=True)).decode()
-            page.locator('.km-node-card a[href^="/instance/"]').first.click();page.wait_for_url('**/instance/**');page.locator('.km-load-chart svg.recharts-surface').first.wait_for(timeout=45000)
-            evidence['node_detail']={'url_path':urllib.parse.urlsplit(page.url).path,'svg_elements':page.locator('svg').count(),'body_has_cpu': 'CPU' in page.inner_text('body')}
+            if page.locator('.km-node-card button[data-detail]').count():
+                page.locator('.km-node-card button[data-detail]').first.click()
+                page.locator('#detail-dialog[open]').wait_for(timeout=45000)
+                page.locator('#detail-content svg, #detail-content canvas').first.wait_for(timeout=45000)
+                detail=page.locator('#detail-content').inner_text()
+                evidence['node_detail']={'theme':'MIKU39','dialog_open':True,'chart_elements':page.locator('#detail-content svg, #detail-content canvas').count(),'body_has_cpu':'CPU' in detail,'text':detail[:6000]}
+            else:
+                page.locator('.km-node-card a[href^="/instance/"]').first.click();page.wait_for_url('**/instance/**');page.locator('.km-load-chart svg.recharts-surface').first.wait_for(timeout=45000)
+                evidence['node_detail']={'url_path':urllib.parse.urlsplit(page.url).path,'svg_elements':page.locator('svg').count(),'body_has_cpu':'CPU' in page.inner_text('body')}
             evidence['screenshots']['node-detail']=base64.b64encode(page.screenshot(full_page=True)).decode()
             page.goto(DOMAIN+'/admin',wait_until='networkidle',timeout=45000)
             if '/admin' not in page.url or page.locator('input[name="password"]').count():raise RuntimeError('Admin page not authenticated')
@@ -291,3 +308,87 @@ def style(req):
             finally:sftp.remove(path)
             return {'status':'passed','mode':'komari-style','no_service_restart':True,**result}
     finally:client.close()
+
+def theme_style(req):
+    """Update only our marked monthly widget, preserving the owner's chosen theme."""
+    phase('komari-theme-aware-monthly-widget');client=connect()
+    try:
+        with client.open_sftp() as sftp:
+            auth=credentials(sftp,req);jar,opener,api=public_session(auth)
+            existing=api('/api/admin/settings/');existing=existing.get('data',existing)
+            snapshot=BASE+'/'+req['session']+'/komari-style-before-'+req['request_id']+'.json'
+            write(sftp,snapshot,json.dumps(existing))
+            head=existing.get('custom_head','') or ''
+            start='<!-- rak-mobile-budget-v1:start -->';end='<!-- rak-mobile-budget-v1:end -->'
+            if start in head:
+                if end not in head:raise RuntimeError('Monthly widget marker incomplete')
+                head=head.split(start,1)[0]+head.split(end,1)[1]
+            patch={'custom_head':head+'\n'+Path('.github/scripts/komari_mobile_head.html').read_text()}
+            if api('/api/admin/settings/',patch).get('status')!='success':raise RuntimeError('Monthly widget update failed')
+            checked=api('/api/admin/settings/');checked=checked.get('data',checked)
+            if checked.get('theme')!=existing.get('theme') or checked.get('private_site')!=existing.get('private_site'):
+                api('/api/admin/settings/',{'custom_head':existing.get('custom_head','')})
+                raise RuntimeError('Existing theme or privacy unexpectedly changed')
+            probes=configure_probes_and_billing(client,sftp,req,api)
+            return {'status':'passed','mode':'komari-theme-style','theme_preserved':existing.get('theme'),'privacy_preserved':True,'monthly_progress_widget':True,'vpn_and_hub_not_restarted':True,'snapshot':snapshot,**probes}
+    finally:client.close()
+
+def allow_agent_icmp(client,sftp,req):
+    # The official Agent opens a raw ICMP socket. Grant only NET_RAW, without root.
+    directory='/etc/systemd/system/komari-agent.service.d'
+    run(client,'install -d -m 0755 '+directory)
+    path=directory+'/20-icmp-probes.conf'
+    body='[Service]\nCapabilityBoundingSet=CAP_NET_RAW\nAmbientCapabilities=CAP_NET_RAW\n'
+    try:previous=read(sftp,path).decode()
+    except FileNotFoundError:previous=''
+    if previous!=body:
+        write(sftp,path,body,0o644)
+        run(client,'systemctl daemon-reload\nsystemctl restart komari-agent')
+    pid=run(client,'systemctl show -p MainPID --value komari-agent').strip()
+    status=run(client,'cat /proc/'+pid+'/status')
+    caps=int(re.search(r'^CapEff:\s*([0-9a-f]+)',status,re.M).group(1),16)
+    if caps!=0x2000:raise RuntimeError('Agent must have only the ICMP capability')
+    if run(client,'systemctl show -p User --value komari-agent').strip()!='komari-agent':raise RuntimeError('Agent unexpectedly privileged')
+    return {'agent_user':'komari-agent','agent_only_capability':'CAP_NET_RAW'}
+
+def agent_probes(req):
+    from vps_monitor_install import protect_unchanged
+    phase('komari-agent-icmp-capability');client=connect()
+    try:
+        before=baseline(client)
+        with client.open_sftp() as sftp:result=allow_agent_icmp(client,sftp,req)
+        protect_unchanged(client,before)
+        return {'status':'passed','mode':'komari-agent-probes','business_and_vpn_unchanged':True,**result}
+    finally:client.close()
+
+def configure_probes_and_billing(client,sftp,req,api):
+    phase('komari-three-carrier-probes-and-billing')
+    nodes=json.loads(read(sftp,'/opt/komari/.node-access.json'))
+    uuids=[nodes[k]['uuid'] for k in ['rak','yifu']]
+    # Existing operator public DNS endpoints: a single ICMP packet per minute per Agent.
+    desired=[('电信','202.96.128.86'),('联通','202.99.104.68'),('移动','211.136.192.6')]
+    current=api('/api/admin/ping');current=current.get('data',[]) if isinstance(current,dict) else current
+    write(sftp,BASE+'/'+req['session']+'/ping-before-'+req['request_id']+'.json',json.dumps(current))
+    for name,target in desired:
+        matching=[t for t in current if t.get('name')==name]
+        if len(matching)>1:raise RuntimeError('Ambiguous existing carrier probe')
+        item={'name':name,'type':'icmp','target':target,'clients':uuids,'default_on':False,'interval':60}
+        payload={'tasks':[{**matching[0],**item}]} if matching else item
+        endpoint='/api/admin/ping/edit' if matching else '/api/admin/ping/add'
+        if api(endpoint,payload).get('status')!='success':raise RuntimeError('Carrier probe update failed')
+    billing=[('rak',3.21,'$',30,'2026-11-05','2026-12-05T00:00:00+08:00'),('yifu',10,'¥',365,'2026-11-04','2027-11-04T00:00:00+08:00')]
+    listed=api('/api/admin/client/list');listed=listed.get('data',[]) if isinstance(listed,dict) else listed
+    write(sftp,BASE+'/'+req['session']+'/billing-before-'+req['request_id']+'.json',json.dumps(listed))
+    for key,price,currency,cycle,purchased,expiry in billing:
+        uuid=nodes[key]['uuid'];previous=next(n for n in listed if n['uuid']==uuid)
+        remark=previous.get('public_remark','') or ''
+        marker='购买日期：'+purchased
+        if marker not in remark:remark=(remark+'\n'+marker+'；续费日期按购买日推算。').strip()
+        payload={'price':price,'currency':currency,'billing_cycle':cycle,'expired_at':expiry,'public_remark':remark}
+        if api('/api/admin/client/'+uuid+'/edit',payload).get('status')!='success':raise RuntimeError('Node billing update failed')
+    capability=allow_agent_icmp(client,sftp,req)
+    checked=api('/api/admin/client/list');checked=checked.get('data',[]) if isinstance(checked,dict) else checked
+    for key,price,currency,cycle,purchased,expiry in billing:
+        n=next(n for n in checked if n['uuid']==nodes[key]['uuid'])
+        if n.get('price')!=price or n.get('billing_cycle')!=cycle or n.get('currency')!=currency:raise RuntimeError('Billing verification failed')
+    return {'carrier_probe_interval_seconds':60,'carrier_probe_type':'icmp','carrier_probe_targets':dict(desired),'agents_assigned':2,'billing':{'RAKsmart':{'price':3.21,'currency':'USD','cycle':'monthly','purchased':'2026-11-05','estimated_next_renewal':'2026-12-05'},'无聊云':{'price':10,'currency':'CNY','cycle':'yearly','purchased':'2026-11-04','estimated_next_renewal':'2027-11-04'}},**capability}
