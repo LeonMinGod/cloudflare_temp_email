@@ -165,6 +165,9 @@ def switch(req):
 def source_agent(req):
     phase('komari-source-agent');client=connect()
     try:
+        # The old unit used this same node/config. Two units evict each other's
+        # WebSocket and can spend the account's entire Worker request quota.
+        run(client,'if systemctl is-active --quiet komari-source-agent.service || systemctl is-enabled --quiet komari-source-agent.service; then exit 42; fi')
         before=baseline(client)
         with client.open_sftp() as sftp:
             packet=json.loads(unseal(json.dumps(req['peer_envelope']).encode(),read(sftp,BASE+'/private/recipient.pem'),req['session'],'komari-source-agent'))

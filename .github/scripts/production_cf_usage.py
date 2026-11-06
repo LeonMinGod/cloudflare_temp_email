@@ -87,6 +87,13 @@ def main():
             current['execution_statuses'],current['status_error']=query_rows(account,current['start_utc'],current['end_utc'],'scriptName status',extra)
         if request.get('detail_worker'):
             name=request['detail_worker']
+            if request.get('detail_minutes') and 'datetimeMinute' in dimension_fields:
+                minutes=int(request['detail_minutes'])
+                if not 1<=minutes<=30:raise ValueError('Minute detail window limited to 30 minutes')
+                now=datetime.datetime.now(datetime.timezone.utc)
+                detail_end=min(now,datetime.datetime.fromisoformat(current['end_utc'].replace('Z','+00:00')))
+                detail_start=max(detail_end-datetime.timedelta(minutes=minutes),datetime.datetime.fromisoformat(current['start_utc'].replace('Z','+00:00')))
+                current['worker_minutes'],current['worker_minutes_error']=query_rows(account,detail_start.strftime('%Y-%m-%dT%H:%M:%SZ'),detail_end.strftime('%Y-%m-%dT%H:%M:%SZ'),'scriptName datetimeMinute',extra,worker=name)
             dims='scriptName '+' '.join(x for x in ['httpResponseStatus','eventType','status'] if x in dimension_fields)
             current['worker_details'],current['worker_details_error']=query_rows(account,current['start_utc'],current['end_utc'],dims,extra,worker=name)
             if 'scriptVersion' in dimension_fields:

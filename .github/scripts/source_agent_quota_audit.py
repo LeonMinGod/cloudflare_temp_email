@@ -4,27 +4,6 @@ from pathlib import Path
 from production_crypto import seal
 from yifu_vps import connect
 
-REMOTE = r'''import pathlib,json,subprocess,urllib.parse,re,hashlib
-cfg=json.load(open('/var/lib/komari-agent/config.json'));token=cfg.get('token','');u=urllib.parse.urlsplit(cfg.get('endpoint',''))
-def run(args):
- p=subprocess.run(args,capture_output=True,text=True,timeout=25)
- text=p.stdout[-70000:]
- if token:text=text.replace(token,'[REDACTED]')
- text=re.sub(r'([?&](?:token|secret|password|key)=)[^&\s"\']+',r'\1[REDACTED]',text,flags=re.I)
- return {'exit':p.returncode,'text':text}
-processes=[]
-for p in pathlib.Path('/proc').iterdir():
- if not p.name.isdigit():continue
- try:
-  args=(p/'cmdline').read_bytes().split(b'\0');exe=args[0].decode(errors='replace')
-  if not exe.endswith('/komari-agent') and exe!='komari-agent':continue
-  stat=(p/'stat').read_text().split(') ',1)[1].split()
-  processes.append({'pid':int(p.name),'ppid':int(stat[1]),'executable':exe,'config_paths':[args[i+1].decode(errors='replace') for i,a in enumerate(args[:-1]) if a in [b'--config',b'-c']]})
- except (OSError,IndexError):pass
-out={'config':{'endpoint_scheme':u.scheme,'endpoint_host':u.hostname,'has_path_prefix':bool(u.path.strip('/')),'interval':cfg.get('interval'),'reconnect_interval':cfg.get('reconnect_interval'),'token_sha256_prefix':hashlib.sha256(token.encode()).hexdigest()[:12]},'processes':processes,'agent_unit':run(['systemctl','show','komari-agent','-p','ActiveState','-p','MainPID','-p','NRestarts','-p','FragmentPath','-p','ExecMainStartTimestamp']),'units':run(['systemctl','list-units','--all','--no-pager','*komari*']),'agent_logs':run(['journalctl','-u','komari-agent','--since','10 minutes ago','-n','500','--no-pager'])}
-print(json.dumps(out))
-'''
-
 REMOTE_NODE = r'''import fs from 'node:fs';import{execFileSync}from'node:child_process';import{createHash}from'node:crypto';
 const cfg=JSON.parse(fs.readFileSync('/var/lib/komari-agent/config.json')),token=cfg.token||'',url=new URL(cfg.endpoint);
 function run(args){try{let text=execFileSync(args[0],args.slice(1),{encoding:'utf8',timeout:25000,maxBuffer:1024*1024,stdio:['ignore','pipe','ignore']}).slice(-70000);if(token)text=text.split(token).join('[REDACTED]');return{exit:0,text:text.replace(/([?&](?:token|secret|password|key)=)[^&\s"']+/gi,'$1[REDACTED]')}}catch(e){return{exit:e.status||1,text:''}}}

@@ -38,6 +38,8 @@
 
 ### Bug Fixes
 
+- fix: |Komari| Refuse duplicate node services before deployment and add minute-level quota comparisons
+
 - fix: |Komari| Back up and retire the duplicate old-VPS monitor service, preserve the canonical Agent/configuration, and observe reconnects with rollback on failure
 
 - fix: |Yifu Token| Remember verified browsers for two hours across refreshes, retries and claim paths while retaining signed server checks, live gameplay and rate limits
