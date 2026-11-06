@@ -1,0 +1,74 @@
+name: Komari source private agent install
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/komari-source-install.yml']
+permissions:
+  contents: read
+concurrency:
+  group: yifu-vps-production
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+      YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+      YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+      YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+      YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install --disable-pip-version-check paramiko==4.0.0
+      - name: Install verified Komari source agent without logging tokens
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64,hashlib,io,json,os,paramiko,tempfile,urllib.request
+          from pathlib import Path
+          url='https://github.com/komari-monitor/komari-agent/releases/download/1.5.11/komari-agent-linux-amd64'
+          sha='78c28d89e523816baea010c0ed0714f245f508ffdaca0540f5c9f230f7053c8c'
+          with urllib.request.urlopen(url,timeout=100) as r:binary=r.read(18000000)
+          if hashlib.sha256(binary).hexdigest()!=sha:raise RuntimeError('Official agent digest mismatch')
+          ssh=paramiko.SSHClient()
+          with tempfile.NamedTemporaryFile('w') as known:
+              known.write(os.environ['YIFU_SSH_KNOWN_HOSTS'])
+              known.flush()
+              ssh.load_host_keys(known.name)
+          ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+          key=paramiko.Ed25519Key.from_private_key(io.StringIO(os.environ['YIFU_SSH_PRIVATE_KEY']))
+          ssh.connect(os.environ['YIFU_SSH_HOST'],port=int(os.environ['YIFU_SSH_PORT']),
+                      username=os.environ['YIFU_SSH_USER'],pkey=key,
+                      look_for_keys=False,allow_agent=False,timeout=20)
+          def run(cmd,timeout=75):
+              _,out,err=ssh.exec_command('set -eu\n'+cmd,timeout=timeout)
+              data=out.read().decode('utf-8','replace')
+              ret=out.channel.recv_exit_status()
+              if ret:raise RuntimeError('Source remote command exited '+str(ret)+': '+err.read().decode('utf-8','replace')[:500])
+              return data
+          try:
+              print('Production baseline:',run('systemctl is-active yifu-cpa yifu-tunnel'))
+              env=json.loads(Path('.github/komari/source-agent.enc.json').read_text())
+              cipher=base64.b64decode(env['ciphertext_b64'],validate=True)
+              if len(cipher)!=384:raise RuntimeError('Unexpected encrypted enrollment size')
+              sftp=ssh.open_sftp()
+              try:
+                  files=[
+                     ('/opt/komari-agent/komari-agent',binary,0o755),
+                     ('/opt/komari-agent/.request.enc',cipher,0o600),
+                     ('/opt/komari-agent/setup.py',Path('.github/komari/source-setup.py').read_bytes(),0o600),
+                     ('/etc/systemd/system/komari-source-agent.service',Path('.github/komari/source-agent.service').read_bytes(),0o644)
+                  ]
+                  for p,data,mode in files:
+                      with sftp.file(p,'wb') as f:f.write(data)
+                      sftp.chmod(p,mode)
+              finally:sftp.close()
+              print('Verified agent hash:',run('sha256sum /opt/komari-agent/komari-agent | cut -d" " -f1').strip()==sha)
+              run('id komari-agent >/dev/null 2>&1 || useradd --system --home-dir /var/lib/komari-agent --shell /sbin/nologin komari-agent')
+              print(run('python3 /opt/komari-agent/setup.py'))
+              run('systemctl daemon-reload; systemctl enable komari-source-agent.service >/dev/null; systemctl restart komari-source-agent.service')
+              print('Source service state:',run('systemctl is-active komari-source-agent.service yifu-cpa.service yifu-tunnel.service'))
+          finally:
+              ssh.close()
+          PY
