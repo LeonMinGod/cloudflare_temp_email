@@ -1,9 +1,9 @@
 {
   "session": "rak-prod-20261106-7d8f1224ab99",
-  "mode": "migration-observe",
+  "mode": "muse-publish",
   "owner_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUEwSzZtK2R2UXlWVDdDRGprQlAybApuYzErdmZqZEFZR2JJVElkUytOeGtLb0ZMQ2dWdjZWUjkva1dFaWZ6aXIxdEtaYjBXTFg4aWxmMTVxaWw3c1BYCjFjRmE0WnBMN05OTnFoY29LU1pjbU4zc2JlNDlrc2tVaklYcExicStiNjNEMjYxZ0pkY3pnbGFxVElVMzMyU1oKRHE2ZXBOOWVTQWpNbGZRVUY1Y3h1aHc5VDFlYmI3aXdXZGtsSmJ5dW9GSS8xN1V0MFFncm5YbEw0Yi9KTy9hQQpHb05BamZHMWNibXJDM2QvOG5ZbTFFWVBOaHp3UlJNTEFpdHNNYitzVmZXK2tkdXJpTGxtWWdmVzVGTEsvZTFBCk41TzYxR29GYUsycmY4SmVGNHo1OTNjTGJudllHRDlFZHBWcW1iQit0a3I5ZXAyMytrOWcraFhNNVRIQWw0blkKQVVGNGJwV2FjR0h6UFVadUF6Q3BlQzVMOW51d1c3eVVGNDdWU0xmNjUxd2RUeG8rQnd6RytINDlvdUtib1VGcAp0QnlqUUhuNjQvaGY5MHViaEYreXpLcVQyeFRweVdMSStWZWRNNUZ3VVdHMHBZMVRiU3ZGSndHbzBIbEVjbDdyCkM5UjJJWGhSWkt0ZjFrSlFUaEw1dlhmL29lVUhMUTJZK0ZoNjB4MWc2Q1FuQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
   "authorization": "User explicitly reauthorizes full migration and Komari replacement; preserve VPN and production data",
-  "request_id": "20261106T104025-legacy-writers-final-819d78",
+  "request_id": "20261106T114247-muse-https-de29d7",
   "peer_envelope": {
     "format": "AES-256-GCM+RSA-OAEP-SHA256",
     "purpose": "lmg-production-ops-v1",
@@ -28,5 +28,14 @@
     "leonmingod-free-token": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
     "cpa-abuse-guard": "616ff1c7-9019-42d5-8ed4-5753be0708d1",
     "leonmingod-private-vps": "6d21ad0a-d506-4498-b920-cecc4418189c"
+  },
+  "muse_route_envelope": {
+    "format": "AES-256-GCM+RSA-OAEP-SHA256",
+    "purpose": "lmg-production-ops-v1",
+    "session": "rak-prod-20261106-7d8f1224ab99",
+    "kind": "muse-route",
+    "wrapped_key": "D53DTpuZ2dfhdgCJkNLCKL0UAuOh6Q7cQ/w4d1h0DDEi/rnChl53/gvBTvWh+ZnyPd5QIoKBNxBpB+Me/Cpm2z3zLL9NH969DugeaHmzv5/VzLFHzAmu+Z9v7zAeZJyE4cU+KEqDK3MYtoXbklUYSWlwZsml98btaiHhJBrcyF79sNdXkw/6Lc4UI0lsZiNd8Jb3VNxiu4NNdLzLlc8aSMDOs/hqvkD+DXKq81FsMlEpKoGsxvqaoU6KzVia1eq1Nc9OgURgjbDFqhF8apnFdMEtbr3zqXHOTHJQIrTt2DsbXU67Xfhv15KdLl0Q4hqZacEmwA6b5WTjBxTdPxzv3Fdu85B6nisUciN0deA8qUaorO4AVR8X6r9zAwdFbS8Lyqs8vOTgR/zbHCr6mc7inD60di+qE0jqSfk7ZyaArerJlHhKFKNawcimtCyV22leFGmGvQ4pj1KlX7xhdsZDj3auMzBUKTRb9VIp0Re9LcfbjZzs1E/F39y/b8Ve/eCq",
+    "nonce": "O/xiFNOxE+nfV3Jd",
+    "ciphertext": "000ctI72dU027ddddH7/pdeyaaR8zBwnMIIciee/wb6MY17gFDkuHUD4YCwRU911EZI6QQ/zMpb6hiyZ7S307GV1po2sBFilF1RE7k5L7V6qCUn/OvnVx2fz8nQkf6kNC6VVmLb6NOE+cStsQ1VtJAVPwVPFjdrB5fEsWlhu8I2OcqBzp8SbxTS3vX4KeZ33Qm85iG9B/Nk17JgXChodyWlKvewRxsHxkpiJexFi3BUGOUVHNF6qN5n29PKQkeGd7rxT4SSD1UHozdnyIvAY4/lSPjnRSe/NYrNfxBWP9VtvzPM9I+tYKYtW0lIxdgnwjHMI6tUuFvMbR6PyGoiBP2dscCjKP5MLLhDZnah3/XfudBPr2pEwzAduC1WPNyvpGVDfd/8uEQQ5cC2NmtMb5/whU7T1cp62x76L0cFMlvzv3w1ayEIdukh6AFwEieoWeAxCrMYeISyB7oEGFYGKa9Rjx0sdJJN/hb5uaKMOSup47G2v7ICLFKbz1H/iD2t7Z6dSFakQJ3hSy4j8JEohgWgBT8VZQYXdzOKrXbfUJdSCBRCcwtFl0uJmPV2j+BM="
   }
 }
