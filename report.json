@@ -1,0 +1,32 @@
+{
+  "status": "failed",
+  "role": "source",
+  "error_type": "NoValidConnectionsError",
+  "location": [
+    {
+      "file": "production_ops.py",
+      "function": "main",
+      "line": 115
+    },
+    {
+      "file": "production_linuxserver_cf.py",
+      "function": "publish",
+      "line": 115
+    },
+    {
+      "file": "vps_monitor.py",
+      "function": "connect",
+      "line": 49
+    },
+    {
+      "file": "yifu_vps.py",
+      "function": "connect",
+      "line": 37
+    },
+    {
+      "file": "client.py",
+      "function": "connect",
+      "line": 407
+    }
+  ]
+}
