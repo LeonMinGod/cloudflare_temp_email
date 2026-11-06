@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "mode": "source-health",
+  "production_host": "23.94.180.2",
+  "services": {
+    "yifu-cpa": "active",
+    "yifu-gateway": "active",
+    "yifu-monitor": "active",
+    "yifu-plus": "active",
+    "yifu-tunnel": "active"
+  },
+  "public_api_http": 200,
+  "models": 31,
+  "source_remains_live_during_rak_rebuild": true,
+  "changes": false
+}
