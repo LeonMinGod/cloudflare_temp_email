@@ -268,3 +268,17 @@ def cutover(req):
     finally:
         if target:target.close()
         source.close()
+
+
+def source_health(req):
+    import yaml
+    from yifu_safety import public_probe
+    client=connect();phase('source-continued-production-health')
+    try:
+        with client.open_sftp() as sf:config=yaml.safe_load(read(sf,ROOT+'/private/config.yaml'))
+        states=run(client,'systemctl is-active '+' '.join(SERVICES)).strip().splitlines()
+        if states!=['active']*5:raise RuntimeError('Old production service is not active')
+        inventory=public_probe(config)
+        if inventory.get('http')!=200 or not inventory.get('models'):raise RuntimeError('Old public API is not healthy')
+        return {'status':'passed','mode':'source-health','production_host':'23.94.180.2','services':dict(zip(SERVICES,states)),'public_api_http':200,'models':inventory['models'],'source_remains_live_during_rak_rebuild':True,'changes':False}
+    finally:client.close()
