@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "mode": "cf-usage-audit",
+  "read_only_control_plane": true,
+  "site_requests_made": 0,
+  "focus_day_utc": "2026-11-06",
+  "analytics_available": true,
+  "workers": [
+    {
+      "worker": "leonmingod-private-vps",
+      "requests": 114459
+    },
+    {
+      "worker": "leonmingod-home",
+      "requests": 1977
+    },
+    {
+      "worker": "leonmingod-private-browser",
+      "requests": 1375
+    },
+    {
+      "worker": "linuxdomailapi",
+      "requests": 711
+    },
+    {
+      "worker": "cpa-abuse-guard",
+      "requests": 685
+    },
+    {
+      "worker": "leonmingod-muse2api",
+      "requests": 485
+    },
+    {
+      "worker": "leonmingod-free-token",
+      "requests": 344
+    },
+    {
+      "worker": "cloudflare_temp_email",
+      "requests": 113
+    },
+    {
+      "worker": "leon-addr-studio",
+      "requests": 9
+    },
+    {
+      "worker": "yellow-bread-bda6",
+      "requests": 3
+    }
+  ],
+  "total_requests": 120161,
+  "private_details_encrypted": true
+}
