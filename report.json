@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "mode": "migration-export",
+  "ciphertext_bytes": 88827928,
+  "sha256": "fb72a5221021f52d6c168beffbad53861db34945ab8d96f9f1a9ef27d4b5c505",
+  "files": 47,
+  "credentials": 13,
+  "disabled": 9,
+  "consistent_sqlite_backups": true,
+  "plus_database_and_data_key_paired": true,
+  "owner_recoverable": true,
+  "source_backup": "/opt/rak-production/rak-prod-20261106-7d8f1224ab99/business-source-backup.enc.json",
+  "source_services_unchanged": true
+}
