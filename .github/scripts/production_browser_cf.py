@@ -79,6 +79,7 @@ def _publish(req):
             page=context.new_page();errors=[]
             page.on('pageerror',lambda error:errors.append(str(error)[:600]))
             page.on('console',lambda event:errors.append(event.type+': '+event.text[:600]) if event.type=='error' else None)
+            page.on('request',lambda request:errors.append('login origin: '+request.headers.get('origin','missing')) if request.url==base+'/login' else None)
             page.on('response',lambda response:errors.append(str(response.status)+' '+response.url) if response.status>=400 and DOMAIN in response.url else None)
             page.goto(base,wait_until='domcontentloaded',timeout=45000)
             page.locator('input[name=password]').fill(state['owner_password']);page.locator('form button').click()
