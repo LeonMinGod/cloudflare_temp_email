@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "mode": "source-agent",
+  "official_binary_reused": true,
+  "agent_active": true,
+  "outbound_only": true,
+  "web_ssh_disabled": true,
+  "monthly_reset_day": 1,
+  "monthly_reset_timezone": "UTC",
+  "monthly_traffic_persisted_on_disk": true,
+  "old_business_unchanged": true
+}
