@@ -1,0 +1,17 @@
+{
+  "status": "failed",
+  "role": "source",
+  "error_type": "RuntimeError",
+  "location": [
+    {
+      "file": "vps_monitor.py",
+      "function": "main",
+      "line": 112
+    },
+    {
+      "file": "vps_monitor_source.py",
+      "function": "source_install",
+      "line": 61
+    }
+  ]
+}

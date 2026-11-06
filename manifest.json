@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T004743-monitor-source-install-e0e9e9",
+  "run_id": "42139447993",
+  "source_commit": "a326e4b1bade95615f4e374c0a99c2f33345f4f2",
+  "files": {
+    "report.json": "9c8d770375da1fae3509c60463b74fb7588e81e2817cecd8f77fdba09e53a8e7",
+    "diagnostics.json": "6f70aee01730fde092dcfe05d852b8b6363486dbf3d176bc495038eb3fa485c3"
+  }
+}
