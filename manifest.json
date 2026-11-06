@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T002718-monitor-source-prepare-9c1189",
+  "run_id": "42137182345",
+  "source_commit": "15aadbf7b72b093cf11a1444dff67e8348bcc84e",
+  "files": {
+    "report.json": "e9f0e7807da4829876384e4cc4f3a3364b153578115f49d3b7a649a96ff27500",
+    "diagnostics.json": "374153961d0d6ee940cf649d4f42583ec902eb578c45cce673bc65a9ff8161fb"
+  }
+}

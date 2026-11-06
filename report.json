@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "role": "source",
+  "mode": "prepare",
+  "project": "henrygd/beszel",
+  "version": "beszel-agent 0.21.1",
+  "session": "vpsmon-20261106-8dff9e33dddb",
+  "domain": "vps.leonmingod.com",
+  "recipient_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUFvK1lXL2IyUkpqVE54M01FbjdSeApQL1M2WDVCNGttdG9mVHZWQXMyMHFOT25CdGhpY0g5NjA0Uy95czN0UjU5ZjhZekFTdUoyaHQ3RGJ6SWhxbTFXCjgrM1FvbUxmdVhQZDhIa1kyeWwxSDl6dlJGS2JTOXhmZExFUVFxc2cySnM2YS9oaEpOZk5oaTZ2MllMb01WU2QKQm9LVXc1ZkdNTlZqUHc2STdzRm1CVWN3TSszWkxyRk9RdmFLMlpZOElNS2J5MlFwZ0VDaGhFV3lMbnlPNVJyMQpaUk9zVUZzdXpSQm5kcDdJQ3RQUDBrZ3lpQlFqSkxFanY5ZC9sYTFwWllIazlKNWdDZE9pcU9pbkpNb04yR3RvCnpFK3JYQUVzTzV0WkQrdGIxRGtrMkN6NW1LbTZ2U25udDlvc29hMWlyQnhTdVRrZ2RJcEhHdFVWNnVUMHFiY1oKOGhxRURWbGQ5NG9LMC9scjlyQ3lRdTUxK24rQ2dNOE5xTS9DNncrZ3ZjRHVGUC80YWFXa1k5RUp2Z2NrM0xRUQprTUdBMjFDUXBUbGo4amFxZE5nWVQrcVpEWXl2U3lPcDNGMTMrM1A3dXUwY2htZ2VVcXljRC9rY3Q5L05iZnJwCjh5QjZ4SE1RVFJHSW5VWklLbUhDeFFTTERIaTFMdC9UdVRyZzAxTEV2Z3Z0QWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
+  "worker_domain_api_readable": true,
+  "existing_zone_confirmed": true,
+  "monitor_domain_already_present": false,
+  "existing_production_unchanged": true,
+  "agent_not_started": true,
+  "business_migration_remains_cancelled": true
+}
