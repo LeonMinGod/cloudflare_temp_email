@@ -66,6 +66,8 @@
 
 ### Improvements
 
+- docs: |CF quota incident| Record the duplicate-Agent root cause, repair evidence and bilingual diagnostics, including shared budgets and the retired unit
+
 - fix: |Yifu Key Operations| Guard delayed rotation with the expected published fingerprint; stop on changes or management lockout and report only sanitized errors
 
 - docs: |Yifu Token| Record a newly registered key and reopened website, live CF/Render versions and verification while preserving standalone Karl and original logins

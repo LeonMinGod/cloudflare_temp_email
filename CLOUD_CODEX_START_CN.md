@@ -1,3 +1,7 @@
+# Cloudflare 额度事故最新补充（2026-11-06 UTC）
+
+无聊云重复运行的两个 Komari Agent 已确认导致持续重连，监控 Worker 占账户约95%请求。旧 `komari-source-agent.service` 已备份、停止并禁用，保留 `komari-agent.service`；不要重新启用旧服务。后续诊断和共享预算按 [CF 额度运维](CF_QUOTA_OPERATIONS.md) 与 [RAK 事故复盘](https://github.com/LeonMinGod/RAKsmart/blob/main/CF_REQUEST_AUDIT_20261106_CN.md) 执行。本次没有调整公益站、VPN、Cloudflare 路由或 WAF。
+
 # 云端 Codex 最新接手说明
 
 更新于 **2026-11-06（北京时间）**。公益站已迁到 RAKsmart，Komari 已替代 Beszel；此前“迁移取消”“等待安装”和“无聊云仍是生产机”均为历史状态。完整验收、备份和回滚记录见：
