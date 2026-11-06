@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T130949-browser-bundle-ui-413ac3",
+  "run_id": "42223274450",
+  "source_commit": "0bf4a2d7b467d00b7ae4baf5722a4c46dea072f6",
+  "files": {
+    "report.json": "8f4956e0363e6425da0f6a53d5098444398c3bad57b4a02a63f1d4ab4f3c4ad7",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "99c548b84ca91a7c5b5b28b6fa727504422f0b21b285c1a3b458aa2054773e48"
+  }
+}
