@@ -108,7 +108,8 @@ def _publish(req):
             except Exception:
                 text=page.locator('body').inner_text()[:1600]
                 scripts=page.locator('script').evaluate_all('(items)=>items.map(x=>({src:x.src,type:x.type,cfasync:x.getAttribute("data-cfasync")}))')
-                raise RuntimeError('Desktop UI did not connect: '+json.dumps({'errors':errors[-12:],'page_text':text,'url':page.url,'scripts':scripts,'network':network[-40:]},ensure_ascii=False)) from None
+                code,body,_=request('/api/status',owner=True);phases=json.loads(body).get('control_phases') if code==200 else {'http':code}
+                raise RuntimeError('Desktop UI did not connect: '+json.dumps({'errors':errors[-12:],'page_text':text,'url':page.url,'scripts':scripts,'network':network[-40:],'server_phases':phases},ensure_ascii=False)) from None
             page.wait_for_function("document.querySelector('#screen canvas')?.width>100",timeout=20000)
             page.wait_for_timeout(2000)
             screenshot=page.screenshot(full_page=True)
