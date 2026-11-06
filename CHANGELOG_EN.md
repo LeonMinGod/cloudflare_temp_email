@@ -38,6 +38,8 @@
 
 ### Bug Fixes
 
+- fix: |Komari| Back up and retire the duplicate old-VPS monitor service, preserve the canonical Agent/configuration, and observe reconnects with rollback on failure
+
 - fix: |Yifu Token| Remember verified browsers for two hours across refreshes, retries and claim paths while retaining signed server checks, live gameplay and rate limits
 
 - fix: |Jade Trial| Ignore delayed progress responses from prior runs and preserve the current live submission task after restarting on weak networks
