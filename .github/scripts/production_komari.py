@@ -165,6 +165,7 @@ def source_agent(req):
             packet=json.loads(unseal(json.dumps(req['peer_envelope']).encode(),read(sftp,BASE+'/private/recipient.pem'),req['session'],'komari-source-agent'))
             binary='/opt/komari-agent/komari-agent';expected='78c28d89e523816baea010c0ed0714f245f508ffdaca0540f5c9f230f7053c8c'
             if run(client,'sha256sum '+binary).split()[0]!=expected:raise RuntimeError('Installed official agent checksum mismatch')
+            run(client,'chmod 0755 /opt/komari-agent '+binary)
             from vps_monitor_install import user
             user(client,'komari-agent');run(client,'install -d -m 0700 -o komari-agent -g komari-agent /var/lib/komari-agent')
             config={'endpoint':packet['endpoint'],'token':packet['token'],'interval':5,'month_rotate':1,'disable_web_ssh':True,'disable_auto_update':True}
@@ -198,6 +199,10 @@ WantedBy=multi-user.target
             if run(client,'systemctl is-active komari-agent').strip()!='active':raise RuntimeError('Agent failed')
             protect_unchanged(client,before)
             return {'status':'passed','mode':'source-agent','official_binary_reused':True,'agent_active':True,'outbound_only':True,'web_ssh_disabled':True,'monthly_reset_day':1,'monthly_reset_timezone':'UTC','monthly_traffic_persisted_on_disk':True,'old_business_unchanged':True}
+    except Exception:
+        logs=run(client,'journalctl -u komari-agent -n 40 --no-pager -o cat || true')
+        OUT.joinpath('owner.enc.json').write_bytes(seal(logs.encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-agent-diagnostics'))
+        raise
     finally:client.close()
 
 def verify(req):
