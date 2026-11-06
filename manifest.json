@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T094502-komari-agent-probes-caaf65",
+  "run_id": "42197402518",
+  "source_commit": "2afd50bd167d3013f7608f2bf7919b59b265203f",
+  "files": {
+    "report.json": "447052a2e1beb9e6b8c5fd6023f5a073ef6ce8364ee6ce064fded1133d3d445f",
+    "diagnostics.json": "1670faefba91566dfbbe86a175ef3d89fab8ddab0d3892734d92caa69d8b7af1"
+  }
+}

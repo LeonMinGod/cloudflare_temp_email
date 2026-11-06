@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "mode": "komari-agent-probes",
+  "business_and_vpn_unchanged": true,
+  "agent_user": "komari-agent",
+  "agent_only_capability": "CAP_NET_RAW"
+}
