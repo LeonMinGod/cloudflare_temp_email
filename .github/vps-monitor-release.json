@@ -1,0 +1,17 @@
+{
+  "project": "https://github.com/henrygd/beszel",
+  "version": "0.21.1",
+  "source_tag_commit": "e2ed147a5aa6472e6462521632ccc7101668132c",
+  "archives": {
+    "beszel": {
+      "url": "https://github.com/henrygd/beszel/releases/download/v0.21.1/beszel_linux_amd64.tar.gz",
+      "sha256": "70857d0489cf790224167815c82f8807cc28134d27f209b58b1cd36e4082931a",
+      "binary_sha256": "1299f21cb32b82437858f1431e84c09375c7086c15357135a1c0c7546782bf8a"
+    },
+    "beszel-agent": {
+      "url": "https://github.com/henrygd/beszel/releases/download/v0.21.1/beszel-agent_linux_amd64.tar.gz",
+      "sha256": "3b6ee592632ec03b9a43312e99a40203a7b3d83fe40dd0c25acda1eb915ea7c0",
+      "binary_sha256": "5c84416b63028f7ad86ebafa4c8a7a27977d485a838de357216ded3ab844b2b5"
+    }
+  }
+}
