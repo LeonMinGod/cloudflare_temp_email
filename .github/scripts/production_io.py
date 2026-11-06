@@ -5,7 +5,7 @@ from pathlib import Path
 def select():
     path=Path('.github/production-request.json');req=json.loads(path.read_text())
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{5,100}',req['request_id']):raise ValueError('Invalid request identity')
-    if req['mode'] not in ['linuxserver-publish','browser-publish','muse-publish','komari-agent-probes','source-health','system-keyring','os-upgrade-audit','komari-style','komari-browser','audit','komari-admin','komari-switch','source-agent','remove-beszel','verify','migration-prepare','migration-export','migration-stage','migration-freeze','migration-switch','migration-observe']:raise ValueError('Invalid monitor operation')
+    if req['mode'] not in ['linuxserver-mobile-inspect','linuxserver-publish','browser-publish','muse-publish','komari-agent-probes','source-health','system-keyring','os-upgrade-audit','komari-style','komari-browser','audit','komari-admin','komari-switch','source-agent','remove-beszel','verify','migration-prepare','migration-export','migration-stage','migration-freeze','migration-switch','migration-observe']:raise ValueError('Invalid monitor operation')
     with open(os.environ['GITHUB_ENV'],'a') as env:env.write('OPS_REQUEST_ID='+req['request_id']+'\nOPS_MODE='+req['mode']+'\n')
 
 def publish():

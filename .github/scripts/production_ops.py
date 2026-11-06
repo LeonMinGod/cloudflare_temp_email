@@ -107,7 +107,10 @@ def main():
     OUT.mkdir(exist_ok=True)
     try:
         req=json.loads(Path('.github/production-request.json').read_text())
-        if req['mode']=='linuxserver-publish':
+        if req['mode']=='linuxserver-mobile-inspect':
+            from production_linuxserver_cf import inspect_mobile
+            result=inspect_mobile(req)
+        elif req['mode']=='linuxserver-publish':
             from production_linuxserver_cf import publish
             result=publish(req)
         elif req['mode']=='browser-publish':

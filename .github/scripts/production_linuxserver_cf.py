@@ -8,6 +8,38 @@ import yifu_key_api as api
 WORKER='leonmingod-private-browser'
 DOMAIN='browser.leonmingod.com'
 
+def inspect_mobile(req):
+    phase('linuxserver-mobile-native-input-inspection');c=connect()
+    try:
+        with c.open_sftp() as sf:state=json.loads(unseal(json.dumps(req['linuxserver_route_envelope']).encode(),read(sf,BASE+'/private/recipient.pem'),req['session'],'linuxserver-route'))
+    finally:c.close()
+    from playwright.sync_api import sync_playwright
+    data={}
+    try:
+        with sync_playwright() as pw:
+            browser=pw.chromium.launch(executable_path=shutil.which('google-chrome') or shutil.which('google-chrome-stable'),headless=True)
+            context=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,http_credentials={'username':state['username'],'password':state['password']})
+            page=context.new_page();page.goto('https://'+DOMAIN,wait_until='domcontentloaded',timeout=60000)
+            page.wait_for_function('window.webrtcInput && document.querySelector("#keyboard-input-assist")',timeout=60000)
+            script="""() => ({active:document.activeElement?.id,inputs:Array.from(document.querySelectorAll('input')).map(x=>({id:x.id,type:x.type,inputmode:x.inputMode,hidden:x.getAttribute('aria-hidden'),rect:x.getBoundingClientRect().toJSON(),opacity:getComputedStyle(x).opacity})),buttons:Array.from(document.querySelectorAll('button')).filter(x=>x.getClientRects().length).map(x=>({text:x.innerText,aria:x.getAttribute('aria-label'),title:x.title,rect:x.getBoundingClientRect().toJSON()})),scripts:Array.from(document.scripts).map(x=>x.src).filter(Boolean),inputAttached:window.webrtcInput?.isInputAttached?.()})"""
+            data['before']=page.evaluate(script)
+            button=page.locator('[data-virtual-keyboard-button]')
+            if button.count():
+                button.tap();page.wait_for_timeout(250);data['after']=page.evaluate(script)
+            data['screenshot']=base64.b64encode(page.screenshot()).decode()
+            data['core_snippets']=[]
+            for url in data['before']['scripts'][:10]:
+                if not url.startswith('https://'+DOMAIN+'/'):continue
+                response=context.request.get(url,timeout=25000)
+                if not response.ok:continue
+                text=response.text()
+                import re
+                for match in list(re.finditer('keyboard-input-assist|showVirtualKeyboard',text))[:12]:data['core_snippets'].append(text[max(0,match.start()-200):match.end()+450])
+            context.close();browser.close()
+    finally:
+        OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(data).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-mobile-inspect'))
+    return {'status':'passed','mode':'linuxserver-mobile-inspect','mobile_input_inspection_encrypted':True,'keyboard_button_found':bool(data.get('after')),'focused_input_after_tap':data.get('after',{}).get('active'),'production_config_unchanged':True}
+
 def publish(req):
     phase('linuxserver-public-owner-route');c=connect()
     try:
