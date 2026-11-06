@@ -110,6 +110,9 @@ def main():
         elif role=='source' and req['mode']=='install':
             from vps_monitor_source import source_install
             result=source_install(req)
+        elif role=='source' and req['mode']=='verify':
+            from vps_monitor_source import diagnose
+            result=diagnose(req)
         else:raise ValueError('Unsupported monitor phase')
     except Exception as error:
         result={'status':'failed','role':os.environ.get('MONITOR_ROLE'),'error_type':type(error).__name__,'location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(error.__traceback__)]}

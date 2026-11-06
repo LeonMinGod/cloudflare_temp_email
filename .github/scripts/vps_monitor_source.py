@@ -77,3 +77,30 @@ def source_install(req):
                     'existing_public_station_processes_and_configuration_unchanged':True,'original_website_and_auth_workers_unchanged':True,'public_cpa_health':200,'business_migration_remains_cancelled':True,
                     'public_monitor_ports_added':0,'resource_caps':{'agent_memory_mib':48,'agent_cpu_percent_one_core':5}}
     finally:client.close()
+
+def diagnose(req):
+    import fnmatch,re
+    client=connect();result={'status':'passed','role':'source','mode':'verify','operation':'domain-diagnostics'}
+    try:
+        with client.open_sftp() as sftp:peer=json.loads(read(sftp,BASE+'/private/peer.json'))
+        def probe(url):
+            request=urllib.request.Request(url,headers={'Cache-Control':'no-cache','User-Agent':'Private-VPS-Monitor-Diagnostic'})
+            try:
+                with urllib.request.urlopen(request,timeout=20) as response:status=response.status;headers=response.headers;raw=response.read(8192)
+            except urllib.error.HTTPError as error:status=error.code;headers=error.headers;raw=error.read(8192)
+            except Exception as error:return {'error_type':type(error).__name__}
+            title=re.search(rb'<title[^>]*>(.*?)</title>',raw,re.I|re.S)
+            value={'http':status,'content_type':headers.get('Content-Type'),'server':headers.get('Server'),'body_bytes_sampled':len(raw),'title':title.group(1).decode(errors='replace')[:100] if title else None}
+            try:value['health_json_status']=json.loads(raw).get('code')
+            except Exception:pass
+            return value
+        result['public_monitor']=probe('https://'+DOMAIN+'/api/health')
+        result['direct_private_origin']=probe('https://sj.leonmingod.com/_vpsmon/'+peer['origin_token']+'/api/health')
+        try:
+            routes=cf('zones/'+CF_ZONE+'/workers/routes')
+            result['applicable_zone_routes']=[{'pattern':row['pattern'],'script':row.get('script')} for row in routes if fnmatch.fnmatch('https://'+DOMAIN+'/api/health',row['pattern']) or fnmatch.fnmatch(DOMAIN+'/api/health',row['pattern'])]
+        except Exception as error:result['zone_routes_error_type']=type(error).__name__
+        domains=cf('accounts/'+os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()+'/workers/domains')
+        result['domain_binding']=[{'hostname':row['hostname'],'service':row['service']} for row in domains if row['hostname']==DOMAIN]
+        return result
+    finally:client.close()
