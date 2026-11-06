@@ -6,7 +6,9 @@ repo=os.environ['GITHUB_REPOSITORY']
 def api(path):
     request=urllib.request.Request('https://api.github.com/repos/'+repo+path,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
     with urllib.request.urlopen(request,timeout=20) as response:return json.load(response)
-runs=api('/actions/workflows/production-ops.yaml/runs?per_page=15')['workflow_runs']
+workflow=req.get('workflow','production-ops.yaml')
+if workflow not in ['production-ops.yaml','cf-usage-audit.yaml']:raise ValueError('Unsupported read-only workflow status target')
+runs=api('/actions/workflows/'+workflow+'/runs?per_page=15')['workflow_runs']
 run=next(r for r in runs if r['head_sha'].startswith(req['head_sha']))
 result={key:run.get(key) for key in ['id','status','conclusion','run_started_at','updated_at']}
 result['jobs']=[]
