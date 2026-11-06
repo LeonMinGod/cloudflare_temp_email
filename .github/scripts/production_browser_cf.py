@@ -78,11 +78,14 @@ def _publish(req):
             context=browser.new_context(viewport={'width':1440,'height':1000})
             page=context.new_page();errors=[]
             page.on('pageerror',lambda error:errors.append(str(error)[:600]))
-            page.on('response',lambda response:errors.append(str(response.status)+' '+response.url) if response.status>=400 and '/novnc/' in response.url else None)
+            page.on('console',lambda event:errors.append(event.type+': '+event.text[:600]) if event.type=='error' else None)
+            page.on('response',lambda response:errors.append(str(response.status)+' '+response.url) if response.status>=400 and DOMAIN in response.url else None)
             page.goto(base,wait_until='domcontentloaded',timeout=45000)
             page.locator('input[name=password]').fill(state['owner_password']);page.locator('form button').click()
             try:page.wait_for_function("document.querySelector('#state')?.textContent==='已安全连接'",timeout=60000)
-            except Exception:raise RuntimeError('Desktop UI did not connect: '+json.dumps(errors[-12:],ensure_ascii=False)) from None
+            except Exception:
+                text=page.locator('body').inner_text()[:1600]
+                raise RuntimeError('Desktop UI did not connect: '+json.dumps({'errors':errors[-12:],'page_text':text,'url':page.url},ensure_ascii=False)) from None
             page.wait_for_function("document.querySelector('#screen canvas')?.width>100",timeout=20000)
             page.wait_for_timeout(2000)
             screenshot=page.screenshot(full_page=True)
