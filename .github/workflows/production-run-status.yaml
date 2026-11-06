@@ -1,0 +1,20 @@
+name: Read-only production run status
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/production-status-request.json']
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: production-run-status-readonly
+  cancel-in-progress: false
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - run: python .github/scripts/production_run_status.py
