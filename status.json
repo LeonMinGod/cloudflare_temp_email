@@ -1,0 +1,92 @@
+{
+  "id": 42217914642,
+  "status": "in_progress",
+  "conclusion": null,
+  "run_started_at": "2026-11-06T12:28:23Z",
+  "updated_at": "2026-11-06T12:28:27Z",
+  "jobs": [
+    {
+      "id": 127892452685,
+      "name": "operate",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-11-06T12:28:26Z",
+      "completed_at": null,
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:28:27Z",
+          "completed_at": "2026-11-06T12:28:28Z"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:28:28Z",
+          "completed_at": "2026-11-06T12:28:30Z"
+        },
+        {
+          "number": 3,
+          "name": "Run python .github/scripts/production_io.py select",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:28:30Z",
+          "completed_at": "2026-11-06T12:28:30Z"
+        },
+        {
+          "number": 4,
+          "name": "Run python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3 websocket-client==1.9.0",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:28:30Z",
+          "completed_at": "2026-11-06T12:28:35Z"
+        },
+        {
+          "number": 5,
+          "name": "Run python -m pip install playwright==1.56.0 && python -m playwright install --with-deps webkit",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-11-06T12:28:35Z",
+          "completed_at": null
+        },
+        {
+          "number": 6,
+          "name": "Run python .github/scripts/production_ops.py",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "number": 7,
+          "name": "Run python .github/scripts/production_io.py publish",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "number": 8,
+          "name": "Run actions/upload-artifact@v4",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "number": 16,
+          "name": "Post Run actions/checkout@v6",
+          "status": "pending",
+          "conclusion": null,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    }
+  ],
+  "guarded_installer_cancel_http": 202
+}
