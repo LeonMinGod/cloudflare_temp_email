@@ -1,5 +1,5 @@
 """Publish one private browser hostname and verify the actual authenticated desktop."""
-import base64, contextlib, io, json, os, secrets, shutil, time, urllib.error, urllib.parse, urllib.request
+import base64, contextlib, hashlib, io, json, os, secrets, shutil, time, urllib.error, urllib.parse, urllib.request
 from http.cookiejar import CookieJar
 from pathlib import Path
 import websocket
@@ -58,6 +58,21 @@ def _publish(req):
     code,raw,_=request('/api/status',owner=True)
     if code!=200:raise RuntimeError('Authenticated browser status failed')
     csrf=json.loads(raw)['csrf'];headers={'X-CSRF-Token':csrf}
+    if req.get('asset_diagnostic'):
+        cases=[]
+        for name,url,extra,owner in [
+            ('public_cookie_js',base+'/desktop.js',{},True),
+            ('public_bearer_js',base+'/desktop.js',{'Authorization':'Bearer '+state['agent_token']},False),
+            ('public_uncached_js',base+'/desktop.js?diagnostic='+secrets.token_hex(4),{},True),
+            ('origin_js','https://sj.leonmingod.com'+state['prefix']+'/desktop.js',{'X-Rak-Browser-Origin':state['origin_token'],'Authorization':'Bearer '+state['agent_token']},False),
+            ('public_novnc',base+'/novnc/core/rfb.js',{},True)]:
+            try:
+                q=urllib.request.Request(url,headers={'User-Agent':'Private-VPS-Monitor/1.0',**extra})
+                with (opener.open(q,timeout=8) if owner else urllib.request.urlopen(q,timeout=8)) as r:
+                    raw=r.read(300000);cases.append({'name':name,'http':r.status,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'content_type':r.headers.get('Content-Type'),'encoding':r.headers.get('Content-Encoding'),'length':r.headers.get('Content-Length')})
+            except Exception as error:cases.append({'name':name,'error_type':type(error).__name__,'http':getattr(error,'code',None)})
+        routes=[{'pattern':r['pattern'],'script':r.get('script')} for r in cf('zones/'+CF_ZONE+'/workers/routes')]
+        return {'status':'passed','mode':'browser-assets','cases':cases,'zone_worker_routes':routes}
     if request('/api/start',b'{}',headers,True)[0]!=200:raise RuntimeError('Authenticated browser startup failed')
     cookie_header='; '.join(x.name+'='+x.value for x in jar)
     def ws_test(cookie_value,accepted):
