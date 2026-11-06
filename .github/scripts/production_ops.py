@@ -132,6 +132,9 @@ def main():
                 with c.open_sftp() as sf:OUT.joinpath('debian-archive-keyring.gpg').write_bytes(read(sf,'/usr/share/keyrings/debian-archive-keyring.gpg'))
             finally:c.close()
             result={'status':'passed','mode':'system-keyring','trusted_source_os':'Debian 13','keyring_sha256':hashlib.sha256(OUT.joinpath('debian-archive-keyring.gpg').read_bytes()).hexdigest()}
+        elif req['mode']=='migration-observe':
+            from production_final import observe
+            result=observe(req)
         elif req['mode']=='source-health':
             from production_business import source_health
             result=source_health(req)
