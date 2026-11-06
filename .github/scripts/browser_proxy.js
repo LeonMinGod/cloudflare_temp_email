@@ -15,7 +15,7 @@ export default {
    const responseHeaders=new Headers(upstream.headers);
    const csp=responseHeaders.get('Content-Security-Policy');
    if(csp)responseHeaders.set('Content-Security-Policy',csp.replace("connect-src 'self';","connect-src 'self' wss://browser.leonmingod.com;"));
-   responseHeaders.set('Cache-Control','no-store');responseHeaders.set('Referrer-Policy','same-origin');
+   responseHeaders.set('Cache-Control','no-store, no-transform');responseHeaders.set('Referrer-Policy','same-origin');
    responseHeaders.set('X-Content-Type-Options','nosniff');responseHeaders.set('X-Frame-Options','DENY');
    return new Response(upstream.body,{status:upstream.status,headers:responseHeaders});
   }catch{return Response.json({detail:'私人浏览器暂时无法连接'}, {status:502,headers:{'Cache-Control':'no-store'}})}

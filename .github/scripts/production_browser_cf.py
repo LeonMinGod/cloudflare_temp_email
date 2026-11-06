@@ -88,7 +88,8 @@ def _publish(req):
             try:page.wait_for_function("document.querySelector('#state')?.textContent==='已安全连接'",timeout=60000)
             except Exception:
                 text=page.locator('body').inner_text()[:1600]
-                raise RuntimeError('Desktop UI did not connect: '+json.dumps({'errors':errors[-12:],'page_text':text,'url':page.url},ensure_ascii=False)) from None
+                scripts=page.locator('script').evaluate_all('(items)=>items.map(x=>({src:x.src,type:x.type,cfasync:x.getAttribute("data-cfasync")}))')
+                raise RuntimeError('Desktop UI did not connect: '+json.dumps({'errors':errors[-12:],'page_text':text,'url':page.url,'scripts':scripts},ensure_ascii=False)) from None
             page.wait_for_function("document.querySelector('#screen canvas')?.width>100",timeout=20000)
             page.wait_for_timeout(2000)
             screenshot=page.screenshot(full_page=True)
