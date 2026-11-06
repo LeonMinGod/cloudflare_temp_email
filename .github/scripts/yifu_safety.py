@@ -110,7 +110,7 @@ def write_config(client, sftp, config):
     sftp.posix_rename(temporary, ROOT + '/private/config.yaml')
 
 
-def public_probe(config, model=None, stream=False):
+def public_probe(config, model=None, stream=False, diagnostic=False):
     import urllib.request
     import urllib.error
     root = 'https://yifu.leonmingod.com'
@@ -138,7 +138,9 @@ def public_probe(config, model=None, stream=False):
                 result['generated'] = bool(value.get('choices', [{}])[0].get('message', {}).get('content'))
             return result
     except urllib.error.HTTPError as error:
-        return {'http': error.code, 'generated': False}
+        result={'http': error.code, 'generated': False,'admission':error.headers.get('X-Yifu-Admission')}
+        if diagnostic:result['private_error_body']=error.read(16384).decode(errors='replace')
+        return result
     except Exception as error:
         return {'http': None, 'generated': False, 'error_type': type(error).__name__}
 

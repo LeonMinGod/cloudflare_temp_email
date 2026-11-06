@@ -213,12 +213,19 @@ def cutover(req):
             config=yaml.safe_load(read(sftp,ROOT+'/private/config.yaml'));env=private_env(sftp)
             inventory=public_probe(config)
             if inventory.get('http')!=200:raise RuntimeError('Existing production preflight failed')
-            model=next((m for m in ['gpt-6.1-sol','gpt-6.1-terra','grok-4.7'] if m in inventory.get('model_ids',[])),None)
-            if not model:raise RuntimeError('No suitable canary model before cutover')
+            candidates=[m for m in ['gpt-6.1-sol','gpt-6.1-terra','grok-4.7','gemini-3.5-flash-lite','grok-3-mini'] if m in inventory.get('model_ids',[])][:4]
+            if not candidates:raise RuntimeError('No suitable canary model before cutover')
             phase('business-source-inference-baseline')
-            baseline_inference={kind:public_probe(config,model,stream) for kind,stream in [('nonstream',False),('stream',True)]}
-            OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps({'inventory':inventory,'canary_model':model,'inference':baseline_inference}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'business-preflight'))
-            if not all(r.get('generated') for r in baseline_inference.values()) or not baseline_inference['stream'].get('done'):raise RuntimeError('Existing upstream inference unavailable; source left unchanged')
+            gateway=run(source,'curl -fsS --max-time 10 http://127.0.0.1:8319/_gateway/healthz')
+            trials=[];model=None
+            for candidate in candidates:
+                baseline_inference={'nonstream':public_probe(config,candidate,False,diagnostic=True)}
+                if baseline_inference['nonstream'].get('generated'):baseline_inference['stream']=public_probe(config,candidate,True,diagnostic=True)
+                trials.append({'model':candidate,'inference':baseline_inference})
+                OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps({'inventory':inventory,'gateway_health':gateway,'trials':trials}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'business-preflight'))
+                if baseline_inference.get('stream',{}).get('generated') and baseline_inference['stream'].get('done'):
+                    model=candidate;break
+            if not model:raise RuntimeError('Existing upstream inference unavailable; source left unchanged')
             directory=source_restore_assets(source,sftp,req,peer)
             run(source,'systemctl stop rak-business-rollback.timer rak-business-rollback.service >/dev/null 2>&1 || true')
             run(source,'systemd-run --unit=rak-business-rollback --on-active=900 /bin/sh '+directory+'/rollback-source.sh');armed=True
