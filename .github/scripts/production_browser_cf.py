@@ -62,6 +62,7 @@ def _publish(req):
         cases=[]
         for name,url,extra,owner in [
             ('public_cookie_js',base+'/desktop.js',{},True),
+            ('public_browser_headers_js',base+'/desktop.js',{'Origin':base,'Sec-Fetch-Dest':'script','Sec-Fetch-Mode':'cors','Sec-Fetch-Site':'same-origin','Accept':'*/*'},True),
             ('public_bearer_js',base+'/desktop.js',{'Authorization':'Bearer '+state['agent_token']},False),
             ('public_uncached_js',base+'/desktop.js?diagnostic='+secrets.token_hex(4),{},True),
             ('origin_js','https://sj.leonmingod.com'+state['prefix']+'/desktop.js',{'X-Rak-Browser-Origin':state['origin_token'],'Authorization':'Bearer '+state['agent_token']},False),
@@ -98,6 +99,7 @@ def _publish(req):
             page.on('console',lambda event:errors.append(event.type+': '+event.text[:600]) if event.type=='error' else None)
             page.on('request',lambda request:errors.append('login origin: '+request.headers.get('origin','missing')) if request.url==base+'/login' else None)
             page.on('request',lambda request:network.append({'event':'request','url':request.url,'type':request.resource_type,'has_cookie':bool(request.headers.get('cookie'))}) if DOMAIN in request.url else None)
+            page.on('requestfailed',lambda request:network.append({'event':'failed','url':request.url,'error':request.failure}))
             page.on('response',lambda response:network.append({'event':'response','url':response.url,'http':response.status,'type':response.headers.get('content-type')}) if DOMAIN in response.url else None)
             page.on('response',lambda response:errors.append(str(response.status)+' '+response.url) if response.status>=400 and DOMAIN in response.url else None)
             page.goto(base,wait_until='domcontentloaded',timeout=45000)
