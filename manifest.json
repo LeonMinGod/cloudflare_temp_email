@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T132331-browser-server-trace-950d72",
+  "run_id": "42225124004",
+  "source_commit": "baf0e73dabe1d19f52e20813225da748a70f1213",
+  "files": {
+    "report.json": "7dd53e0dfb4ba9dfb6e54ec4ea258c8b48ffda4423f422f8b65a72c7c99b374a",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "abe0ff1f230478816e86ae3f64b4d55228ebe305b63b396fc8ae7c8b3f13ea9a"
+  }
+}
