@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T131752-browser-tcp-transport-76a225",
+  "run_id": "42224369047",
+  "source_commit": "de6f5de366dc7385ad68029e90c4924692d6b3dc",
+  "files": {
+    "report.json": "8f4956e0363e6425da0f6a53d5098444398c3bad57b4a02a63f1d4ab4f3c4ad7",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "6d5b2baed61659758dfb1a84e4ae4f8a009f94aafc1abdd6c49bcdec73a5c84d"
+  }
+}
