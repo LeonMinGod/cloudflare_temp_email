@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "mode": "linuxserver-publish",
+  "url": "https://browser.leonmingod.com",
+  "username": "leon",
+  "anonymous_desktop_http": 401,
+  "anonymous_pelorus_http": 401,
+  "authenticated_desktop_http": 200,
+  "authenticated_pelorus_http": 200,
+  "real_chrome_desktop_and_phone_canvas": true,
+  "mobile_visible_native_input_focus_and_reopen": true,
+  "mobile_asset_requires_owner_auth": true,
+  "pelorus_ui_verified": true,
+  "image": "lscr.io/linuxserver/chrome@sha256:ccfe0596e117cd24a7d70827e8396ff9051f6ffc905390e2a26e692b8c5fd04d",
+  "existing_five_workers_preserved": true,
+  "cdp_not_published": true,
+  "screenshots_encrypted_to_owner": true,
+  "worker_snapshot": "production-results/20261106T181650-iphone-touch-publish-0945cb/audit.enc.json",
+  "previous_worker_version": "9eedcecf-2223-4c53-9ac9-f6777365577f"
+}
