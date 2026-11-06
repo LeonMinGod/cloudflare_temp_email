@@ -12,7 +12,7 @@ def publish():
     root=Path('production-operation');root.mkdir(exist_ok=True);report=root/'report.json'
     if not report.exists():report.write_text(json.dumps({'status':'failed-before-report'}))
     req=os.environ['OPS_REQUEST_ID'];files=[report]
-    for name in ['diagnostics.json','audit.enc.json','peer.enc.json','owner.enc.json']:
+    for name in ['business.enc.json','diagnostics.json','audit.enc.json','peer.enc.json','owner.enc.json']:
         path=root/name
         if path.exists():
             if name.endswith('.enc.json'):

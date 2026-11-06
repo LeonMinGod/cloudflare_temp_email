@@ -114,6 +114,9 @@ def main():
         elif req['mode'] in ['komari-switch','source-agent','verify']:
             import production_komari as k
             result={'komari-switch':k.switch,'source-agent':k.source_agent,'verify':k.verify}[req['mode']](req)
+        elif req['mode']=='migration-export':
+            from production_business import export
+            result=export(req)
         else:raise ValueError('Unsupported production phase')
     except Exception as error:
         result={'status':'failed','role':os.environ.get('MONITOR_ROLE'),'error_type':type(error).__name__,'location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(error.__traceback__)]}
