@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T104025-legacy-writers-final-819d78",
+  "run_id": "42204461314",
+  "source_commit": "f0d948693da0ba390140fd2af765270355b42f55",
+  "files": {
+    "report.json": "9bcbf9f58d1c0722a9918f7c0f4d1b80e2416f678128176e74d4781192bb0ed5",
+    "diagnostics.json": "133462d2e9d297b6af9dcd58af99fa82d69d7435431b2cc7889a660f6f797585",
+    "owner.enc.json": "3e3456baa4c2b85773e8ac3921d8a7872b3910eeac63c77ea6a81f9f37e7cb05"
+  }
+}
