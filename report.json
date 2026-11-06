@@ -1,0 +1,147 @@
+{
+  "status": "passed",
+  "mode": "migration-observe",
+  "role": "source",
+  "os": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.2\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "kernel": "6.12.113+deb13-cloud-amd64",
+  "cpu_count": 1,
+  "load": [
+    2.39,
+    3.27,
+    3.96
+  ],
+  "memory_bytes": {
+    "MemTotal": 512000000,
+    "MemAvailable": 469937152,
+    "SwapTotal": 512000000,
+    "SwapFree": 500371456
+  },
+  "disk_bytes": {
+    "total": 1277558784,
+    "used": 668073984,
+    "free": 609484800
+  },
+  "uptime_seconds": 159809.35,
+  "units": {
+    "hysteria-server": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "rak-vpn-subscription": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "rak-vpn-tcp": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "rak-vpn-firewall": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "rak-vpn-traffic.timer": {
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "komari-hub": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "komari-agent": {
+      "NRestarts": "0",
+      "MemoryCurrent": "8798208",
+      "CPUUsageNSec": "18592263000",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "beszel-hub": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "beszel-agent": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "yifu-cpa": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "yifu-gateway": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "yifu-monitor": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "yifu-plus": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "yifu-tunnel": {
+      "NRestarts": "0",
+      "MemoryCurrent": "[not set]",
+      "CPUUsageNSec": "[not set]",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "yifu-health.timer": {
+      "ActiveState": "inactive",
+      "UnitFileState": ""
+    },
+    "yifu-plus-budget.timer": {
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    }
+  },
+  "health": null,
+  "auth_count": 13,
+  "disabled": 9,
+  "observed_at_utc": "2026-11-06T10:30:28.985Z",
+  "public_api_with_source_stopped": {
+    "http": 200,
+    "models": 44
+  },
+  "old_vps_writer_workflows_disabled": [
+    "yifu-vps.yaml",
+    "yifu-vps-backup.yaml"
+  ],
+  "cloudflare_versions_unchanged": true,
+  "frontend_http": {
+    "https://leonmingod.com": 200,
+    "https://www.leonmingod.com": 200
+  }
+}
