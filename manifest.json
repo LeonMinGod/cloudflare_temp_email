@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T125759-browser-fetch-headers-c4ada7",
+  "run_id": "42221702298",
+  "source_commit": "ac43cd54d9e783b6a20d21504d886914c3544ef5",
+  "files": {
+    "report.json": "11d1a71b52377585bdb902d7a8206778643c7317f2e345b8f9613329d5090d14",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c"
+  }
+}

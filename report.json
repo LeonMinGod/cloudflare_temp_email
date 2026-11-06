@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "mode": "browser-assets",
+  "cases": [
+    {
+      "name": "public_cookie_js",
+      "http": 200,
+      "bytes": 2351,
+      "sha256": "4d50c5ca267df0ad5f877e74fa2e78ab50d02adbb02e7464604d5bf8dda8d34a",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "2351"
+    },
+    {
+      "name": "public_browser_headers_js",
+      "http": 200,
+      "bytes": 2351,
+      "sha256": "4d50c5ca267df0ad5f877e74fa2e78ab50d02adbb02e7464604d5bf8dda8d34a",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "2351"
+    },
+    {
+      "name": "public_bearer_js",
+      "http": 200,
+      "bytes": 2351,
+      "sha256": "4d50c5ca267df0ad5f877e74fa2e78ab50d02adbb02e7464604d5bf8dda8d34a",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "2351"
+    },
+    {
+      "name": "public_uncached_js",
+      "http": 200,
+      "bytes": 2351,
+      "sha256": "4d50c5ca267df0ad5f877e74fa2e78ab50d02adbb02e7464604d5bf8dda8d34a",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "2351"
+    },
+    {
+      "name": "origin_js",
+      "http": 200,
+      "bytes": 2351,
+      "sha256": "4d50c5ca267df0ad5f877e74fa2e78ab50d02adbb02e7464604d5bf8dda8d34a",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "2351"
+    },
+    {
+      "name": "public_novnc",
+      "http": 200,
+      "bytes": 122518,
+      "sha256": "563a8c8469dfb55d1deee05262a311637d0e6fe8f65ae34c8222ee22e34e8a93",
+      "content_type": "text/javascript; charset=utf-8",
+      "encoding": null,
+      "length": "122518"
+    }
+  ],
+  "zone_worker_routes": [
+    {
+      "pattern": "www.leonmingod.com/free-token",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "www.leonmingod.com/index.html",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "www.leonmingod.com/",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "www.leonmingod.com/free-token/*",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "leonmingod.com/index.html",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "leonmingod.com/free-token",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "leonmingod.com/",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "leonmingod.com/free-token/*",
+      "script": "leonmingod-free-token"
+    },
+    {
+      "pattern": "www.leonmingod.com/*",
+      "script": "leonmingod-home"
+    },
+    {
+      "pattern": "leonmingod.com/*",
+      "script": "leonmingod-home"
+    }
+  ]
+}
