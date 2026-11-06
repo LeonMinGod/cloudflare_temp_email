@@ -1,0 +1,279 @@
+{
+  "status": "passed",
+  "mode": "migration-switch",
+  "source": "23.94.180.2",
+  "destination": "198.247.1.206",
+  "source_services_stopped_and_disabled": true,
+  "native_services": [
+    "yifu-cpa",
+    "yifu-gateway",
+    "yifu-monitor",
+    "yifu-plus",
+    "yifu-tunnel"
+  ],
+  "preserved_credentials": 13,
+  "preserved_disabled": 9,
+  "final_exact_hashes_verified": true,
+  "plus_database_key_pair_preserved": true,
+  "internal_management": {
+    "8317/healthz": 200,
+    "8317/v8/management/credentials": 200,
+    "18317/v0/management/auth-files": 200,
+    "18317/status": 200,
+    "plus_saved_connection_decrypts": true,
+    "data/pool.sqlite": {
+      "integrity": {
+        "quick_check": "ok"
+      },
+      "tables": [
+        {
+          "name": "records",
+          "count": 18
+        }
+      ]
+    },
+    "plus/usage.sqlite": {
+      "integrity": {
+        "quick_check": "ok"
+      },
+      "tables": [
+        {
+          "name": "usage_derived_cleanup_jobs",
+          "count": 0
+        },
+        {
+          "name": "usage_derived_cleanup_cursors",
+          "count": 5
+        },
+        {
+          "name": "usage_derived_deferred_indexes",
+          "count": 0
+        },
+        {
+          "name": "usage_events",
+          "count": 2523
+        },
+        {
+          "name": "usage_rollup_checkpoints",
+          "count": 1
+        },
+        {
+          "name": "usage_rollup_rebuild_state",
+          "count": 0
+        },
+        {
+          "name": "usage_account_model_rollups",
+          "count": 25
+        },
+        {
+          "name": "usage_dashboard_hourly_rollups",
+          "count": 0
+        },
+        {
+          "name": "usage_hourly_aggregate_v1",
+          "count": 111
+        },
+        {
+          "name": "usage_hourly_aggregate_state",
+          "count": 1
+        },
+        {
+          "name": "usage_pricing_hourly_rollups_v1",
+          "count": 120
+        },
+        {
+          "name": "usage_pricing_account_rollups_v1",
+          "count": 29
+        },
+        {
+          "name": "usage_pricing_rollup_state",
+          "count": 1
+        },
+        {
+          "name": "usage_monitoring_account_daily_rollups_v1",
+          "count": 92
+        },
+        {
+          "name": "usage_monitoring_api_key_daily_rollups_v1",
+          "count": 92
+        },
+        {
+          "name": "usage_monitoring_selector_daily_rollups_v1",
+          "count": 67
+        },
+        {
+          "name": "usage_monitoring_event_projection_v1",
+          "count": 2523
+        },
+        {
+          "name": "usage_monitoring_header_latest_v1",
+          "count": 3
+        },
+        {
+          "name": "usage_monitoring_rollup_state",
+          "count": 4
+        },
+        {
+          "name": "usage_codex_legacy_identity_evidence_v1",
+          "count": 3
+        },
+        {
+          "name": "usage_event_identity_ledger",
+          "count": 2523
+        },
+        {
+          "name": "usage_archive_runs",
+          "count": 0
+        },
+        {
+          "name": "usage_archive_segments",
+          "count": 0
+        },
+        {
+          "name": "usage_archive_event_refs",
+          "count": 0
+        },
+        {
+          "name": "usage_maintenance_locks",
+          "count": 0
+        },
+        {
+          "name": "usage_data_migrations",
+          "count": 3
+        },
+        {
+          "name": "usage_cache_accounting_v2_changes",
+          "count": 0
+        },
+        {
+          "name": "dead_letter_events",
+          "count": 0
+        },
+        {
+          "name": "settings",
+          "count": 9
+        },
+        {
+          "name": "model_prices",
+          "count": 26
+        },
+        {
+          "name": "model_price_context_tiers",
+          "count": 15
+        },
+        {
+          "name": "model_price_service_tiers",
+          "count": 8
+        },
+        {
+          "name": "api_key_aliases",
+          "count": 0
+        },
+        {
+          "name": "account_action_candidates",
+          "count": 0
+        },
+        {
+          "name": "codex_inspection_runs",
+          "count": 0
+        },
+        {
+          "name": "codex_inspection_leases",
+          "count": 0
+        },
+        {
+          "name": "codex_inspection_results",
+          "count": 0
+        },
+        {
+          "name": "codex_inspection_logs",
+          "count": 0
+        },
+        {
+          "name": "codex_inspection_disable_ownership",
+          "count": 0
+        },
+        {
+          "name": "quota_cooldowns",
+          "count": 0
+        },
+        {
+          "name": "account_quota_observations",
+          "count": 1829
+        },
+        {
+          "name": "account_quota_windows",
+          "count": 8
+        },
+        {
+          "name": "account_quota_window_activations",
+          "count": 8
+        },
+        {
+          "name": "account_quota_cycles",
+          "count": 18
+        },
+        {
+          "name": "account_quota_snapshots",
+          "count": 3659
+        },
+        {
+          "name": "usage_archive_deleted_coverage_daily",
+          "count": 0
+        },
+        {
+          "name": "usage_monitoring_event_search_v1",
+          "count": 2523
+        },
+        {
+          "name": "usage_monitoring_event_search_v1_data",
+          "count": 325
+        },
+        {
+          "name": "usage_monitoring_event_search_v1_idx",
+          "count": 322
+        },
+        {
+          "name": "usage_monitoring_event_search_v1_config",
+          "count": 1
+        },
+        {
+          "name": "usage_monitoring_search_index_state",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "static_keys_verified": 4,
+  "model_counts": [
+    44,
+    44,
+    44,
+    44
+  ],
+  "inference": {
+    "nonstream": {
+      "http": 200,
+      "admission": "v1",
+      "generated": true
+    },
+    "stream": {
+      "http": 200,
+      "admission": "v1",
+      "generated": true,
+      "done": true
+    }
+  },
+  "canary_model": "gemini-3.5-flash-lite",
+  "plus_public_status": [
+    200,
+    200,
+    200
+  ],
+  "signed_pool_status": 200,
+  "cloudflare_frontend_auth_and_key_stores_preserved": true,
+  "same_tunnel_and_domains": true,
+  "no_source_production_dependency": true,
+  "rollback_script": "/opt/rak-production/rak-prod-20261106-7d8f1224ab99/rollback-source.sh",
+  "final_backup": "/opt/rak-production/rak-prod-20261106-7d8f1224ab99/business-final-source.enc.json"
+}
