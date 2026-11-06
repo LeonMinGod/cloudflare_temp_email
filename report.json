@@ -1,0 +1,7 @@
+{
+  "status": "partial",
+  "mode": "source-agent-quota-audit",
+  "read_only": true,
+  "worker_requests_made": 0,
+  "private_details_encrypted": true
+}
