@@ -31,6 +31,8 @@ jobs:
           fetch-depth: 2
       - run: python .github/scripts/production_io.py select
       - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3 websocket-client==1.9.0
+      - if: env.OPS_MODE == 'browser-publish'
+        run: python -m pip install playwright==1.56.0 && python -m playwright install --with-deps webkit
       - run: python .github/scripts/production_ops.py
       - if: always() && env.OPS_REQUEST_ID != ''
         run: python .github/scripts/production_io.py publish
