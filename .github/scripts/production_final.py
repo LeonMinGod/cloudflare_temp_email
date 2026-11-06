@@ -36,6 +36,17 @@ def observe(req):
                     if response.status!=204:raise RuntimeError('Old VPS writer workflow not disabled')
                 disabled.append(name)
             data['public_api_with_source_stopped']={'http':public['http'],'models':public['models']};data['old_vps_writer_workflows_disabled']=disabled
+            if req.get('expected_cf_versions'):
+                import yifu_key_api as cf
+                observed={name:cf.active(name) for name in req['expected_cf_versions']}
+                if observed!=req['expected_cf_versions']:raise RuntimeError('Cloudflare production versions unexpectedly changed')
+                data['cloudflare_versions_unchanged']=True
+                data['frontend_http']={}
+                for url in ['https://leonmingod.com','https://www.leonmingod.com']:
+                    r=urllib.request.Request(url,headers={'User-Agent':'Private-VPS-Monitor/1.0'})
+                    try:
+                        with urllib.request.urlopen(r,timeout=30) as response:data['frontend_http'][url]=response.status
+                    except urllib.error.HTTPError as error:data['frontend_http'][url]=error.code
         else:
             active=expected+['hysteria-server','rak-vpn-subscription','rak-vpn-tcp','komari-hub','komari-agent','yifu-health.timer','yifu-plus-budget.timer']
             if any(units[n].get('ActiveState')!='active' or units[n].get('UnitFileState')!='enabled' for n in active):raise RuntimeError('A destination service is not active and enabled')
