@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T041822-source-agent-007c58",
+  "run_id": "42161717464",
+  "source_commit": "9c7951d0e33a39e9d1f69a057c2279cbcae5ad35",
+  "files": {
+    "report.json": "9a4c4dc019c0ddce45639bf30b3537de4e7fb9e7f823e01ea760a3217500c3d5",
+    "diagnostics.json": "4d8f05d0ee4cc69c4f0088775fc73dba2aed5aa0c2b77f187f620b5cb4034c70"
+  }
+}

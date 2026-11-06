@@ -1,0 +1,22 @@
+{
+  "status": "failed",
+  "role": "source",
+  "error_type": "RuntimeError",
+  "location": [
+    {
+      "file": "production_ops.py",
+      "function": "main",
+      "line": 116
+    },
+    {
+      "file": "production_komari.py",
+      "function": "source_agent",
+      "line": 198
+    },
+    {
+      "file": "vps_monitor.py",
+      "function": "run",
+      "line": 29
+    }
+  ]
+}
