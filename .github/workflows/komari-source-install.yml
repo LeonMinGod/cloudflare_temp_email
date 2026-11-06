@@ -66,7 +66,8 @@ jobs:
               finally:sftp.close()
               print('Verified agent hash:',run('sha256sum /opt/komari-agent/komari-agent | cut -d" " -f1').strip()==sha)
               run('id komari-agent >/dev/null 2>&1 || useradd --system --home-dir /var/lib/komari-agent --shell /sbin/nologin komari-agent')
-              print(run('python3 /opt/komari-agent/setup.py'))
+              run('install -d -o komari-agent -g komari-agent -m 0700 /var/lib/komari-agent; openssl pkeyutl -decrypt -inkey /opt/komari-agent/.access-key.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -in /opt/komari-agent/.request.enc -out /var/lib/komari-agent/config.json; chown komari-agent:komari-agent /var/lib/komari-agent/config.json; chmod 600 /var/lib/komari-agent/config.json; rm -f /opt/komari-agent/.request.enc')
+              print('Source agent enrolled; private token not logged')
               run('systemctl daemon-reload; systemctl enable komari-source-agent.service >/dev/null; systemctl restart komari-source-agent.service')
               print('Source service state:',run('systemctl is-active komari-source-agent.service yifu-cpa.service yifu-tunnel.service'))
           finally:
