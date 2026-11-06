@@ -91,7 +91,7 @@ def _publish(req):
     with sync_playwright() as playwright:
         chrome=shutil.which('google-chrome') or shutil.which('google-chrome-stable')
         if not chrome:raise RuntimeError('Actions image lacks its documented Google Chrome executable')
-        browser=playwright.chromium.launch(headless=True,executable_path=chrome)
+        browser=playwright.chromium.launch(headless=True,executable_path=chrome,args=['--disable-quic','--disable-http2'])
         try:
             context=browser.new_context(viewport={'width':1440,'height':1000})
             page=context.new_page();errors=[];network=[]
