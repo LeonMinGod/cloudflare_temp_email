@@ -1,0 +1,99 @@
+{
+  "id": 42219529861,
+  "status": "completed",
+  "conclusion": "failure",
+  "run_started_at": "2026-11-06T12:40:55Z",
+  "updated_at": "2026-11-06T12:41:48Z",
+  "jobs": [
+    {
+      "id": 127897814759,
+      "name": "operate",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T12:40:59Z",
+      "completed_at": "2026-11-06T12:41:47Z",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:00Z",
+          "completed_at": "2026-11-06T12:41:01Z"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:01Z",
+          "completed_at": "2026-11-06T12:41:03Z"
+        },
+        {
+          "number": 3,
+          "name": "Run python .github/scripts/production_io.py select",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:03Z",
+          "completed_at": "2026-11-06T12:41:03Z"
+        },
+        {
+          "number": 4,
+          "name": "Run python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3 websocket-client==1.9.0",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:03Z",
+          "completed_at": "2026-11-06T12:41:08Z"
+        },
+        {
+          "number": 5,
+          "name": "Run python -m pip install playwright==1.56.0",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:08Z",
+          "completed_at": "2026-11-06T12:41:10Z"
+        },
+        {
+          "number": 6,
+          "name": "Run python .github/scripts/production_ops.py",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-06T12:41:10Z",
+          "completed_at": "2026-11-06T12:41:42Z"
+        },
+        {
+          "number": 7,
+          "name": "Run python .github/scripts/production_io.py publish",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:42Z",
+          "completed_at": "2026-11-06T12:41:44Z"
+        },
+        {
+          "number": 8,
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:44Z",
+          "completed_at": "2026-11-06T12:41:45Z"
+        },
+        {
+          "number": 16,
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:45Z",
+          "completed_at": "2026-11-06T12:41:45Z"
+        },
+        {
+          "number": 17,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T12:41:45Z",
+          "completed_at": "2026-11-06T12:41:45Z"
+        }
+      ]
+    }
+  ]
+}
