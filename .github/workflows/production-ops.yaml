@@ -21,6 +21,8 @@ jobs:
       YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
       YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
       YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+      YIFU_BACKUP_SECRET: ${{ secrets.YIFU_BACKUP_SECRET }}
+      YIFU_OPS_SECRET: ${{ secrets.YIFU_OPS_SECRET }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
@@ -28,7 +30,7 @@ jobs:
         with:
           fetch-depth: 2
       - run: python .github/scripts/production_io.py select
-      - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3
+      - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3 websocket-client==1.9.0
       - run: python .github/scripts/production_ops.py
       - if: always() && env.OPS_REQUEST_ID != ''
         run: python .github/scripts/production_io.py publish

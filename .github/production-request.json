@@ -1,7 +1,16 @@
 {
   "session": "rak-prod-20261106-7d8f1224ab99",
-  "mode": "audit",
+  "mode": "source-agent",
   "owner_public_key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUEwSzZtK2R2UXlWVDdDRGprQlAybApuYzErdmZqZEFZR2JJVElkUytOeGtLb0ZMQ2dWdjZWUjkva1dFaWZ6aXIxdEtaYjBXTFg4aWxmMTVxaWw3c1BYCjFjRmE0WnBMN05OTnFoY29LU1pjbU4zc2JlNDlrc2tVaklYcExicStiNjNEMjYxZ0pkY3pnbGFxVElVMzMyU1oKRHE2ZXBOOWVTQWpNbGZRVUY1Y3h1aHc5VDFlYmI3aXdXZGtsSmJ5dW9GSS8xN1V0MFFncm5YbEw0Yi9KTy9hQQpHb05BamZHMWNibXJDM2QvOG5ZbTFFWVBOaHp3UlJNTEFpdHNNYitzVmZXK2tkdXJpTGxtWWdmVzVGTEsvZTFBCk41TzYxR29GYUsycmY4SmVGNHo1OTNjTGJudllHRDlFZHBWcW1iQit0a3I5ZXAyMytrOWcraFhNNVRIQWw0blkKQVVGNGJwV2FjR0h6UFVadUF6Q3BlQzVMOW51d1c3eVVGNDdWU0xmNjUxd2RUeG8rQnd6RytINDlvdUtib1VGcAp0QnlqUUhuNjQvaGY5MHViaEYreXpLcVQyeFRweVdMSStWZWRNNUZ3VVdHMHBZMVRiU3ZGSndHbzBIbEVjbDdyCkM5UjJJWGhSWkt0ZjFrSlFUaEw1dlhmL29lVUhMUTJZK0ZoNjB4MWc2Q1FuQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==",
   "authorization": "User explicitly reauthorizes full migration and Komari replacement; preserve VPN and production data",
-  "request_id": "20261106T040325-source-audit-f1c06c"
+  "request_id": "20261106T041822-source-agent-007c58",
+  "peer_envelope": {
+    "format": "AES-256-GCM+RSA-OAEP-SHA256",
+    "purpose": "lmg-production-ops-v1",
+    "session": "rak-prod-20261106-7d8f1224ab99",
+    "kind": "komari-source-agent",
+    "wrapped_key": "XD5HdQLalof+GdWHzfluBK5yB/uSwi/0zLcmcpef7HrzTzYDc+kftlF/4D4XNnNn/qjf1kt0GKbJ6m/+ouvKElvNCzrTxXioEEhefU/AjUHTSxosPQCncGIeYHUDC4yEepD+hb5Kb34nwcwmCwNeiZLpDsCZNMHwtByT8LffSFWMn9AlqeBfce0EYV6Vy15Thv+vpdBhIN/59LwFoc8GApbqFhfMHGbBtvokLe246IluGYniG3w6WMAKTVLeXYnhbX2NgIV6H9vcBfWTw0Nux/HFHiIIzSwWetfSZ0lRpm2rgECps19/SbyteNgUIfHiSqjzu2tpXhwWFJWT9WBBeAfuSO6nof0oQeWcsBQH41f+X66Ip4yGlP15ffX/UJu+9tp4xVG6H4/Ss3KzxFzdTZU5mho4psnoW5cVDaqo6VFcYgaAwgMFbP+AX90VwfS+XvNqpJ9d35fihuKg7icHtFynpWQmNFZSdQv8D2OSceNlJABFzcs4joJyK+zhufkK",
+    "nonce": "KditSbL4jsg0C1SO",
+    "ciphertext": "amHiPTpNs36Qqfroq2ry+bGKR941miV6aalAEfAKxD8W2h1YPXuHUj6bKKFbFwMOy0NuxEqmyHgvyH4U+wNatpCGu2pNB+FODOosljFeHccX0e4uqUK3h1JSBm/GdJWpVk89whzCWF6iZHPk19Djmi9otcBVkpqwkkqhr22h9A2CwaPSEsGzIdwpvY1kH/2roocv4d85CWbBnEikCdV8fwJLUxB7zoKJ5mGN8E27ErDEvDON/F7c65PdVh+bBlzQ781ht4cURI+lJD48sw=="
+  }
 }

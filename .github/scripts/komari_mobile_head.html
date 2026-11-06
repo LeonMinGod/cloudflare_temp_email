@@ -1,0 +1,18 @@
+<!-- rak-mobile-budget-v1:start -->
+<style>
+.km-node-card{min-width:0;border-radius:18px!important}.km-node-card .km-usage-bar{min-width:0}
+.rak-month-budget{margin-top:10px;padding:12px;border:1px solid var(--gray-5,#d7dbe0);border-radius:12px;background:var(--gray-2,#f7f8fa);font-variant-numeric:tabular-nums;line-height:1.65}
+.rak-month-budget strong{display:block;font-size:14px}.rak-month-budget small{display:block;opacity:.72;font-size:11px}
+@media(max-width:640px){.km-node-card{margin-bottom:12px!important}.rak-month-budget{font-size:13px}.km-node-card .km-node-name{font-size:15px!important}}
+</style>
+<script>
+(()=>{if(window.__rakMonthlyBudget)return;window.__rakMonthlyBudget=true;const latest=new Map();let queued=false;
+const show=()=>{queued=false;for(const[id,v]of latest){const card=document.getElementById(id);if(!card||!card.matches('.km-node-card,.node-card'))continue;let box=card.querySelector('.rak-month-budget');if(!box){box=document.createElement('div');box.className='rak-month-budget';card.append(box)}const used=Math.max(0,v[0]+v[1]),remaining=Math.max(0,1e12-used),pct=used/1e10,text=`本月已用 ${(used/1e9).toFixed(2)} GB · ${pct.toFixed(2)}%`,detail=`剩余 ${(remaining/1e9).toFixed(2)} GB / 1 TB`;
+if(box.dataset.value!==text+detail){box.dataset.value=text+detail;box.replaceChildren();const a=document.createElement('strong'),b=document.createElement('div'),c=document.createElement('small');a.textContent=text;b.textContent=detail;c.textContent='上传 + 下载 · 每月 1 日重置 · 网卡统计';box.append(a,b,c)}}};
+const queue=()=>{if(!queued){queued=true;requestAnimationFrame(show)}};
+const absorb=value=>{if(!value||typeof value!=='object')return;for(const[id,r]of Object.entries(value)){if(!/^[a-f0-9-]{36}$/i.test(id)||!r||typeof r!=='object')continue;const n=r.network||{},up=n.totalUp??n.total_up??r.net_total_out??r.net_total_up,down=n.totalDown??n.total_down??r.net_total_in??r.net_total_down;if(Number.isFinite(up)&&Number.isFinite(down)){latest.set(id,[up,down]);queue()}}};
+const native=window.WebSocket;window.WebSocket=class extends native{constructor(...args){super(...args);this.addEventListener('message',event=>{if(typeof event.data!=='string')return;try{const p=JSON.parse(event.data);absorb(p.result?.data);absorb(p.result);absorb(p.data?.data);absorb(p.data);absorb(p)}catch{}})}};
+const start=()=>new MutationObserver(queue).observe(document.getElementById('root')||document.body,{childList:true,subtree:true});document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
+})();
+</script>
+<!-- rak-mobile-budget-v1:end -->
