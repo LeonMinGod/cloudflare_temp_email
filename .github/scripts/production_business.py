@@ -213,7 +213,7 @@ def cutover(req):
             config=yaml.safe_load(read(sftp,ROOT+'/private/config.yaml'));env=private_env(sftp)
             inventory=public_probe(config)
             if inventory.get('http')!=200:raise RuntimeError('Existing production preflight failed')
-            candidates=[m for m in ['gpt-6.1-sol','gpt-6.1-terra','grok-4.7','gemini-3.5-flash-lite','grok-3-mini'] if m in inventory.get('model_ids',[])][:4]
+            candidates=[m for m in ['gemini-3.5-flash-lite','gemini-3-flash','gpt-6.1-sol','gpt-6.1-terra'] if m in inventory.get('model_ids',[])][:4]
             if not candidates:raise RuntimeError('No suitable canary model before cutover')
             phase('business-source-inference-baseline')
             gateway=run(source,'curl -fsS --max-time 10 http://127.0.0.1:8319/_gateway/healthz')

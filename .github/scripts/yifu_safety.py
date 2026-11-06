@@ -131,7 +131,10 @@ def public_probe(config, model=None, stream=False, diagnostic=False):
                 chunks = []
                 for line in raw.decode().splitlines():
                     if line.startswith('data: ') and line[6:] != '[DONE]':
-                        value = json.loads(line[6:]);chunks.extend(choice.get('delta', {}).get('content', '') for choice in value.get('choices', []))
+                        value = json.loads(line[6:])
+                        for choice in value.get('choices') or []:
+                            content=(choice.get('delta') or {}).get('content')
+                            if isinstance(content,str):chunks.append(content)
                 result.update({'generated': bool(''.join(chunks)), 'done': b'data: [DONE]' in raw})
             else:
                 value = json.loads(raw)
