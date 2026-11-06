@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T124617-browser-module-ui-f61170",
+  "run_id": "42220221942",
+  "source_commit": "06bad0d3f5072588952510d6239dbb46d736ccfb",
+  "files": {
+    "report.json": "a6ce4acad53ead032817d0b220e19934e463644a148dde2ba30b4cc902587f37",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "ae51e3e5883a1a8de21e98f64ab0e6ec04a5373b221c36a623526c4fe2a12ea1"
+  }
+}
