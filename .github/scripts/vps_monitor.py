@@ -25,7 +25,7 @@ def write(sftp,path,raw,mode=0o600):
 def run(client,source,timeout=90,public_probe=False):
     _,out,err=client.exec_command('set -e\n'+source,timeout=timeout);raw=out.read();error=err.read();status=out.channel.recv_exit_status()
     if status:
-        if public_probe:Path('monitor-operation/diagnostics.json').write_text(json.dumps({'phase':'native-binary-probe','exit':status,'stderr':error.decode(errors='replace')[-1500:],'stdout':raw.decode(errors='replace')[-1000:]}))
+        if public_probe:Path('monitor-operation/diagnostics.json').write_text(json.dumps({'phase':json.loads(Path('monitor-operation/diagnostics.json').read_text()).get('phase','public-probe'),'exit':status,'stderr':error.decode(errors='replace')[-1500:],'stdout':raw.decode(errors='replace')[-1000:]}))
         raise RuntimeError('Remote monitor operation exit '+str(status))
     return raw.decode()
 
@@ -53,10 +53,17 @@ def connect():
 def baseline(client):
     role=os.environ['MONITOR_ROLE']
     names=['yifu-cpa','yifu-gateway','yifu-monitor','yifu-plus','yifu-tunnel'] if role=='source' else ['hysteria-server','rak-vpn-subscription','rak-vpn-tcp','rak-vpn-firewall','rak-vpn-traffic.timer']
-    protected=['/opt/yifu-cpa/private/config.yaml','/opt/yifu-cpa/private/runtime.env'] if role=='source' else ['/etc/ssh/sshd_config','/etc/shadow','/etc/hysteria/config.yaml','/etc/hysteria/rak-tcp.json','/etc/hysteria/rak-subscription.json']
-    state={name:run(client,'systemctl show '+name+' -p MainPID -p ActiveState').strip() for name in names}
+    protected=['/opt/yifu-cpa/private/config.yaml','/opt/yifu-cpa/private/runtime.env'] if role=='source' else ['/etc/ssh/sshd_config','/etc/hysteria/config.yaml','/etc/hysteria/rak-tcp.json','/etc/hysteria/rak-subscription.json']
+    state={}
+    for name in names:
+        unit=name if name.endswith(('.service','.timer')) else name+'.service'
+        checkpoint('baseline-'+unit)
+        properties='-p ActiveState' if unit.endswith('.timer') else '-p MainPID -p ActiveState'
+        state[name]=run(client,'systemctl show '+properties+' '+unit,public_probe=True).strip()
     if any('ActiveState=active' not in value for value in state.values()):raise RuntimeError('Existing production service unhealthy')
-    state['protected']=run(client,'sha256sum '+' '.join(protected));return state
+    state['protected']=run(client,'sha256sum '+' '.join(protected))
+    if role=='target':state['root_password_record']=run(client,"awk -F: '$1 == \"root\" {print}' /etc/shadow | sha256sum")
+    return state
 
 def cf(path,method='GET',body=None):
     import yifu_key_api as api
@@ -100,6 +107,9 @@ def main():
         if req['domain']!=DOMAIN:raise ValueError('Unexpected private monitor domain')
         role=os.environ['MONITOR_ROLE']
         if role=='source' and req['mode']=='prepare':result=source_prepare(req)
+        elif role=='source' and req['mode']=='install':
+            from vps_monitor_source import source_install
+            result=source_install(req)
         else:raise ValueError('Unsupported monitor phase')
     except Exception as error:
         result={'status':'failed','role':os.environ.get('MONITOR_ROLE'),'error_type':type(error).__name__,'location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(error.__traceback__)]}

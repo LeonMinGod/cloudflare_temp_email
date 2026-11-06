@@ -1,6 +1,15 @@
 {
   "session": "vpsmon-20261106-8dff9e33dddb",
   "domain": "vps.leonmingod.com",
-  "request_id": "20261106T002718-monitor-source-prepare-9c1189",
-  "mode": "prepare"
+  "request_id": "20261106T004743-monitor-source-install-e0e9e9",
+  "mode": "install",
+  "peer_envelope": {
+    "format": "AES-256-GCM+RSA-OAEP-SHA256",
+    "purpose": "lmg-vps-monitor-v1",
+    "session": "vpsmon-20261106-8dff9e33dddb",
+    "kind": "monitor-peer",
+    "wrapped_key": "Fj1CUIl4j9/xzF8F0y2QTU68so+XLNh2Oy0MPq74a1nQ7rC6IC5Cln67ED5Z7hFGjLlH4LZRnLREcDKTT454swsledAKwsCV6sUqvf1irkh6atZ8KD14RCdKd0fqHLVevpO3mVEHyrAUP5vf/l5Kicc+tTvMw7zJqR0kUTId2NWkfqCmQQ/ofXC0VWNsm8JPhqIH2AjHepiIg0sWZW1uhs1+0ilKUBGaLA1ax7ZW8NIjxfyYwycfUFDchyvsfGEAwYVLKiWY7evc641V3SfjCiYrNsILshnNvWv7PQh1x7jnUJIh91jprZU1IOOPvBUCLRftjU1hUnhG4zvqxfeGvn2/zOldHERHWZb2PqYaDlV8JwFtv7RxqbjJ6PoamgeDnJFJodGzqs3HYb/TPkTmBaanoe4kBcZfyVX+Evbj/mxFwvtdfVHSHnAz2H947dyxaYD3Dhreypng2+RXmRnX4WyFIMhQ/8O9IZwIpWmX4o6lBQ4NpKt9e+iUVvSTh+HC",
+    "nonce": "k/c+g/xP7ubl6ONa",
+    "ciphertext": "UQVcNvrSzd4bgwdVqOh8vUro5wzNebjYD2wyvsPZSulGXgH7T9mEzuza9akGztw5fjMGlJLdXPhbdLVSquFfhreFLezNKNQUe3aglHEiRXZkcr833FZrZ8MfgcnlrwHJCYGqrU8yLlChkS1I7go5JtAfPc1plC0MAxTO3zVB5FcIDp7eoH+LD+w9bfTvub3FV1bX1HoUWNE+cUCPutKauRfzgYK8neRvQiDNrNmwHWtsRF3tTmbg8o0dVibvh/aC0/bvyYv/tFqdwlHJziR2Ory/0IqdQguWYRP3h9dTFuXxz5tkw5f+ilyFI+ExpqcV862JQYpvJuwd+SjbD5gOGlfExyOTKA91Bw1sXY8BzangUY3E1vm97RSVWru+rOkr+3SdV2FmJk9DDmqUjWz7OeuZwzOalcRAdoVvnzihkZez2zvKR1bwGr+74kP4cKS3gHqY"
+  }
 }
