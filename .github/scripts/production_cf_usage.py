@@ -23,8 +23,9 @@ def graphql(query):
     if 'mutation' in query.lower():raise ValueError('This audit permits queries only')
     return api('/graphql',{'query':query})
 
-def query_rows(account,start,end,dimensions='scriptName',extra=''):
+def query_rows(account,start,end,dimensions='scriptName',extra='',worker=None):
     filters='datetime_geq:'+json.dumps(start)+',datetime_lt:'+json.dumps(end)
+    if worker:filters+=',scriptName:'+json.dumps(worker)
     query='{viewer{accounts(filter:{accountTag:'+json.dumps(account)+'}){workersInvocationsAdaptive(limit:10000,filter:{'+filters+'}){dimensions{__typename '+dimensions+'}sum{__typename requests '+extra+'}}}}}'
     response=graphql(query)
     try:
@@ -84,6 +85,16 @@ def main():
                 current['time_series'].extend(rows)
         if 'status' in dimension_fields:
             current['execution_statuses'],current['status_error']=query_rows(account,current['start_utc'],current['end_utc'],'scriptName status',extra)
+        if request.get('detail_worker'):
+            name=request['detail_worker']
+            dims='scriptName '+' '.join(x for x in ['httpResponseStatus','eventType','status'] if x in dimension_fields)
+            current['worker_details'],current['worker_details_error']=query_rows(account,current['start_utc'],current['end_utc'],dims,extra,worker=name)
+            if 'scriptVersion' in dimension_fields:
+                current['worker_versions'],current['worker_versions_error']=query_rows(account,current['start_utc'],current['end_utc'],'scriptName scriptVersion httpResponseStatus',extra,worker=name)
+            zone=data['metadata'].get('zone_id')
+            if zone and request.get('detail_host'):
+                query='{viewer{zones(filter:{zoneTag:'+json.dumps(zone)+'}){httpRequestsAdaptiveGroups(limit:100,orderBy:[count_DESC],filter:{datetime_geq:'+json.dumps(current['start_utc'])+',datetime_lt:'+json.dumps(current['end_utc'])+',clientRequestHTTPHost:'+json.dumps(request['detail_host'])+'}){count dimensions{clientRequestHTTPHost clientRequestPath edgeResponseStatus}}}}}'
+                current['zone_path_counts']=graphql(query)
     OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(data).encode(),base64.b64decode(request['owner_public_key']),request['session'],'cf-request-usage-audit'))
     available=current is not None
     ranking=[] if not available else sorted([{'worker':r['dimensions'].get('scriptName'),'requests':r['sum']['requests']} for r in current['totals']],key=lambda r:r['requests'],reverse=True)
