@@ -8,11 +8,24 @@ import yifu_key_api as api
 WORKER='leonmingod-private-browser'
 DOMAIN='browser.leonmingod.com'
 
-def inspect_mobile(req):
-    phase('linuxserver-mobile-native-input-inspection');c=connect()
+def route_state(req):
+    envelope=req['linuxserver_route_envelope']
+    if 'backup_wrapped_key' in envelope:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+        from production_crypto import PURPOSE,aad
+        if envelope['purpose']!=PURPOSE or envelope['session']!=req['session'] or envelope['kind']!='linuxserver-route':raise ValueError('Unexpected route capsule identity')
+        key=Scrypt(salt=base64.b64decode(envelope['backup_salt']),length=32,n=2**17,r=8,p=1).derive(os.environ['YIFU_BACKUP_SECRET'].encode())
+        secret=AESGCM(key).decrypt(base64.b64decode(envelope['backup_nonce']),base64.b64decode(envelope['backup_wrapped_key']),aad(req['session'],'linuxserver-route'))
+        raw=AESGCM(secret).decrypt(base64.b64decode(envelope['nonce']),base64.b64decode(envelope['ciphertext']),aad(req['session'],'linuxserver-route'))
+        return json.loads(raw)
+    c=connect()
     try:
-        with c.open_sftp() as sf:state=json.loads(unseal(json.dumps(req['linuxserver_route_envelope']).encode(),read(sf,BASE+'/private/recipient.pem'),req['session'],'linuxserver-route'))
+        with c.open_sftp() as sf:return json.loads(unseal(json.dumps(envelope).encode(),read(sf,BASE+'/private/recipient.pem'),req['session'],'linuxserver-route'))
     finally:c.close()
+
+def inspect_mobile(req):
+    phase('linuxserver-mobile-native-input-inspection');state=route_state(req)
     from playwright.sync_api import sync_playwright
     data={}
     try:
@@ -41,10 +54,7 @@ def inspect_mobile(req):
     return {'status':'passed','mode':'linuxserver-mobile-inspect','mobile_input_inspection_encrypted':True,'keyboard_button_found':bool(data.get('after')),'focused_input_after_tap':data.get('after',{}).get('active'),'production_config_unchanged':True}
 
 def _publish(req):
-    phase('linuxserver-public-owner-route');c=connect()
-    try:
-        with c.open_sftp() as sf:state=json.loads(unseal(json.dumps(req['linuxserver_route_envelope']).encode(),read(sf,BASE+'/private/recipient.pem'),req['session'],'linuxserver-route'))
-    finally:c.close()
+    phase('linuxserver-public-owner-route');state=route_state(req)
     if state.get('owner')!='leonmingod-linuxserver-chrome' or state.get('public_url')!='https://'+DOMAIN:raise RuntimeError('Chrome route owner mismatch')
     before={n:api.active(n) for n in ['leonmingod-home','leonmingod-free-token','cpa-abuse-guard','leonmingod-private-vps','leonmingod-muse2api']}
     existing=api.cf(WORKER+'/settings')
@@ -112,14 +122,16 @@ def publish(req):
     code=api.cf(WORKER,raw=True)
     snapshot=seal(json.dumps({'previous_version':previous,'content_type':code[1].get('Content-Type'),'worker_body':base64.b64encode(code[2]).decode(),'settings':api.cf(WORKER+'/settings')}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-worker-snapshot')
     OUT.joinpath('audit.enc.json').write_bytes(snapshot)
-    c=connect();directory=BASE+'/'+req['session']+'/browser-mobile/'+req['request_id']
-    try:
-        run(c,'install -d -m 0700 '+directory)
-        with c.open_sftp() as sf:write(sf,directory+'/worker-before.enc.json',snapshot)
-    finally:c.close()
+    directory='production-results/'+req['request_id']
+    if 'backup_wrapped_key' not in req['linuxserver_route_envelope']:
+        c=connect();directory=BASE+'/'+req['session']+'/browser-mobile/'+req['request_id']
+        try:
+            run(c,'install -d -m 0700 '+directory)
+            with c.open_sftp() as sf:write(sf,directory+'/worker-before.enc.json',snapshot)
+        finally:c.close()
     try:
         result=_publish(req)
-        result['worker_snapshot']=directory+'/worker-before.enc.json';result['previous_worker_version']=previous
+        result['worker_snapshot']=directory+('/audit.enc.json' if 'backup_wrapped_key' in req['linuxserver_route_envelope'] else '/worker-before.enc.json');result['previous_worker_version']=previous
         return result
     except Exception:
         phase('linuxserver-mobile-automatic-worker-rollback')
