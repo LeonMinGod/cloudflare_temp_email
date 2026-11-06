@@ -1,5 +1,4 @@
 {
-  "request_id": "20261106T123800-cancel-browser-download",
-  "head_sha": "5fc1830",
-  "cancel_predeploy_installer": true
+  "request_id": "20261106T124100-browser-final-status",
+  "head_sha": "12f31e0"
 }
