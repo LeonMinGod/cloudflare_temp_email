@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "mode": "linuxserver-mobile-inspect",
+  "mobile_input_inspection_encrypted": true,
+  "keyboard_button_found": true,
+  "focused_input_after_tap": "keyboard-input-assist",
+  "production_config_unchanged": true
+}
