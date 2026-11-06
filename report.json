@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "role": "source",
+  "mode": "install",
+  "domain": "vps.leonmingod.com",
+  "worker": "leonmingod-private-vps",
+  "worker_version": "6d21ad0a-d506-4498-b920-cecc4418189c",
+  "agent_service": "active",
+  "outbound_tls_enabled": true,
+  "agent_ssh_disabled": true,
+  "anonymous_machine_data_hidden": true,
+  "public_registration_blocked": true,
+  "public_hub_health": 200,
+  "existing_public_station_processes_and_configuration_unchanged": true,
+  "original_website_and_auth_workers_unchanged": true,
+  "public_cpa_health": 200,
+  "business_migration_remains_cancelled": true,
+  "public_monitor_ports_added": 0,
+  "resource_caps": {
+    "agent_memory_mib": 48,
+    "agent_cpu_percent_one_core": 5
+  }
+}

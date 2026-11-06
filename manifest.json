@@ -1,0 +1,9 @@
+{
+  "request_id": "20261106T005636-monitor-source-install-469ada",
+  "run_id": "42140434693",
+  "source_commit": "8e5e3350db36456cedbfcd1b02263729f4ae6c9e",
+  "files": {
+    "report.json": "caebc20972e55c0630d65661ed30f7f204e5a18fee920ab101475e7cdafca076",
+    "diagnostics.json": "7655f77305be8104a53556dab2e6e4c6f1efa7e410d44fb7a74962378b1c5bb8"
+  }
+}
