@@ -1,8 +1,8 @@
 {
   "session": "vpsmon-20261106-8dff9e33dddb",
   "domain": "vps.leonmingod.com",
-  "request_id": "20261106T005433-monitor-domain-probe-63adb1",
-  "mode": "verify",
+  "request_id": "20261106T005636-monitor-source-install-469ada",
+  "mode": "install",
   "peer_envelope": {
     "format": "AES-256-GCM+RSA-OAEP-SHA256",
     "purpose": "lmg-vps-monitor-v1",

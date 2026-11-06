@@ -7,7 +7,7 @@ from vps_monitor_install import install_agent,protect_unchanged
 
 def public_json(path,method='GET',body=None):
     data=None if body is None else json.dumps(body).encode()
-    request=urllib.request.Request('https://'+DOMAIN+path,data=data,method=method,headers={'Content-Type':'application/json','Cache-Control':'no-cache'})
+    request=urllib.request.Request('https://'+DOMAIN+path,data=data,method=method,headers={'Content-Type':'application/json','Cache-Control':'no-cache','User-Agent':'Private-VPS-Monitor/1.0'})
     try:
         with urllib.request.urlopen(request,timeout=20) as response:return response.status,json.load(response)
     except urllib.error.HTTPError as error:return error.code,{}
