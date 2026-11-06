@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "mode": "muse-publish",
+  "domain": "muse2api.leonmingod.com",
+  "health_http": 200,
+  "anonymous_models_http": 401,
+  "anonymous_readiness_http": 401,
+  "authenticated_models_http": 200,
+  "admin_ui_http": 200,
+  "accounts": 0,
+  "conversation_verified": false,
+  "requires_owner_session_import": true,
+  "existing_workers_unchanged": true,
+  "browser_cookie_delivery": "Owner Chrome extension directly to authenticated HTTPS endpoint",
+  "key_in_url_fragment_not_http_query": true
+}
