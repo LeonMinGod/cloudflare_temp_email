@@ -111,12 +111,18 @@ def main():
         elif req['mode']=='komari-admin':
             from production_komari import admin
             result=admin(req)
-        elif req['mode'] in ['komari-switch','source-agent','verify']:
+        elif req['mode'] in ['komari-switch','source-agent','verify','komari-browser','remove-beszel','komari-style']:
             import production_komari as k
-            result={'komari-switch':k.switch,'source-agent':k.source_agent,'verify':k.verify}[req['mode']](req)
-        elif req['mode']=='migration-export':
-            from production_business import export
-            result=export(req)
+            result={'komari-switch':k.switch,'source-agent':k.source_agent,'verify':k.verify,'komari-browser':k.browser,'remove-beszel':k.remove_beszel,'komari-style':k.style}[req['mode']](req)
+        elif req['mode']=='migration-stage':
+            from production_business import stage
+            result=stage(req)
+        elif req['mode']=='os-upgrade-audit':
+            from production_business import os_audit
+            result=os_audit(req)
+        elif req['mode']=='migration-switch':
+            from production_business import cutover
+            result=cutover(req)
         else:raise ValueError('Unsupported production phase')
     except Exception as error:
         result={'status':'failed','role':os.environ.get('MONITOR_ROLE'),'error_type':type(error).__name__,'location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(error.__traceback__)]}

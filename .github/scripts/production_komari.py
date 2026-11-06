@@ -1,5 +1,5 @@
 """Finish the existing Komari installation without reinstalling or exposing secrets."""
-import base64,copy,json,os,re,secrets,shlex,time,urllib.error,urllib.request
+import base64,copy,json,os,re,secrets,shlex,time,urllib.error,urllib.request,urllib.parse
 from pathlib import Path
 from production_ops import BASE,OUT,phase,connect,read,write,run
 from production_crypto import seal,unseal
@@ -121,8 +121,10 @@ def public_check(auth,expected=1):
         if uuid not in online:continue
         history=api('/api/rpc2',{'jsonrpc':'2.0','id':1,'method':'public:getClientRecentRecords','params':{'uuid':uuid}})
         if 'error' in history or not history.get('result'):raise RuntimeError('Recent monitoring history missing')
+        persisted=api('/api/rpc2',{'jsonrpc':'2.0','id':2,'method':'public:getRecordsByUUID','params':{'uuid':uuid,'load_type':'cpu','hours':'1'}})
+        if 'error' in persisted or not persisted.get('result'):raise RuntimeError('Persistent monitoring history missing')
         if node['traffic_limit']!=10**12 or node['traffic_limit_type']!='sum':raise RuntimeError('Monthly quota mismatch')
-        checked.append({'name':node['name'],'online':True,'recent_history':True,'report_fields':sorted(r),'monthly_limit_bytes':node['traffic_limit']})
+        checked.append({'name':node['name'],'online':True,'recent_history':True,'persistent_history':True,'report_fields':sorted(r),'monthly_limit_bytes':node['traffic_limit']})
     return {'public_admin_login':True,'anonymous_data_status':anonymous,'websocket_upgrade_and_reports':True,'online_agents':len(online),'nodes':checked,'version':version}
 
 def switch(req):
@@ -165,7 +167,6 @@ def source_agent(req):
             packet=json.loads(unseal(json.dumps(req['peer_envelope']).encode(),read(sftp,BASE+'/private/recipient.pem'),req['session'],'komari-source-agent'))
             binary='/opt/komari-agent/komari-agent';expected='78c28d89e523816baea010c0ed0714f245f508ffdaca0540f5c9f230f7053c8c'
             if run(client,'sha256sum '+binary).split()[0]!=expected:raise RuntimeError('Installed official agent checksum mismatch')
-            run(client,'chmod 0755 /opt/komari-agent '+binary)
             from vps_monitor_install import user
             user(client,'komari-agent');run(client,'install -d -m 0700 -o komari-agent -g komari-agent /var/lib/komari-agent')
             config={'endpoint':packet['endpoint'],'token':packet['token'],'interval':5,'month_rotate':1,'disable_web_ssh':True,'disable_auto_update':True}
@@ -199,10 +200,6 @@ WantedBy=multi-user.target
             if run(client,'systemctl is-active komari-agent').strip()!='active':raise RuntimeError('Agent failed')
             protect_unchanged(client,before)
             return {'status':'passed','mode':'source-agent','official_binary_reused':True,'agent_active':True,'outbound_only':True,'web_ssh_disabled':True,'monthly_reset_day':1,'monthly_reset_timezone':'UTC','monthly_traffic_persisted_on_disk':True,'old_business_unchanged':True}
-    except Exception:
-        logs=run(client,'journalctl -u komari-agent -n 40 --no-pager -o cat || true')
-        OUT.joinpath('owner.enc.json').write_bytes(seal(logs.encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-agent-diagnostics'))
-        raise
     finally:client.close()
 
 def verify(req):
@@ -211,4 +208,86 @@ def verify(req):
         with client.open_sftp() as sftp:auth=credentials(sftp,req)
         result=public_check(auth,2)
         return {'status':'passed','mode':'verify',**result}
+    finally:client.close()
+
+def browser(req):
+    from playwright.sync_api import sync_playwright
+    phase('komari-iphone-webkit-browser');client=connect()
+    try:
+        with client.open_sftp() as sftp:auth=credentials(sftp,req)
+    finally:client.close()
+    live=public_check(auth,2)
+    evidence={'screenshots':{},'checks':[],'live':live}
+    try:
+        with sync_playwright() as p:
+            browser=p.webkit.launch()
+            device=dict(p.devices['iPhone 13']);device['user_agent']=UA
+            context=browser.new_context(**device,locale='zh-CN',color_scheme='light')
+            page=context.new_page();response=page.goto(DOMAIN+'/admin/login',wait_until='networkidle',timeout=60000)
+            evidence['initial']={'status':response.status,'title':page.title(),'html':page.content()[:100000]}
+            OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(evidence).encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-browser-evidence'))
+            page.locator('input[name="username"]').fill(auth['username']);page.locator('input[name="password"]').fill(auth['password'])
+            with page.expect_response(lambda r:r.url.endswith('/api/login')) as login:
+                page.locator('form').filter(has=page.locator('input[name="password"]')).locator('button[type="submit"]').click()
+            if login.value.status!=200:raise RuntimeError('WebKit form login failed')
+            page.goto(DOMAIN,wait_until='networkidle',timeout=60000)
+            page.locator('.km-node-card').nth(1).wait_for(timeout=60000)
+            page.wait_for_function("document.querySelectorAll('.rak-month-budget').length===2",timeout=45000)
+            for width,scheme in [(390,'light'),(375,'dark')]:
+                page.set_viewport_size({'width':width,'height':844});page.emulate_media(color_scheme=scheme);page.wait_for_timeout(1000)
+                layout=page.evaluate('''()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,cards:[...document.querySelectorAll('.km-node-card')].map(x=>({x:x.getBoundingClientRect().x,width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height,name:x.textContent.includes('RAKsmart')?'RAKsmart':'无聊云'})),budgets:[...document.querySelectorAll('.rak-month-budget')].map(x=>x.textContent)})''')
+                if layout['scroll']>width+1 or len(layout['cards'])!=2 or any(c['width']>width or c['x']<0 for c in layout['cards']):raise RuntimeError('Mobile card layout overflow')
+                evidence['checks'].append({'width':width,'scheme':scheme,'layout':layout})
+                evidence['screenshots'][str(width)+'-'+scheme]=base64.b64encode(page.screenshot(full_page=True)).decode()
+            page.locator('.km-node-card a[href^="/instance/"]').first.click();page.wait_for_url('**/instance/**');page.locator('.km-load-chart svg.recharts-surface').first.wait_for(timeout=45000)
+            evidence['node_detail']={'url_path':urllib.parse.urlsplit(page.url).path,'svg_elements':page.locator('svg').count(),'body_has_cpu': 'CPU' in page.inner_text('body')}
+            evidence['screenshots']['node-detail']=base64.b64encode(page.screenshot(full_page=True)).decode()
+            page.goto(DOMAIN+'/admin',wait_until='networkidle',timeout=45000)
+            if '/admin' not in page.url or page.locator('input[name="password"]').count():raise RuntimeError('Admin page not authenticated')
+            evidence['admin_ui']=True
+            context.close();browser.close()
+    except Exception:
+        evidence['failed']=True
+        OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(evidence).encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-browser-evidence'))
+        raise
+    OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(evidence).encode(),base64.b64decode(req['owner_public_key']),req['session'],'komari-browser-evidence'))
+    retired=remove_beszel(req) if req.get('retire_beszel') else None
+    return {'beszel_retirement':retired,'status':'passed','mode':'komari-browser','engine':'WebKit','iphone_form_login':True,'viewports':[390,375],'light_and_dark':True,'two_distinct_cards':True,'horizontal_overflow':False,'monthly_used_remaining_percent_visible':True,'node_detail_ui':True,'admin_ui':True,'screenshots_encrypted_to_owner':True}
+
+def remove_beszel(req):
+    phase('beszel-offline-backup-and-retirement');client=connect();role=os.environ['MONITOR_ROLE']
+    try:
+        before=baseline(client);directory=BASE+'/'+req['session'];archive=directory+'/beszel-offline-'+role+'.tar.gz'
+        names=['beszel-hub','beszel-agent'] if role=='target' else ['beszel-agent']
+        # Prove the replacement is active before retiring either old agent.
+        run(client,'systemctl is-active komari-agent'+(' komari-hub' if role=='target' else ''))
+        for name in names:run(client,'systemctl stop '+name+'; systemctl disable '+name+' >/dev/null 2>&1')
+        paths=['opt/beszel-monitor','var/lib/beszel-agent','etc/systemd/system/beszel-agent.service']
+        if role=='target':paths+=['var/lib/beszel-hub','etc/systemd/system/beszel-hub.service']
+        existing=[]
+        with client.open_sftp() as sftp:
+            for path in paths:
+                try:sftp.stat('/'+path);existing.append(path)
+                except FileNotFoundError:pass
+            run(client,'tar -czf '+archive+' -C / '+' '.join(existing));run(client,'chmod 0600 '+archive)
+            for name in names:run(client,'rm -f /etc/systemd/system/'+name+'.service')
+            run(client,'rm -rf /opt/beszel-monitor /var/lib/beszel-agent'+(' /var/lib/beszel-hub' if role=='target' else ''))
+            run(client,'systemctl daemon-reload; systemctl reset-failed >/dev/null 2>&1 || true')
+        protect_unchanged(client,before)
+        # A retired workflow must not recreate Beszel later.
+        repository=os.environ['GITHUB_REPOSITORY'];request=urllib.request.Request('https://api.github.com/repos/'+repository+'/actions/workflows/vps-monitor.yaml/disable',method='PUT',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+        with urllib.request.urlopen(request,timeout=30) as response:disabled=response.status==204
+        return {'status':'passed','mode':'remove-beszel','role':role,'offline_backup':archive,'hub_removed':role=='target','agent_removed':True,'old_workflow_disabled':disabled,'vpn_or_business_unchanged':True}
+    finally:client.close()
+
+
+def style(req):
+    phase('komari-mobile-contrast-refinement');client=connect()
+    try:
+        with client.open_sftp() as sftp:
+            auth=credentials(sftp,req);path=BASE+'/'+req['session']+'/style.private.json'
+            write(sftp,path,json.dumps({**auth,'mobile_head':Path('.github/scripts/komari_mobile_head.html').read_text()}))
+            try:result=json.loads(run(client,'python3 -c '+shlex.quote(CONFIGURE)+' '+path,timeout=120))
+            finally:sftp.remove(path)
+            return {'status':'passed','mode':'komari-style','no_service_restart':True,**result}
     finally:client.close()

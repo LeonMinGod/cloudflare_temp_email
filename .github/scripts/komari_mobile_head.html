@@ -4,6 +4,10 @@
 .rak-month-budget{margin-top:10px;padding:12px;border:1px solid var(--gray-5,#d7dbe0);border-radius:12px;background:var(--gray-2,#f7f8fa);font-variant-numeric:tabular-nums;line-height:1.65}
 .rak-month-budget strong{display:block;font-size:14px}.rak-month-budget small{display:block;opacity:.72;font-size:11px}
 @media(max-width:640px){.km-node-card{margin-bottom:12px!important}.rak-month-budget{font-size:13px}.km-node-card .km-node-name{font-size:15px!important}}
+.km-node-card{background:#fff!important;color:#20242c!important}.rak-month-budget{background:#f5f6fa!important;color:#20242c!important}.rak-month-budget *{color:inherit!important}
+@media(prefers-color-scheme:dark){.km-node-card{background:#1c1e29!important;color:#e7e9f1!important}.rak-month-budget{background:#242735!important;color:#f0f2f8!important;border-color:#42465b!important}}
+:is(html.dark,.dark,.dark-theme) .km-node-card{background:#1c1e29!important;color:#e7e9f1!important}
+:is(html.dark,.dark,.dark-theme) .rak-month-budget{background:#242735!important;color:#f0f2f8!important;border-color:#42465b!important}
 </style>
 <script>
 (()=>{if(window.__rakMonthlyBudget)return;window.__rakMonthlyBudget=true;const latest=new Map();let queued=false;
