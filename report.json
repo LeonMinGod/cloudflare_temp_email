@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "backup": "/opt/rak-production/rak-prod-20261106-7d8f1224ab99/cf-quota-20261106T235149-retire-duplicate-agent-b9d985",
+  "canonical_agent_not_restarted": true,
+  "observation_seconds": 45,
+  "config_unchanged": true,
+  "mode": "source-agent-quota-repair",
+  "private_details_encrypted": true
+}
