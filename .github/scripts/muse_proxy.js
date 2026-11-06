@@ -15,7 +15,7 @@ export default {
     headers.set('X-Forwarded-Proto', 'https');
     try {
       const upstream = await fetch(origin, {method:request.method, headers,
-        body:['GET','HEAD'].includes(request.method)?undefined:request.body, redirect:'manual'});
+        body:['GET','HEAD'].includes(request.method)?undefined:request.body, redirect:'manual',cf:{cacheTtl:0,cacheEverything:false}});
       const responseHeaders = new Headers(upstream.headers);
       responseHeaders.set('Cache-Control', 'no-store');
       responseHeaders.set('Referrer-Policy', 'no-referrer');
