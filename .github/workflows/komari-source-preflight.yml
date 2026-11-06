@@ -1,0 +1,46 @@
+name: Komari source VPS preflight
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/komari-source-preflight.yml']
+permissions:
+  contents: read
+concurrency:
+  group: yifu-vps-production
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+      YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+      YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+      YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+      YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install --disable-pip-version-check paramiko==4.0.0
+      - name: Inspect source server and provision encryption key
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,paramiko,io,tempfile
+          ssh=paramiko.SSHClient()
+          with tempfile.NamedTemporaryFile('w') as known:
+              known.write(os.environ['YIFU_SSH_KNOWN_HOSTS'])
+              known.flush()
+              ssh.load_host_keys(known.name)
+          ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+          key=paramiko.Ed25519Key.from_private_key(io.StringIO(os.environ['YIFU_SSH_PRIVATE_KEY']))
+          ssh.connect(os.environ['YIFU_SSH_HOST'],port=int(os.environ['YIFU_SSH_PORT']),
+                      username=os.environ['YIFU_SSH_USER'],pkey=key,
+                      look_for_keys=False,allow_agent=False,timeout=20)
+          cmd="set -eu; id -u; uname -m; systemctl is-active yifu-cpa yifu-tunnel; install -d -m 0700 /opt/komari-agent; umask 077; test -f /opt/komari-agent/.access-key.pem || openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /opt/komari-agent/.access-key.pem 2>/dev/null; openssl pkey -in /opt/komari-agent/.access-key.pem -pubout"
+          _,out,err=ssh.exec_command(cmd,timeout=90)
+          result=out.read().decode('utf-8','replace')
+          code=out.channel.recv_exit_status()
+          ssh.close()
+          if code!=0:raise RuntimeError('Source preflight failed')
+          print(result)
+          PY
