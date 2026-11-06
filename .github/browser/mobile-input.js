@@ -1,7 +1,8 @@
 /* Native mobile input for the private Selkies viewer; no storage or telemetry. */
 (() => {
   'use strict';
-  if (location.pathname !== '/' || !matchMedia('(pointer: coarse)').matches) return;
+  const touch = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints > 0 && (/iPhone|iPad|iPod|Android|Mobile/.test(navigator.userAgent) || innerWidth <= 900));
+  if (location.pathname !== '/' || !touch) return;
   const STYLE = `
     #rak-mobile-input-bar{position:fixed;left:8px;right:8px;z-index:2147483000;display:flex;align-items:center;gap:5px;padding:7px;background:#17243bf5;border:1px solid #7186a0;border-radius:12px;box-shadow:0 3px 18px #0006;box-sizing:border-box;font:14px system-ui;color:white;touch-action:manipulation}
     #rak-mobile-input-bar[hidden]{display:none!important}
