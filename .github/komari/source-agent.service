@@ -1,0 +1,20 @@
+[Unit]
+Description=Komari monitoring agent (WuliaoCloud)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=komari-agent
+Group=komari-agent
+WorkingDirectory=/var/lib/komari-agent
+ExecStart=/opt/komari-agent/komari-agent --config /var/lib/komari-agent/config.json
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+UMask=0077
+MemoryMax=96M
+
+[Install]
+WantedBy=multi-user.target
