@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T133059-browser-asgi-ui-42063e",
+  "run_id": "42226117013",
+  "source_commit": "625ddcdab2ace85786ee66fcbf524b569da0e4ab",
+  "files": {
+    "report.json": "7dd53e0dfb4ba9dfb6e54ec4ea258c8b48ffda4423f422f8b65a72c7c99b374a",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "e7119cb2dc50e9e3cf6f6c699378f11293d6f3ef1504280a996bedc8226855ee"
+  }
+}
