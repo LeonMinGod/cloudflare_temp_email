@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T122547-browser-ui-diagnostic-a5d690",
+  "run_id": "42217599626",
+  "source_commit": "061951a86c61cc3309f3d8419c70678eb2db515d",
+  "files": {
+    "report.json": "2813a2065fc14d168e9891bfdd2e92e4745ee1f1117a12144fcad0d4387076ef",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "62851f95682f8a7eece215bd5a31762b7d5fbd23d7f25202d66a0fc3c634d2bc"
+  }
+}
