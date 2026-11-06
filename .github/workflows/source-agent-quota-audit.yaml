@@ -1,0 +1,23 @@
+name: Read-only source monitor connection audit
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/source-agent-audit-request.json']
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3
+      - env:
+          YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+          YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+          YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+          YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+          YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+        run: python .github/scripts/source_agent_quota_audit.py
+      - if: always() && env.OPS_REQUEST_ID != ''
+        run: python .github/scripts/production_io.py publish

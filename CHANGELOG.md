@@ -10,6 +10,8 @@
 
 ### Features
 
+- feat: |监控运维| 增加无聊云 Agent 的只读进程与重连诊断，结果仅加密交付，不触发 Worker 请求或修改服务
+
 - feat: |Cloudflare 运维| 新增只读请求额度审计，通过管理 API 核对 Worker 日用量与时序，诊断加密交付，不访问业务页面或变更生产配置
 
 - docs: |公益 CPA VPS| 补齐 Tunnel 域名映射、开机自启、只读排查和云端 Secrets 使用说明，提供可复制接手话术

@@ -10,6 +10,8 @@
 
 ### Features
 
+- feat: |Monitor operations| Audit old-VPS Agent processes and reconnects read-only, encrypting diagnostics without invoking Workers or modifying services
+
 - feat: |Cloudflare operations| Add a read-only control-plane audit of daily Worker requests and time series with encrypted diagnostics, without visiting production pages or changing deployments
 
 - docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
