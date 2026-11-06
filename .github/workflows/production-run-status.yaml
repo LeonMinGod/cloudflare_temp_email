@@ -1,10 +1,10 @@
-name: Read-only production run status
+name: Production run status and guarded setup cancellation
 on:
   push:
     branches: [codex/free-token-home-20261024]
     paths: ['.github/production-status-request.json']
 permissions:
-  actions: read
+  actions: write
   contents: write
 concurrency:
   group: production-run-status-readonly

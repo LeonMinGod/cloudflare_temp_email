@@ -1,5 +1,5 @@
 """Publish one private browser hostname and verify the actual authenticated desktop."""
-import base64, contextlib, io, json, os, secrets, time, urllib.error, urllib.parse, urllib.request
+import base64, contextlib, io, json, os, secrets, shutil, time, urllib.error, urllib.parse, urllib.request
 from http.cookiejar import CookieJar
 from pathlib import Path
 import websocket
@@ -73,7 +73,9 @@ def _publish(req):
     screenshot=None
     from playwright.sync_api import sync_playwright
     with sync_playwright() as playwright:
-        browser=playwright.webkit.launch(headless=True)
+        chrome=shutil.which('google-chrome') or shutil.which('google-chrome-stable')
+        if not chrome:raise RuntimeError('Actions image lacks its documented Google Chrome executable')
+        browser=playwright.chromium.launch(headless=True,executable_path=chrome)
         try:
             context=browser.new_context(viewport={'width':1440,'height':1000})
             page=context.new_page();errors=[]

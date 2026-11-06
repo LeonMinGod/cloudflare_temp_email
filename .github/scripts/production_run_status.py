@@ -1,4 +1,4 @@
-"""Read GitHub run/step metadata only; never fetch command logs or SSH to a server."""
+"""Read step metadata; optionally cancel a specifically requested pre-deployment installer."""
 import json,os,subprocess,urllib.request
 from pathlib import Path
 req=json.loads(Path('.github/production-status-request.json').read_text())
@@ -12,6 +12,12 @@ result={key:run.get(key) for key in ['id','status','conclusion','run_started_at'
 result['jobs']=[]
 for job in api('/actions/runs/'+str(run['id'])+'/jobs')['jobs']:
     result['jobs'].append({**{key:job.get(key) for key in ['id','name','status','conclusion','started_at','completed_at']},'steps':[{key:step.get(key) for key in ['number','name','status','conclusion','started_at','completed_at']} for step in job['steps']]})
+if req.get('cancel_predeploy_installer') and run['status']=='in_progress':
+    steps=result['jobs'][0]['steps']
+    if not any(s['name']=='Run python .github/scripts/production_ops.py' and s['status']=='pending' for s in steps):raise RuntimeError('Deployment may have started; refusing installer-only cancellation')
+    if not any('playwright install --with-deps webkit' in s['name'] and s['status']=='in_progress' for s in steps):raise RuntimeError('Expected pre-deployment browser installer is not running')
+    request=urllib.request.Request('https://api.github.com/repos/'+repo+'/actions/runs/'+str(run['id'])+'/cancel',method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'},data=b'{}')
+    with urllib.request.urlopen(request,timeout=20) as response:result['guarded_installer_cancel_http']=response.status
 raw=json.dumps(result,indent=2).encode()
 blob=subprocess.check_output(['git','hash-object','-w','--stdin'],input=raw).decode().strip()
 tree=subprocess.check_output(['git','mktree'],input=('100644 blob '+blob+'\tstatus.json\n').encode()).decode().strip()
