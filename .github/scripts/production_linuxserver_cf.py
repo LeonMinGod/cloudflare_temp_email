@@ -1,7 +1,7 @@
 """Protect and verify the official LinuxServer Chrome + Pelorus public portal."""
 import base64,json,os,secrets,shutil,time,urllib.request,urllib.error
 from pathlib import Path
-from production_ops import BASE,OUT,phase,connect,read
+from production_ops import BASE,OUT,phase,connect,read,write,run
 from production_crypto import unseal,seal
 from vps_monitor import cf,CF_ZONE
 import yifu_key_api as api
@@ -40,7 +40,7 @@ def inspect_mobile(req):
         OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps(data).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-mobile-inspect'))
     return {'status':'passed','mode':'linuxserver-mobile-inspect','mobile_input_inspection_encrypted':True,'keyboard_button_found':bool(data.get('after')),'focused_input_after_tap':data.get('after',{}).get('active'),'production_config_unchanged':True}
 
-def publish(req):
+def _publish(req):
     phase('linuxserver-public-owner-route');c=connect()
     try:
         with c.open_sftp() as sf:state=json.loads(unseal(json.dumps(req['linuxserver_route_envelope']).encode(),read(sf,BASE+'/private/recipient.pem'),req['session'],'linuxserver-route'))
@@ -51,7 +51,8 @@ def publish(req):
     if not any(b['name']=='BROWSER_PROJECT' and b.get('text')==WORKER for b in existing['bindings']):raise RuntimeError('Unmanaged browser Worker')
     metadata={'main_module':'index.js','compatibility_date':'2026-11-01','observability':{'enabled':False},'bindings':[{'type':'plain_text','name':'BROWSER_PROJECT','text':WORKER},{'type':'secret_text','name':'BROWSER_ORIGIN_PREFIX','text':state['prefix']},{'type':'secret_text','name':'BROWSER_ORIGIN_TOKEN','text':state['origin_token']},{'type':'secret_text','name':'BROWSER_AUTH_SHA256','text':state['auth_header_sha256']}]}
     boundary='lsio-'+secrets.token_hex(12);parts=[]
-    for name,mime,body in [('metadata','application/json',json.dumps(metadata).encode()),('index.js','application/javascript+module',Path('.github/scripts/browser_proxy.js').read_bytes())]:
+    worker=Path('.github/scripts/browser_proxy.js').read_text().replace('const MOBILE_INPUT_SCRIPT = null;', 'const MOBILE_INPUT_SCRIPT = '+json.dumps(Path('.github/browser/mobile-input.js').read_text())+';')
+    for name,mime,body in [('metadata','application/json',json.dumps(metadata).encode()),('index.js','application/javascript+module',worker.encode())]:
         disposition='form-data; name="'+name+'"'+('' if name=='metadata' else '; filename="'+name+'"')
         parts.extend([('--'+boundary+'\r\nContent-Disposition: '+disposition+'\r\nContent-Type: '+mime+'\r\n\r\n').encode(),body,b'\r\n'])
     parts.append(('--'+boundary+'--\r\n').encode());api.cf(WORKER,'PUT',b''.join(parts),{'Content-Type':'multipart/form-data; boundary='+boundary})
@@ -65,6 +66,7 @@ def publish(req):
         except urllib.error.HTTPError as e:return e.code,e.read(500),e.headers
     phase('linuxserver-public-authorization-and-official-desktop')
     if get('/')[0]!=401 or get('/pelorus/')[0]!=401:raise RuntimeError('Public desktop is not protected')
+    if get('/rak-mobile-input.js')[0]!=401:raise RuntimeError('Mobile input asset bypassed owner authentication')
     for path in ['/','/pelorus/']:
         code,raw,headers=get(path,True)
         if code!=200 or b'<html' not in raw.lower():raise RuntimeError('Authenticated official UI unavailable')
@@ -82,6 +84,15 @@ def publish(req):
                     page.goto(base,wait_until='domcontentloaded',timeout=60000)
                     page.wait_for_function("Array.from(document.querySelectorAll('canvas')).some(c=>c.width>200&&c.height>100)||Array.from(document.querySelectorAll('video')).some(v=>v.videoWidth>200)",timeout=60000)
                     page.wait_for_timeout(2000)
+                    if mobile:
+                        field=page.locator('#rak-mobile-input-bar #keyboard-input-assist');field.wait_for(state='visible',timeout=15000)
+                        field.tap()
+                        if not page.evaluate('document.activeElement.id==="keyboard-input-assist"'):raise RuntimeError('Mobile native input did not receive focus')
+                        rect=field.bounding_box()
+                        if rect['x']<0 or rect['y']<0 or rect['height']<40 or rect['width']<100 or field.get_attribute('inputmode')!='text':raise RuntimeError('Mobile input not usable inside viewport')
+                        page.get_by_role('button',name='收起输入栏',exact=True).tap()
+                        page.get_by_role('button',name='打开手机键盘',exact=True).tap()
+                        if not page.evaluate('document.activeElement.id==="keyboard-input-assist"'):raise RuntimeError('Mobile keyboard reopen failed')
                     screenshots[name]=base64.b64encode(page.screenshot(full_page=True)).decode()
                     if mobile and page.evaluate('document.documentElement.scrollWidth>window.innerWidth+12'):raise RuntimeError('Phone UI horizontal overflow')
                     context.close()
@@ -94,4 +105,24 @@ def publish(req):
         OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps({'error_type':type(error).__name__,'detail':str(error)[:4000],'browser_errors':browser_error[-10:]}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-diagnostics'));raise
     if {n:api.active(n) for n in before}!=before:raise RuntimeError('Existing application Worker changed')
     OUT.joinpath('owner.enc.json').write_bytes(seal(json.dumps({'url':base,'username':state['username'],'password':state['password'],'screenshots':screenshots}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-owner'))
-    return {'status':'passed','mode':'linuxserver-publish','url':base,'username':state['username'],'anonymous_desktop_http':401,'anonymous_pelorus_http':401,'authenticated_desktop_http':200,'authenticated_pelorus_http':200,'real_chrome_desktop_and_phone_canvas':True,'pelorus_ui_verified':True,'image':state['image'],'existing_five_workers_preserved':True,'cdp_not_published':True,'screenshots_encrypted_to_owner':True}
+    return {'status':'passed','mode':'linuxserver-publish','url':base,'username':state['username'],'anonymous_desktop_http':401,'anonymous_pelorus_http':401,'authenticated_desktop_http':200,'authenticated_pelorus_http':200,'real_chrome_desktop_and_phone_canvas':True,'mobile_visible_native_input_focus_and_reopen':True,'mobile_asset_requires_owner_auth':True,'pelorus_ui_verified':True,'image':state['image'],'existing_five_workers_preserved':True,'cdp_not_published':True,'screenshots_encrypted_to_owner':True}
+
+def publish(req):
+    previous=api.active(WORKER)
+    code=api.cf(WORKER,raw=True)
+    snapshot=seal(json.dumps({'previous_version':previous,'content_type':code[1].get('Content-Type'),'worker_body':base64.b64encode(code[2]).decode(),'settings':api.cf(WORKER+'/settings')}).encode(),base64.b64decode(req['owner_public_key']),req['session'],'linuxserver-worker-snapshot')
+    OUT.joinpath('audit.enc.json').write_bytes(snapshot)
+    c=connect();directory=BASE+'/'+req['session']+'/browser-mobile/'+req['request_id']
+    try:
+        run(c,'install -d -m 0700 '+directory)
+        with c.open_sftp() as sf:write(sf,directory+'/worker-before.enc.json',snapshot)
+    finally:c.close()
+    try:
+        result=_publish(req)
+        result['worker_snapshot']=directory+'/worker-before.enc.json';result['previous_worker_version']=previous
+        return result
+    except Exception:
+        phase('linuxserver-mobile-automatic-worker-rollback')
+        api.cf(WORKER+'/deployments','POST',{'strategy':'percentage','versions':[{'version_id':previous,'percentage':100}]})
+        if api.active(WORKER)!=previous:raise RuntimeError('Worker rollback did not restore previous version')
+        raise

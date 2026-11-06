@@ -1,4 +1,5 @@
 const failures=new Map();
+const MOBILE_INPUT_SCRIPT = null;
 function equal(a,b){let bad=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)bad|=(a.charCodeAt(i)||0)^(b.charCodeAt(i)||0);return bad===0}
 export default {
  async fetch(request, env) {
@@ -13,6 +14,9 @@ export default {
     const old=failures.get(ip),state=old&&now-old.since<60000?old:{since:now,count:0};state.count++;failures.set(ip,state);
     return new Response('Private Chrome login required',{status:state.count>10?429:401,headers:{'WWW-Authenticate':'Basic realm="restricted", charset="UTF-8"','Cache-Control':'no-store','Strict-Transport-Security':'max-age=31536000','X-Frame-Options':'DENY'}});
    }
+  }
+  if(incoming.pathname==='/rak-mobile-input.js'&&MOBILE_INPUT_SCRIPT!==null){
+   return new Response(MOBILE_INPUT_SCRIPT,{headers:{'Content-Type':'text/javascript; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Strict-Transport-Security':'max-age=31536000','X-Frame-Options':'DENY','Content-Security-Policy':"frame-ancestors 'none'"}});
   }
   origin.pathname=env.BROWSER_ORIGIN_PREFIX+incoming.pathname;origin.search=incoming.search;
   const headers=new Headers(request.headers);
@@ -31,7 +35,12 @@ export default {
    responseHeaders.set('X-Content-Type-Options','nosniff');responseHeaders.set('X-Frame-Options','DENY');
    responseHeaders.set('Strict-Transport-Security','max-age=31536000');
    if(!responseHeaders.has('Content-Security-Policy'))responseHeaders.set('Content-Security-Policy',"frame-ancestors 'none'");
-   return new Response(upstream.body,{status:upstream.status,headers:responseHeaders});
+   const response=new Response(upstream.body,{status:upstream.status,headers:responseHeaders});
+   if(incoming.pathname==='/'&&upstream.status===200&&MOBILE_INPUT_SCRIPT!==null&&(responseHeaders.get('Content-Type')||'').includes('text/html')){
+    response.headers.delete('Content-Length');response.headers.delete('ETag');
+    return new HTMLRewriter().on('head',{element(e){e.append('<script defer src="/rak-mobile-input.js?v=20261106-1"></script>',{html:true})}}).transform(response);
+   }
+   return response;
   }catch{return Response.json({detail:'私人浏览器暂时无法连接'}, {status:502,headers:{'Cache-Control':'no-store'}})}
  }
 };
