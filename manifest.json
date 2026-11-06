@@ -1,0 +1,10 @@
+{
+  "request_id": "20261106T125600-browser-failure-c45364",
+  "run_id": "42221454399",
+  "source_commit": "7fc68c7e42ab08f5b805cdd8e3bbb6795b17420b",
+  "files": {
+    "report.json": "8f4956e0363e6425da0f6a53d5098444398c3bad57b4a02a63f1d4ab4f3c4ad7",
+    "diagnostics.json": "5871f58a8cc9a80e38d7f76dea757019c418627b43fb2d1283c5595751cf4d9c",
+    "owner.enc.json": "52ba852f7f7d6e47cde6e32fb987d7dfe74dc39106c3f02fdb83a1b5f6fa28f3"
+  }
+}
