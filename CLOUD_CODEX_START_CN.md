@@ -1,3 +1,5 @@
+> **2026-11-06 最新授权：** 用户已重新启动无聊云公益站完整迁移、改用 Komari 并弃用 Beszel，同时明确授权 RAK 重装 Debian 13。旧“迁移已取消”仅作历史记录。RAK 正在重装并等待 SSH 恢复，当前公益站仍由无聊云正常承载；不要提前停掉源机业务。现状和加密恢复记录见 [RAK 生产任务记录](https://github.com/LeonMinGod/RAKsmart/blob/main/PRODUCTION_20261106_CN.md)。网站、Key 注册、鉴权及身份存储按原 Cloudflare 架构保留；切流迁移实际 VPS 程序和持久化数据。
+
 # 复制给云端 Codex 的接手话术
 
 > 最新决定：迁往 RAKsmart 的公益站迁移已取消。继续使用原无聊云和 Cloudflare；RAK 只用于个人 VPN。先读 [取消记录](MIGRATION_CANCELLED_CN.md)，不得自行恢复迁移。

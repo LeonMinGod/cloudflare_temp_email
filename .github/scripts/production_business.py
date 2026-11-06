@@ -189,7 +189,7 @@ def source_restore_assets(client,sftp,req,peer):
     write(sftp,directory+'/return-config.json',json.dumps({'session':req['session'],'directory':directory,'private_key':BASE+'/private/recipient.pem'}))
     write(sftp,directory+'/rollback-request.json',json.dumps({'action':'rollback'}))
     ssh='/usr/bin/ssh -i '+keypath+' -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile='+known+' -o ConnectTimeout=20 -p 22881 root@198.247.1.206 production-bridge'
-    script='#!/bin/sh\nset -e\ntest ! -f '+directory+'/source-migration-committed.json || exit 0\n'+ssh+' < '+directory+'/rollback-request.json > '+directory+'/rollback-response.private.json\n'+ROOT+'/bin/node '+directory+'/return.mjs '+directory+'/return-config.json '+directory+'/rollback-response.private.json\nsystemctl start yifu-cpa yifu-gateway yifu-monitor yifu-plus yifu-plus-budget.timer\nsystemctl start yifu-tunnel\n'
+    script='#!/bin/sh\nset -e\ntest ! -f '+directory+'/source-migration-committed.json || exit 0\n'+ssh+' < '+directory+'/rollback-request.json > '+directory+'/rollback-response.private.json\n'+ROOT+'/bin/node '+directory+'/return.mjs '+directory+'/return-config.json '+directory+'/rollback-response.private.json\nsystemctl enable yifu-cpa yifu-gateway yifu-monitor yifu-plus yifu-tunnel yifu-plus-budget.timer >/dev/null 2>&1\nsystemctl start yifu-cpa yifu-gateway yifu-monitor yifu-plus yifu-plus-budget.timer\nsystemctl start yifu-tunnel\n'
     write(sftp,directory+'/rollback-source.sh',script,0o700)
     run(client,'test -x /usr/bin/ssh')
     return directory
