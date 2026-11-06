@@ -26,11 +26,13 @@
     // Reuse the original input node and its IME handlers; typed text stays in the existing authenticated WebSocket.
     bar.append(field);
     const connected = () => !!window.webrtcInput?.isInputAttached?.();
-    const key = (sym) => { if (connected()) { window.webrtcInput.send('kd,' + sym); window.webrtcInput.send('ku,' + sym); } };
+    const key = (sym) => { if (connected()) { const input=window.webrtcInput;input.send('kd,' + sym);window.setTimeout(()=>input.send('ku,' + sym),50); } };
     const makeButton = (text, label, action) => {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = text; button.setAttribute('aria-label', label);
-      button.addEventListener('pointerdown', e => e.preventDefault());
-      button.addEventListener('click', e => { e.preventDefault(); action(); }); return button;
+      let lastTouch=0;
+      button.addEventListener('mousedown', e => e.preventDefault());
+      button.addEventListener('touchend', e => { e.preventDefault();lastTouch=Date.now();action(); },{passive:false});
+      button.addEventListener('click', e => { e.preventDefault();if(Date.now()-lastTouch>700)action(); }); return button;
     };
     bar.append(makeButton('⌫', '删除一个字符', () => key(65288)), makeButton('↵', '发送回车', () => key(65293)));
     const open = makeButton('⌨ 输入', '打开手机键盘', () => reveal()); open.id = 'rak-mobile-input-open'; open.hidden = true;

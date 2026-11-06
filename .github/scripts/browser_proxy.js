@@ -70,7 +70,7 @@ export default {
    const response=new Response(upstream.body,{status:upstream.status,headers:responseHeaders});
    if(incoming.pathname==='/'&&upstream.status===200&&MOBILE_INPUT_SCRIPT!==null&&(responseHeaders.get('Content-Type')||'').includes('text/html')){
     response.headers.delete('Content-Length');response.headers.delete('ETag');
-    return new HTMLRewriter().on('head',{element(e){e.append('<script defer src="/rak-mobile-input.js?v=20261106-2"></script>',{html:true})}}).transform(response);
+    return new HTMLRewriter().on('head',{element(e){e.append('<script defer src="/rak-mobile-input.js?v=20261106-3"></script>',{html:true})}}).transform(response);
    }
    return response;
   }catch{return Response.json({detail:'私人浏览器暂时无法连接'}, {status:502,headers:{'Cache-Control':'no-store'}})}
