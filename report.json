@@ -1,0 +1,22 @@
+{
+  "status": "failed",
+  "role": "source",
+  "error_type": "RuntimeError",
+  "location": [
+    {
+      "file": "production_ops.py",
+      "function": "main",
+      "line": 112
+    },
+    {
+      "file": "production_browser_cf.py",
+      "function": "publish",
+      "line": 100
+    },
+    {
+      "file": "production_browser_cf.py",
+      "function": "_publish",
+      "line": 85
+    }
+  ]
+}
