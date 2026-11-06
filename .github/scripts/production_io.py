@@ -5,14 +5,14 @@ from pathlib import Path
 def select():
     path=Path('.github/production-request.json');req=json.loads(path.read_text())
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{5,100}',req['request_id']):raise ValueError('Invalid request identity')
-    if req['mode'] not in ['os-upgrade-audit','komari-style','komari-browser','audit','komari-admin','komari-switch','source-agent','remove-beszel','verify','migration-prepare','migration-export','migration-stage','migration-freeze','migration-switch','migration-observe']:raise ValueError('Invalid monitor operation')
+    if req['mode'] not in ['system-keyring','os-upgrade-audit','komari-style','komari-browser','audit','komari-admin','komari-switch','source-agent','remove-beszel','verify','migration-prepare','migration-export','migration-stage','migration-freeze','migration-switch','migration-observe']:raise ValueError('Invalid monitor operation')
     with open(os.environ['GITHUB_ENV'],'a') as env:env.write('OPS_REQUEST_ID='+req['request_id']+'\nOPS_MODE='+req['mode']+'\n')
 
 def publish():
     root=Path('production-operation');root.mkdir(exist_ok=True);report=root/'report.json'
     if not report.exists():report.write_text(json.dumps({'status':'failed-before-report'}))
     req=os.environ['OPS_REQUEST_ID'];files=[report]
-    for name in ['business.enc.json','diagnostics.json','audit.enc.json','peer.enc.json','owner.enc.json']:
+    for name in ['debian-archive-keyring.gpg','business.enc.json','diagnostics.json','audit.enc.json','peer.enc.json','owner.enc.json']:
         path=root/name
         if path.exists():
             if name.endswith('.enc.json'):

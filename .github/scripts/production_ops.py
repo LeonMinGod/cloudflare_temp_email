@@ -123,6 +123,12 @@ def main():
         elif req['mode']=='migration-switch':
             from production_business import cutover
             result=cutover(req)
+        elif req['mode']=='system-keyring':
+            c=connect()
+            try:
+                with c.open_sftp() as sf:OUT.joinpath('debian-archive-keyring.gpg').write_bytes(read(sf,'/usr/share/keyrings/debian-archive-keyring.gpg'))
+            finally:c.close()
+            result={'status':'passed','mode':'system-keyring','trusted_source_os':'Debian 13','keyring_sha256':hashlib.sha256(OUT.joinpath('debian-archive-keyring.gpg').read_bytes()).hexdigest()}
         else:raise ValueError('Unsupported production phase')
     except Exception as error:
         result={'status':'failed','role':os.environ.get('MONITOR_ROLE'),'error_type':type(error).__name__,'location':[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(error.__traceback__)]}
