@@ -11,7 +11,7 @@ export default {
     const now=Date.now(),ip=request.headers.get('CF-Connecting-IP')||'unknown';
     if(failures.size>5000)failures.clear();
     const old=failures.get(ip),state=old&&now-old.since<60000?old:{since:now,count:0};state.count++;failures.set(ip,state);
-    return new Response('Private Chrome login required',{status:state.count>10?429:401,headers:{'WWW-Authenticate':'Basic realm="Private Chrome", charset="UTF-8"','Cache-Control':'no-store','Strict-Transport-Security':'max-age=31536000','X-Frame-Options':'DENY'}});
+    return new Response('Private Chrome login required',{status:state.count>10?429:401,headers:{'WWW-Authenticate':'Basic realm="restricted", charset="UTF-8"','Cache-Control':'no-store','Strict-Transport-Security':'max-age=31536000','X-Frame-Options':'DENY'}});
    }
   }
   origin.pathname=env.BROWSER_ORIGIN_PREFIX+incoming.pathname;origin.search=incoming.search;
