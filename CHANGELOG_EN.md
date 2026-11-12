@@ -10,6 +10,8 @@
 
 ### Features
 
+- ops: |LeonKey DNS| Owner-authorized one-time use of the existing CF Secret to back up and switch only ops/redeem DNS to the private VPS, preserving other services
+
 - docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
 
 - feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations

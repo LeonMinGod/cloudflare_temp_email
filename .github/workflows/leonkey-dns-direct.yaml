@@ -1,0 +1,31 @@
+name: One-time LeonKey direct DNS cutover
+on:
+  push:
+    branches: [codex/leonkey-dns-direct-20261112]
+    paths:
+      - .github/workflows/leonkey-dns-direct.yaml
+      - .github/scripts/leonkey_dns_direct.py
+permissions:
+  contents: read
+concurrency:
+  group: leonkey-dns-direct-20261112
+  cancel-in-progress: false
+jobs:
+  cutover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check scope and recovery offline
+        run: python .github/scripts/leonkey_dns_direct.py --self-test
+      - name: Back up and switch only the two authorized records
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python .github/scripts/leonkey_dns_direct.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: leonkey-dns-direct-${{ github.run_id }}
+          path: leonkey-dns-result/
+          if-no-files-found: ignore
+          retention-days: 30
