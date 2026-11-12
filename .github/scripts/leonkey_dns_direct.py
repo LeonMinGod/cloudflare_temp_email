@@ -36,7 +36,7 @@ def request(method, path, body=None):
             codes = [item.get("code") for item in json.load(error).get("errors", [])]
         except Exception:
             codes = []
-        raise Stop(f"Cloudflare HTTP {error.code}, codes={codes}") from None
+        raise Stop(f"Cloudflare {method} {path.split('?')[0]} HTTP {error.code}, codes={codes}") from None
     except Exception as error:
         raise Stop("Cloudflare transport failure: " + type(error).__name__) from None
     if not result.get("success"):
@@ -70,9 +70,8 @@ def matches(record, expected):
 
 
 def cutover(api, save):
-    zone = api("GET", f"/zones/{ZONE}")
-    if zone.get("name") != "leonmingod.com" or zone.get("account", {}).get("id") != ACCOUNT:
-        raise Stop("Unexpected zone/account; no DNS writes attempted")
+    # DNS-scoped tokens need not grant Zone Read. The fixed zone endpoint and
+    # exact returned host names establish scope without requiring that permission.
     before = {name: records(api, name) for name in HOSTS}
     save("before.json", {"zone": ZONE, "records": before})
     changed = []
