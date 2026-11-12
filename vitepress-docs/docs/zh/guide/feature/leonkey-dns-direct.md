@@ -11,3 +11,13 @@
 单独分支 codex/leonkey-dns-direct-20261112 的特定脚本/工作流 push 触发；没有定时任务，
 不合并默认分支，不重新部署网站、邮箱、Worker、Tunnel或VPS。操作后由本机直接SSH验证证书与页面。
 执行结果以该次 Actions report 和 LeonKey 仓库 docs/31-DIRECT-VPS-ENTRY.md 为准。
+
+## 实际执行结果（2026-11-12）
+
+所有者批准后，运行43171378373的区域信息预检返回403/10000。去掉非必要的Zone Read要求后，
+运行43171575661直接GET dns_records仍返回403/10000。两次均未写入DNS，没有取得原记录备份。
+工作流415662917已手动停用，分支未合并主分支，公网仍经过CF。
+
+继续执行需要DNS读取/编辑授权。新令牌使用独立仓库Secret LEONKEY_DNS_API_TOKEN，
+保留原CLOUDFLARE_API_TOKEN以免影响其他网站发布；工作流已优先选取独立Secret。
+补足权限后，只按原批准的两条DNS范围恢复任务，不触发其他运维工作流。

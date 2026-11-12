@@ -20,7 +20,7 @@ jobs:
         run: python .github/scripts/leonkey_dns_direct.py --self-test
       - name: Back up and switch only the two authorized records
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.LEONKEY_DNS_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
         run: python .github/scripts/leonkey_dns_direct.py
       - uses: actions/upload-artifact@v4
         if: always()
