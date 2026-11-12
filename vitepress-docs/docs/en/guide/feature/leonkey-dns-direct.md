@@ -25,3 +25,25 @@ Continuation needs DNS read/edit access. Put a new token in the separate reposit
 LEONKEY_DNS_API_TOKEN and preserve CLOUDFLARE_API_TOKEN for existing website deployments.
 The workflow now prefers the dedicated Secret. Resume only the originally approved two-record
 operation after access is ready; do not trigger other maintenance workflows.
+
+## Successful cutover after permission update (2026-11-12 15:05 Asia/Shanghai)
+
+The owner added DNS permissions to the existing token. Run 43171575661, attempt 2, passed.
+Both original proxied CNAMEs were backed up, updated by their existing record IDs to
+A 198.247.1.206, TTL 300, proxied=false, and read back. Credentials stayed in the runner;
+no existing Secret, other DNS record, Worker, Tunnel or Access configuration was changed.
+Workflow 415662917 was manually disabled again, with no schedule or default-branch merge.
+
+Direct local SSH restarted the existing Caddy to end the previous ACME backoff; its
+configuration was unchanged. Both certificates were issued successfully. External TLS 1.3
+connections reached 198.247.1.206 with valid chains and SANs. Local admin login, redemption
+and order query returned 200; admin paths on the customer domain returned 404, with no
+CF headers or Access redirects. The original homepage remained 200 and 11 other protected
+service PIDs were unchanged. DNS backups/report also reside on the VPS at
+/var/backups/leonkey/dns-cutover-20261112T070559Z/.
+
+The strict runtime check failed on 24 cumulative web memory.max events of unknown age,
+without OOM or restarts. A subsequent 30-second observation found no new max/oom events.
+This warning is retained and does not establish business capacity or a fully passing
+strict check. No application changes/regression rerun; future actual renewal and payment
+acceptance are still pending.
