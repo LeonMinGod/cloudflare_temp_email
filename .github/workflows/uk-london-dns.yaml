@@ -1,0 +1,29 @@
+name: Provision the owner UK London VPN DNS
+on:
+  push:
+    branches: [codex/uk-london-dns-20261116]
+    paths: [.github/workflows/uk-london-dns.yaml, .github/scripts/uk_dns_once.py]
+permissions:
+  contents: read
+concurrency:
+  group: owner-uk-london-dns
+  cancel-in-progress: false
+jobs:
+  dns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check UK-only scope
+        run: python .github/scripts/uk_dns_once.py --self-test
+      - name: Create and verify only the UK VPN A record
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python .github/scripts/uk_dns_once.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uk-london-dns-${{ github.run_id }}
+          path: uk-dns-result/
+          retention-days: 30
+          if-no-files-found: ignore
