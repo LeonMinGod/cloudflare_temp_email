@@ -1,5 +1,5 @@
-import { relativeWait as when } from './time-v1.mjs';
-import { providerKey, compareProviders, compareModels, compareAccounts, stateRank } from './order-v1.mjs';
+import { relativeWait as when } from './time-v1.mjs?v=2';
+import { providerKey, compareProviders, compareModels, compareAccounts, stateRank } from './order-v1.mjs?v=2';
 
 const $ = id => document.getElementById(id);
 const API_BASE_URL = 'https://yifu.leonmingod.com/v1';
