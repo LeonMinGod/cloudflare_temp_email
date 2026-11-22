@@ -1,3 +1,5 @@
+import { normalizeProvider } from '../public/model-status/order-v1.mjs';
+
 const WINDOW_MS=300_000, SLOTS=60;
 const validName=value=>typeof value==='string'&&value.length>0&&value.length<=256&&!/[\u0000-\u001f\u007f@]/u.test(value);
 const counter=value=>Number.isSafeInteger(value)&&value>=0?value:null;
@@ -15,7 +17,7 @@ export function mergeModelUsage(previous,body,now=Date.now()){
     const key=`m:${raw.provider}\n${raw.id}`,last=source.rows[key]||{success:0,failed:0};
     // A process counter is monotonic. Regressed/stale reads cannot double count.
     if(raw.success<last.success||raw.failed<last.failed)continue;
-    if(!state.rows[key]&&Object.keys(state.rows).length>=128)continue;
+    if(!state.rows[key]&&Object.keys(state.rows).length>=512)continue;
     const row=state.rows[key]||{id:raw.id,provider:raw.provider,success:0,failed:0};
     row.success+=raw.success-last.success;row.failed+=raw.failed-last.failed;
     state.rows[key]=row;
@@ -30,15 +32,30 @@ export function mergeModelUsage(previous,body,now=Date.now()){
 export function modelUsageRows(state,now=Date.now()){
   if(!state)return [];
   const end=Math.floor(now/WINDOW_MS)*WINDOW_MS;
-  return Object.entries(state.rows).map(([key,row])=>{
-    const buckets=new Map();
+  const grouped=new Map();
+  for(const [key,row] of Object.entries(state.rows)){
+    const provider=normalizeProvider(row.provider);
+    const groupKey=`${provider}\n${row.id}`;
+    let agg=grouped.get(groupKey);
+    if(!agg){
+      agg={id:row.id,provider,success:0,failed:0,buckets:new Map()};
+      grouped.set(groupKey,agg);
+    }
+    agg.success+=row.success;
+    agg.failed+=row.failed;
     for(const source of Object.values(state.sources))for(const bucket of source.rows[key]?.recent||[]){
       if(bucket.at*1000<end-(SLOTS-1)*WINDOW_MS||bucket.at*1000>end)continue;
-      const current=buckets.get(bucket.at)||empty();for(const k of Object.keys(empty()))current[k]+=bucket[k];buckets.set(bucket.at,current);
+      const current=agg.buckets.get(bucket.at)||empty();
+      for(const k of Object.keys(empty()))current[k]+=bucket[k];
+      agg.buckets.set(bucket.at,current);
     }
-    const recent=Array.from({length:SLOTS},(_,i)=>{const stamp=end-(SLOTS-1-i)*WINDOW_MS;return {at:new Date(stamp).toISOString(),...(buckets.get(stamp/1000)||empty())};});
+  }
+  return [...grouped.values()].map(agg=>{
+    const recent=Array.from({length:SLOTS},(_,i)=>{const stamp=end-(SLOTS-1-i)*WINDOW_MS;return {at:new Date(stamp).toISOString(),...(agg.buckets.get(stamp/1000)||empty())};});
     const sums=recent.reduce((sum,b)=>{for(const k of Object.keys(empty()))sum[k]+=b[k];return sum;},empty());
-    return {...row,total:row.success+row.failed,success_rate:row.success+row.failed?Math.round(row.success/(row.success+row.failed)*1000)/10:null,
+    const total=agg.success+agg.failed;
+    return {id:agg.id,provider:agg.provider,success:agg.success,failed:agg.failed,total,
+      success_rate:total?Math.round(agg.success/total*1000)/10:null,
       ttft_seconds:sums.ttft_samples?Math.round(sums.ttft_ms/sums.ttft_samples)/1000:null,ttft_samples:sums.ttft_samples,
       output_tokens_per_second:sums.output_ms?Math.round(sums.output_tokens/sums.output_ms*10000)/10:null,
       recent_summary:sums,recent:recent.map(({at,success,failed})=>({at,success,failed})).filter(b=>b.success+b.failed>0)};

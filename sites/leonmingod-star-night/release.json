@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "8419c16f-c7c5-4b90-aa89-21e087b26b8c",
+  "baseline_parent": "bb1ac102-8a42-4ae4-a422-665e1b621a33",
   "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "v63: minute-precise live cooldown, quota reset and renewal countdowns",
+  "message": "Pool dashboard v10.2: RelayPulse matrix UI, automatic custom API provider discovery, fixed tab order, and latest-call sort",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -106,7 +106,10 @@
     "free-token/saved-key-v2.mjs",
     "free-token/verify-v3.mjs",
     "model-status/status-v8.mjs",
-    "model-status/time-v1.mjs"
+    "model-status/time-v1.mjs",
+    "model-status/status-v9.mjs",
+    "model-status/status-v10.css",
+    "model-status/status-v10.mjs"
   ],
-  "staged_version": "fe123ce3-a104-43df-a4b8-abbf8ff07322"
+  "staged_version": "bb1ac102-8a42-4ae4-a422-665e1b621a33"
 }

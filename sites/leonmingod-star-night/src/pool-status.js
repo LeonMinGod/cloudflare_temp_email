@@ -1,19 +1,70 @@
 import { passiveQuota, parseQuota, quotaProbe, quotaProbes } from './pool-quota.js';
 import { attachModelUsage, mergeModelUsage } from './pool-metrics.js';
 import { loadPoolCache, savePoolCache } from './pool-storage.js';
-import { compareModels, compareAccounts, compareProviders } from '../public/model-status/order-v1.mjs';
+import { normalizeProvider, compareModels, compareAccounts, compareProviders } from '../public/model-status/order-v1.mjs';
 import { relayPoolToVps } from './pool-vps.js';
 
 const ORIGIN='https://yifu.leonmingod.com';
 export const REFRESH_MS=300_000, QUOTA_MS=300_000, CHECKPOINT_MS=900_000, STALE_MS=1_800_000;
 const CONTROL='pool-status-control-v1', BUDGET_KEY='ops:do-write-budget:v1', DAILY_CACHE_WRITES=10_000;
-const PROVIDERS=new Set(['codex','antigravity','gemini','gemini-cli','claude','anthropic','aistudio','vertex','openai','qwen','iflow','kiro','copilot','xai','grok']);
 const number=value=>Number.isFinite(Number(value))&&Number(value)>=0?Number(value):0;
 const timestamp=value=>{const n=Date.parse(value||'');return Number.isFinite(n)&&n>0?n:0;};
 const safeModel=value=>typeof value==='string'&&value.length<=256&&value.trim()&&!/[\u0000-\u001f\u007f@]/u.test(value);
-const providerOf=file=>{const p=String(file.provider||file.type||'').toLowerCase();return PROVIDERS.has(p)?p:'other';};
+const safeChannelLabel=value=>typeof value==='string'&&/^[\w\u4e00-\u9fa5][\w\u4e00-\u9fa5._ -]{0,47}$/u.test(value.trim())?value.trim():null;
+const providerOf=file=>normalizeProvider(file.provider||file.type);
 const stateOf=row=>row.ready?'ready':row.cooldown?'cooldown':row.error?'error':row.disabled?'disabled':'unknown';
 const counts=()=>({total:0,ready:0,cooldown:0,disabled:0,error:0,unknown:0});
+
+export function extractApiKeyChannels(body){
+  if(!body||typeof body!=='object'||Array.isArray(body)||body.scope==='upstream_executions'||Array.isArray(body.files))return [];
+  const channels=[];
+  for(const [section,groups] of Object.entries(body)){
+    if(!Array.isArray(groups))continue;
+    for(let index=0;index<groups.length&&channels.length<128;index++){
+      const group=groups[index];
+      if(!group||typeof group!=='object')continue;
+      const rawName=String(group.name||group.prefix||section||'').trim();
+      const provider=normalizeProvider(section==='openai-compatibility'?(group.name||group.prefix||'openai'):(group.name||section));
+      const rawKeys=Array.isArray(group.keys)?group.keys:Array.isArray(group['api-key-entries'])?group['api-key-entries']:[];
+      const activeKeys=rawKeys.filter(k=>k&&typeof k==='object'?!k.disabled:typeof k==='string'&&k.trim()!=='');
+      const authIndexes=[];
+      for(const k of rawKeys){
+        if(k&&typeof k==='object'&&typeof k.auth_index==='string'&&k.auth_index.trim())authIndexes.push(k.auth_index.trim());
+      }
+      if(typeof group.auth_index==='string'&&group.auth_index.trim())authIndexes.push(group.auth_index.trim());
+      const disabled=Boolean(group.disabled)||(rawKeys.length>0&&activeKeys.length===0);
+      const prefix=typeof group.prefix==='string'&&/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(group.prefix.trim())?group.prefix.trim():'';
+      const modelSet=new Set();
+      for(const item of Array.isArray(group.models)?group.models:[]){
+        let exposed='';
+        if(typeof item==='string')exposed=item.trim();
+        else if(item&&typeof item==='object'){
+          const alias=typeof item.alias==='string'?item.alias.trim():'';
+          const name=typeof item.name==='string'?item.name.trim():typeof item.id==='string'?item.id.trim():'';
+          exposed=alias||name;
+        }
+        if(!safeModel(exposed))continue;
+        modelSet.add(exposed);
+        if(prefix&&!exposed.startsWith(prefix+'/')&&safeModel(`${prefix}/${exposed}`))modelSet.add(`${prefix}/${exposed}`);
+      }
+      const channelName=safeChannelLabel(rawName)||provider;
+      const keysCount=rawKeys.length||(authIndexes.length?1:0);
+      channels.push({
+        id:`apikey:${section}:${channelName}:${index}`,
+        kind:'api_key',
+        channel_name:channelName,
+        prefix:prefix||null,
+        keys_count:keysCount,
+        provider,
+        status:disabled?'disabled':'ready',
+        disabled,
+        auth_indexes:[...new Set(authIndexes)],
+        inline_models:[...modelSet],
+      });
+    }
+  }
+  return channels;
+}
 
 export function maskAccountEmail(file){
   const raw=typeof file.email==='string'?file.email:typeof file.account==='string'?file.account:'';
@@ -31,25 +82,67 @@ export function accountState(file,now){
   return ['active','ready'].includes(file.status)?'ready':'unknown';
 }
 export async function accountId(file,secret,index=0){
+  if(file?.kind==='api_key'){
+    return signAccountId(secret,`pool-apikey-v1\n${providerOf(file)}\n${file.channel_name||file.id||index}`);
+  }
+  return signAccountId(secret,`pool-account-v1\n${file.id||file.name||index}`);
+}
+
+async function signAccountId(secret, identity){
   const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
-  const signature=await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(`pool-account-v1\n${file.id||file.name||index}`));
+  const signature=await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(identity));
   return Array.from(new Uint8Array(signature).slice(0,4),x=>x.toString(16).padStart(2,'0')).join('');
 }
+// Filenames and CPA auth indexes can both change on rename.
+export function accountIdentity(provider, account, upstreamId=''){
+  const normProvider=normalizeProvider(provider);
+  const email=typeof account==='string'?account.trim().toLowerCase():'';
+  if(!/^[-\w.+%]+@[-\w.]+\.[a-z]{2,}$/i.test(email))return '';
+  return JSON.stringify([normProvider,email,normProvider==='codex'?String(upstreamId||''):'']);
+}
+
+export async function accountIds(files,secret){
+  const identities=files.map(file=>file?.kind==='api_key'?'':accountIdentity(providerOf(file),file.email||file.account,file.id_token?.chatgpt_account_id));
+  const idCounts=new Map();
+  for(const identity of identities)if(identity)idCounts.set(identity,(idCounts.get(identity)||0)+1);
+  return Promise.all(files.map(async(file,i)=>{
+    if(file?.kind==='api_key'){
+      const id=await accountId(file,secret,i);
+      return {legacy:id,id};
+    }
+    const identity=identities[i];
+    const legacy=await accountId(file,secret,i);
+    return {legacy,id:identity&&idCounts.get(identity)===1?await signAccountId(secret,`pool-account-v2\n${identity}`):legacy};
+  }));
+}
+
 function recentRequests(file){
   return (Array.isArray(file.recent_requests)?file.recent_requests:[]).slice(-20).map((row,index)=>({
     time:typeof row.time==='string'&&/^[\dTZ :+.\-/]{1,50}$/.test(row.time)?row.time:`时间段 ${index+1}`,
     success:number(row.success),failed:number(row.failed),
   }));
 }
-export async function summarizePool(files,inventory,secret,now=Date.now()){
+export async function summarizePool(files,inventory,secret,now=Date.now(),ids=undefined){
+  ids??=await accountIds(files,secret);
   const accounts=[],modelMap=new Map(),providers=new Map(),totals=counts();let successful=0,failed=0;
   for(let index=0;index<files.length;index++){
-    const file=files[index],provider=providerOf(file),state=accountState(file,now),id=await accountId(file,secret,index);
+    const file=files[index],provider=providerOf(file),state=accountState(file,now),id=ids[index].id;
     const cooldowns=(Array.isArray(file.cooldowns)?file.cooldowns:[]).filter(x=>timestamp(x.retry_at)>now);
     const retry=Math.max(timestamp(file.next_retry_after),...cooldowns.map(x=>timestamp(x.retry_at)),0),models=inventory[index];
     const success=number(file.success),errors=number(file.failed);
-    accounts.push({id,provider,state,masked_email:maskAccountEmail(file),models:Array.isArray(models)?models.length:null,cooldown_models:cooldowns.filter(x=>x.scope==='model').length,
-      retry_at:retry?new Date(retry).toISOString():null,quota:passiveQuota(file,now),success,failed:errors,success_rate:success+errors?Math.round(success/(success+errors)*1000)/10:null,recent_requests:recentRequests(file)});
+    const isApiKey=file.kind==='api_key';
+    const quota=isApiKey?{plan:'API 密钥渠道',renew_at:null,credits:null,windows:[],observed_at:null,source:'api_key',supported:false,next_refresh_at:null,primary_remaining:null,secondary_remaining:null}:passiveQuota(file,now);
+    const entry={id,kind:isApiKey?'api_key':'oauth',provider,state,masked_email:isApiKey?null:maskAccountEmail(file),
+      models:Array.isArray(models)?models.length:null,cooldown_models:cooldowns.filter(x=>x.scope==='model').length,
+      retry_at:retry?new Date(retry).toISOString():null,quota,success,failed:errors,
+      success_rate:success+errors?Math.round(success/(success+errors)*1000)/10:null,recent_requests:recentRequests(file)};
+    if(isApiKey){
+      entry.channel_name=file.channel_name||provider;
+      entry.keys_count=number(file.keys_count);
+      entry.prefix=file.prefix||null;
+      entry.preview_models=Array.isArray(models)?models.filter(safeModel).slice(0,12):[];
+    }
+    accounts.push(entry);
     totals.total++;totals[state]++;successful+=success;failed+=errors;
     if(!providers.has(provider))providers.set(provider,{provider,...counts()});
     providers.get(provider).total++;providers.get(provider)[state]++;
@@ -64,7 +157,7 @@ export async function summarizePool(files,inventory,secret,now=Date.now()){
   }
   return {schema:1,updated_at:new Date(now).toISOString(),stale:false,totals,successful,failed,stats_scope:'account',model_metrics_available:false,
     models_partial:inventory.some(x=>!Array.isArray(x)),providers:[...providers.values()].sort((a,b)=>compareProviders(a.provider,b.provider)),
-    models:[...modelMap.values()].map(row=>({...row,providers:[...row.providers].sort(compareProviders)})).sort(compareModels),
+    models:[...modelMap.values()].map(row=>({...row,online:row.total-row.disabled>0,providers:[...row.providers].sort(compareProviders)})).sort(compareModels),
     accounts:accounts.sort(compareAccounts)};
 }
 
@@ -83,7 +176,9 @@ const publicError=error=>[401,403].includes(error?.status)?'authorization_unavai
 // One coordination atom for this one CPA pool, outside the model data path.
 // Uses a dedicated named object in the existing namespace, not any game run.
 export class PoolStatusCoordinator{
-  constructor(ctx,env,{fetcher=(url,options)=>fetch(url,options),clock=()=>Date.now()}={}){
+  constructor(ctx,env,{fetcher=(url,options)=>fetch(url,options),clock=()=>Date.now(),readRecordedUsage,discoverApiKeys=false}={}){
+    this.readRecordedUsage=readRecordedUsage;
+    this.discoverApiKeys=discoverApiKeys;
     this.ctx=ctx;this.env=env;this.fetcher=fetcher;this.clock=clock;this.pending=null;this.quotaPending=new Map();this.files=[];this.filesAt=0;
     this.ready=Promise.all([loadPoolCache(ctx.storage,parts=>{this.persistedParts=parts;}),ctx.storage.get('pool-status-kind'),ctx.storage.get(CONTROL)]).then(([value,kind,control])=>{
       this.cache=value||{snapshot:null,next:0,failures:0,inventories:{},quotas:{},history:{}};
@@ -137,7 +232,17 @@ export class PoolStatusCoordinator{
       try{
         const body=await management('credentials',this.env,this.fetcher,signal);
         if(!Array.isArray(body.files))throw new Error('CPA_INVALID_STATUS');
-        this.files=body.files.slice(0,500);this.filesAt=now;return this.files;
+        let combined=body.files.slice(0,500);
+        if(this.discoverApiKeys){
+          try{
+            const akBody=await management('config/api-keys',this.env,this.fetcher,signal);
+            const channels=extractApiKeyChannels(akBody);
+            if(channels.length)combined=combined.concat(channels).slice(0,500);
+          }catch(akError){
+            if(akError?.managementAuth)throw akError;
+          }
+        }
+        this.files=combined;this.filesAt=now;return this.files;
       }catch(error){if([401,403].includes(error.status)){this.cache.managementBlockedUntil=now+900_000;await this.persist();}throw error;}
     })().finally(()=>{this.filesPending=null;});
     return this.filesPending;
@@ -217,11 +322,25 @@ export class PoolStatusCoordinator{
     const now=this.clock();this.cache.next=now+REFRESH_MS;await this.persist();
     try{
       const signal=AbortSignal.timeout(18_000),files=await this.credentials(signal),inventory=new Array(files.length).fill(null);
-      const ids=await Promise.all(files.map((f,i)=>accountId(f,this.env.FREE_TOKEN_OPS_SECRET,i)));
+      const identities=await accountIds(files,this.env.FREE_TOKEN_OPS_SECRET),ids=identities.map(x=>x.id);
+      for(const {id,legacy} of identities){
+        if(id===legacy)continue;
+        for(const store of [this.cache.quotas,this.cache.inventories]){
+          if(store[legacy]&&!store[id])store[id]=store[legacy];
+          delete store[legacy];
+        }
+      }
+      for(let i=0;i<files.length;i++){
+        if(files[i]?.kind==='api_key'&&Array.isArray(files[i].inline_models)){
+          inventory[i]=files[i].inline_models;
+        }
+      }
       let next=0,fatal;
       await Promise.all(Array.from({length:Math.min(3,files.length)},async()=>{
-        while(!fatal&&!signal.aborted&&next<Math.min(32,files.length)){
-          const i=next++,cached=this.cache.inventories[ids[i]];
+        while(!fatal&&!signal.aborted&&next<Math.min(64,files.length)){
+          const i=next++;
+          if(Array.isArray(inventory[i]))continue;
+          const cached=this.cache.inventories[ids[i]];
           if(cached&&now-cached.at<QUOTA_MS){inventory[i]=cached.models;continue;}
           if(typeof files[i].name!=='string')continue;
           try{
@@ -231,14 +350,19 @@ export class PoolStatusCoordinator{
         }
       }));
       if(fatal)throw fatal;
-      const snapshot=await summarizePool(files,inventory,this.env.FREE_TOKEN_OPS_SECRET,now);
+      const snapshot=await summarizePool(files,inventory,this.env.FREE_TOKEN_OPS_SECRET,now,identities);
       await this.modelMetrics();
       attachModelUsage(snapshot,this.cache.modelUsage,now);
+      if(this.readRecordedUsage){
+        try{await this.readRecordedUsage(snapshot,files,identities,now);}
+        catch(error){console.warn(JSON.stringify({event:'pool_recorded_usage_failed',error_type:error.name}));}
+      }
       // Automatic quota probes are limited to active supported accounts. Disabled
-      // accounts stay disabled and never create recurring upstream quota traffic.
-      const candidates=files.map((file,i)=>({file,id:ids[i]})).filter(x=>accountState(x.file,now)==='ready'&&quotaProbe(x.file)).slice(0,4);
+      // accounts and API-key channels never create recurring upstream quota traffic.
+      const candidates=files.map((file,i)=>({file,id:ids[i]})).filter(x=>x.file.kind!=='api_key'&&accountState(x.file,now)==='ready'&&quotaProbe(x.file)).slice(0,4);
       await Promise.all(candidates.map(({file,id})=>this.quota(file,id)));
       for(const account of snapshot.accounts){
+        if(account.kind==='api_key')continue;
         const cached=this.cache.quotas[account.id];
         if(cached){const observed=account.quota;account.quota={...cached.value,next_refresh_at:new Date(cached.next).toISOString()};
           if(timestamp(observed.observed_at)>timestamp(account.quota.observed_at)&&observed.windows.length)account.quota={...observed,next_refresh_at:account.quota.next_refresh_at};}
@@ -267,10 +391,11 @@ export class PoolStatusCoordinator{
       if(!/^[a-f0-9]{8}$/.test(id||''))return this.reply(400,{error:'账号编号不正确。'});
       if(peek){const row=this.cache.quotas[id];return this.reply(row?200:404,row?{id,quota:{...row.value,next_refresh_at:new Date(row.next).toISOString()}}:{error:'额度尚未读取。'});}
       const files=await this.credentials(AbortSignal.timeout(10_000));
-      let selected;for(let i=0;i<files.length;i++)if(await accountId(files[i],this.env.FREE_TOKEN_OPS_SECRET,i)===id){selected=files[i];break;}
-      if(!selected)return this.reply(404,{error:'账号不存在或已移除。'});
-      const value=await this.quota(selected,id);
-      if(this.cache.snapshot){const account=this.cache.snapshot.accounts.find(x=>x.id===id);if(account&&JSON.stringify(account.quota)!==JSON.stringify(value)){account.quota=value;await this.persist();}}
+      const identities=await accountIds(files,this.env.FREE_TOKEN_OPS_SECRET);
+      const index=identities.findIndex(x=>x.id===id||x.legacy===id);
+      if(index<0)return this.reply(404,{error:'账号不存在或已移除。'});
+      const canonical=identities[index].id,value=await this.quota(files[index],canonical);
+      if(this.cache.snapshot){const account=this.cache.snapshot.accounts.find(x=>x.id===canonical);if(account&&JSON.stringify(account.quota)!==JSON.stringify(value)){account.quota=value;await this.persist();}}
       return this.reply(200,{id,quota:value});
     }
     if(!peek&&this.clock()>=this.cache.next){

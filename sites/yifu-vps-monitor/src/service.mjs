@@ -6,9 +6,10 @@ export function signature(secret, stamp, path, text) {
   return createHmac('sha256', secret).update(`lmg-vps-pool-v1\n${stamp}\nPOST\n${path}\n${text}`).digest('hex');
 }
 
-export function createCollector({ storage, secret, managementKey, fetcher = (url, init) => fetch(url, init), clock = () => Date.now() }) {
-  const env = { FREE_TOKEN_OPS_SECRET: secret, CPA_STATUS_MANAGEMENT_KEY: managementKey, CPA_STATUS_ORIGIN: 'http://127.0.0.1:8317' };
-  let coordinator = new PoolStatusCoordinator({ storage }, env, { fetcher, clock });
+export function createCollector({ storage, secret, managementKey, cpaOrigin = 'http://127.0.0.1:8317', readRecordedUsage, discoverApiKeys = true, fetcher = (url, init) => fetch(url, init), clock = () => Date.now() }) {
+  const env = { FREE_TOKEN_OPS_SECRET: secret, CPA_STATUS_MANAGEMENT_KEY: managementKey, CPA_STATUS_ORIGIN: cpaOrigin };
+  const coordinatorOptions = { fetcher, clock, readRecordedUsage, discoverApiKeys };
+  let coordinator = new PoolStatusCoordinator({ storage }, env, coordinatorOptions);
   let timer, closed = false;
   const arm = time => {
     clearTimeout(timer);
@@ -41,7 +42,7 @@ export function createCollector({ storage, secret, managementKey, fetcher = (url
         await savePoolCache(storage, JSON.stringify(cache));
         await storage.put('pool-status-control-v1', { ...(body.control || {}), origin: 'https://yifu.leonmingod.com', checkpointAt: 0,
           gates: { next: 0, metricsNext: 0, managementBlockedUntil: 0, quotaNext: {} } });
-        coordinator = new PoolStatusCoordinator({ storage }, env, { fetcher, clock });
+        coordinator = new PoolStatusCoordinator({ storage }, env, coordinatorOptions);
         await coordinator.ready;
         return reply(200, { imported: true, history_models: Object.keys(cache.modelUsage?.models || {}).length });
       }
