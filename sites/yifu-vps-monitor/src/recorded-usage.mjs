@@ -38,18 +38,23 @@ function addUnique(map, key, id) {
 }
 
 export function attachRecordedUsage(snapshot, files, ids, data, now, gap) {
-  const identities = new Map(), indexes = new Map(), singleApiChannel = new Map();
+  const identities = new Map(), indexes = new Map(), authIndexes = new Map(), singleApiChannel = new Map(), apiKeyProviderById = new Map();
   files.forEach((file, i) => {
     const provider = normalizeProvider(file.provider || file.type);
     if (file.kind === 'api_key') {
+      apiKeyProviderById.set(ids[i].id, provider);
       addUnique(singleApiChannel, provider, ids[i].id);
       for (const idx of Array.isArray(file.auth_indexes) ? file.auth_indexes : []) {
         addUnique(indexes, JSON.stringify([provider, idx]), ids[i].id);
+        addUnique(authIndexes, idx, ids[i].id);
       }
       return;
     }
     addUnique(identities, accountIdentity(provider, file.email || file.account, file.id_token?.chatgpt_account_id), ids[i].id);
-    if (file.auth_index) addUnique(indexes, JSON.stringify([provider, file.auth_index]), ids[i].id);
+    if (file.auth_index) {
+      addUnique(indexes, JSON.stringify([provider, file.auth_index]), ids[i].id);
+      addUnique(authIndexes, file.auth_index, ids[i].id);
+    }
   });
 
   const ranges = dayRanges(now), models = new Map(snapshot.models.map(row => [row.id, row]));
@@ -63,15 +68,27 @@ export function attachRecordedUsage(snapshot, files, ids, data, now, gap) {
     const provider = normalizeProvider(rawRow.provider);
     const authProvider = normalizeProvider(rawRow.auth_provider || rawRow.provider);
     const rowLastMs = Number.isFinite(rawRow.last_used_ms) ? rawRow.last_used_ms : null;
-    const key = JSON.stringify([provider, rawRow.model]);
+
+    const identity = accountIdentity(authProvider, rawRow.account, rawRow.upstream_id);
+    const indexId = indexes.get(JSON.stringify([authProvider, rawRow.auth_index])) ||
+      indexes.get(JSON.stringify([provider, rawRow.auth_index])) ||
+      authIndexes.get(rawRow.auth_index) ||
+      null;
+    let id = identities.get(identity) || (!identity || identities.has(identity) ? indexId : null);
+    if (!id && !identity) {
+      id = singleApiChannel.get(provider) || singleApiChannel.get(authProvider) || null;
+    }
+
+    const usageProvider = (id && apiKeyProviderById.get(id)) || provider;
+    const key = JSON.stringify([usageProvider, rawRow.model]);
     let usage = usageRows.get(key);
     if (!usage) {
-      usage = { provider, windows: emptyWindows(), last_used_at: null, last_used_windows: emptyStampWindows() };
+      usage = { provider: usageProvider, windows: emptyWindows(), last_used_at: null, last_used_windows: emptyStampWindows() };
       usageRows.set(key, usage);
       if (!models.has(rawRow.model)) {
         const historical = {
           id: rawRow.model, total: 0, ready: 0, cooldown: 0, disabled: 0, error: 0, unknown: 0,
-          online: false, providers: [provider], retry_at: null,
+          online: false, providers: [usageProvider], retry_at: null,
         };
         models.set(rawRow.model, historical);
         snapshot.models.push(historical);
@@ -95,13 +112,6 @@ export function attachRecordedUsage(snapshot, files, ids, data, now, gap) {
       }
     }
 
-    const identity = accountIdentity(authProvider, rawRow.account, rawRow.upstream_id);
-    const indexId = indexes.get(JSON.stringify([authProvider, rawRow.auth_index])) ||
-      indexes.get(JSON.stringify([provider, rawRow.auth_index]));
-    let id = identities.get(identity) || (!identity || identities.has(identity) ? indexId : null);
-    if (!id && !identity) {
-      id = singleApiChannel.get(provider) || singleApiChannel.get(authProvider) || null;
-    }
     if (id) {
       const counts = accountCounts.get(id) || empty();
       counts.success += rawRow.success;

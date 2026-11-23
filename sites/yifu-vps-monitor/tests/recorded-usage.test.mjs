@@ -123,6 +123,43 @@ test('custom API-key providers (linli, x2api, solid) auto-discover models, prefi
   assert.doesNotMatch(serialized, /sk-secret|secret-upstream|secret-x2|secret-solid|idx-linli|idx-x2/);
 });
 
+test('named native gemini API-key channel matches usage logged under provider=gemini by auth_index', async () => {
+  const now = Date.parse('2026-11-23T20:20:00+08:00');
+  const { today } = dayRanges(now);
+  const channels = extractApiKeyChannels({
+    gemini: [
+      {
+        name: 'x2api',
+        'base-url': 'https://secret-x2.example/agy',
+        keys: [{ 'api-key': 'sk-secret-x2', auth_index: '300e6fb85fb340e7' }],
+        models: [
+          { name: 'gemini-4-neon-high', alias: 'gemini-4-neon' },
+          { name: 'gemini-4-neon-high', alias: 'gemini-4-neon-high' },
+        ],
+      },
+    ],
+  });
+  const ids = await accountIds(channels, 'ops-secret');
+  const summary = await summarizePool(channels, channels.map(c => c.inline_models), 'ops-secret', now, ids);
+
+  attachRecordedUsage(summary, channels, ids, {
+    since: now - 86400000,
+    latest: now,
+    rows: [
+      { day: today[0], provider: 'openai-compatible-x2api', model: 'gemini-4-neon-high', auth_provider: 'openai-compatible-x2api', account: '', upstream_id: '', auth_index: 'bbd13d1f785feb21', success: 44, failed: 47, last_used_ms: now - 8 * 3600_000 },
+      { day: today[0], provider: 'gemini', model: 'gemini-4-neon', auth_provider: 'gemini', account: '', upstream_id: '', auth_index: '300e6fb85fb340e7', success: 3157, failed: 702, last_used_ms: now - 60_000 },
+    ],
+  }, now, null);
+
+  const x2 = summary.accounts.find(a => a.provider === 'x2api');
+  assert.deepEqual(x2.recorded_windows.today, { success: 3201, failed: 749 });
+  assert.equal(x2.last_used_at, new Date(now - 60_000).toISOString());
+  const neon = summary.models.find(m => m.id === 'gemini-4-neon');
+  assert.equal(neon.recorded_usage.length, 1);
+  assert.equal(neon.recorded_usage[0].provider, 'x2api');
+  assert.deepEqual(neon.recorded_usage[0].windows.today, { success: 3157, failed: 702 });
+});
+
 test('Beijing midnight advances the day and month while Sunday stays in the prior week', () => {
   const before = dayRanges(Date.parse('2026-10-31T15:59:59Z'));
   const after = dayRanges(Date.parse('2026-10-31T16:00:00Z'));
