@@ -1,4 +1,4 @@
-import { installCcSwitch } from './ccswitch-v2.mjs';
+import { installCcSwitch } from './ccswitch-v2.mjs?v=3';
 import { readRememberedName, readSavedKey, rememberEmailInput, rememberName, startEmailVerification, takeResult } from './verify-flow-v3.mjs';
 
 const $ = id => document.getElementById(id);
@@ -169,4 +169,4 @@ if (result) {
 
 for (const dialog of [confirmDialog, emailDialog]) dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
 
-installCcSwitch({ button: $('open-ccswitch'), ownerDialog: credentialsDialog, readCredentials: () => ({ baseUrl: baseUrl.value, apiKey: apiKey.value }) });
+installCcSwitch({ button: $('open-ccswitch'), agyButton: $('open-ccswitch-agy'), ownerDialog: credentialsDialog, readCredentials: () => ({ baseUrl: baseUrl.value, apiKey: apiKey.value }) });

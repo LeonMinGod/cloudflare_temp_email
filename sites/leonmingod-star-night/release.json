@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "bb1ac102-8a42-4ae4-a422-665e1b621a33",
-  "baseline_entrance": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
-  "message": "Pool dashboard v10.2: RelayPulse matrix UI, automatic custom API provider discovery, fixed tab order, and latest-call sort",
+  "baseline_parent": "090c284d-fc48-4bfd-8d56-be6e31c7a00f",
+  "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
+  "message": "Add Antigravity (agy) one-click CC Switch import on free-token claim, game, and saved-key modals",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },

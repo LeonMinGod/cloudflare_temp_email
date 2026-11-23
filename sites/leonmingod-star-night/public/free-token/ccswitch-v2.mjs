@@ -3,8 +3,28 @@ const APPS = Object.freeze({
   claude: { title: 'Claude', format: 'anthropic' },
   codex: { title: 'Codex', format: 'openai_responses' },
   gemini: { title: 'Gemini', format: 'gemini_native' },
+  agy: { title: '反重力', format: 'gemini_native' },
 });
 const API_ORIGIN = 'https://yifu.leonmingod.com';
+const AGY_MODEL_RE = /^(?:(?:models|antigravity)\/)?(?:gemini-4-|(?:argon|carbon|hydrogen|neon)(?:-(?:high|xhigh|medium|low))?$)/i;
+const AGY_PREFERRED = ['gemini-4-neon-high', 'gemini-4-carbon-high', 'gemini-4-argon-high', 'gemini-4-hydrogen-high', 'gemini-4-neon', 'gemini-4-carbon', 'gemini-4-argon', 'gemini-4-hydrogen', 'neon-high', 'carbon-high', 'argon-high', 'hydrogen-high'];
+
+function sortModelsForApp(ids, targetApp) {
+  if (targetApp !== 'agy') return ids;
+  const rank = id => {
+    const lower = id.toLowerCase();
+    const idx = AGY_PREFERRED.indexOf(lower);
+    if (idx >= 0) return idx;
+    if (AGY_MODEL_RE.test(lower)) return AGY_PREFERRED.length;
+    return AGY_PREFERRED.length + 1;
+  };
+  return [...ids].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'en'));
+}
+
+function defaultModelForApp(orderedIds, targetApp) {
+  if (targetApp !== 'agy') return '';
+  return orderedIds.find(id => AGY_MODEL_RE.test(id)) || '';
+}
 
 export function apiEndpoints(baseUrl) {
   const url = new URL(normalizeBaseUrl(baseUrl));
@@ -49,8 +69,8 @@ export async function fetchModels({ baseUrl, apiKey }, { signal, fetcher = globa
   return ids.sort((a, b) => a.localeCompare(b, 'en'));
 }
 
-export function installCcSwitch({ button, ownerDialog, readCredentials, document: doc = globalThis.document, navigate = link => globalThis.location.assign(link), fetcher = globalThis.fetch }) {
-  if (!button || !ownerDialog) return;
+export function installCcSwitch({ button, agyButton, ownerDialog, readCredentials, document: doc = globalThis.document, navigate = link => globalThis.location.assign(link), fetcher = globalThis.fetch }) {
+  if ((!button && !agyButton) || !ownerDialog) return;
   const dialog = doc.createElement('dialog');
   dialog.className = 'ccswitch-dialog';
   dialog.setAttribute('aria-labelledby', 'ccswitch-title');
@@ -82,6 +102,19 @@ export function installCcSwitch({ button, ownerDialog, readCredentials, document
     model.replaceChildren(option('请选择主模型'));model.disabled = true;name.value = '';launch.disabled = true;
     launch.textContent = '打开 CC Switch ↗';showError();
   }
+  function renderModels({ autoSelect = false } = {}) {
+    if (!modelIds.length) return;
+    const ordered = sortModelsForApp(modelIds, app);
+    const prev = model.value;
+    model.replaceChildren(option('请选择主模型'), ...ordered.map(id => option(id, id)));
+    model.disabled = false;
+    const preferred = autoSelect ? defaultModelForApp(ordered, app) : (ordered.includes(prev) ? prev : '');
+    model.value = preferred;
+    note.textContent = app === 'agy'
+      ? `${ordered.length} 个可用模型 · 反重力（agy cli）原生 Gemini 协议，已自动配好根地址（不含 /v1）`
+      : `${ordered.length} 个可用模型 · 来自当前 API`;
+    ready();
+  }
   async function load() {
     const expected = ++generation;
     controller?.abort();controller = new AbortController();modelIds = [];sent = false;
@@ -90,28 +123,32 @@ export function installCcSwitch({ button, ownerDialog, readCredentials, document
     try {
       const ids = await fetchModels(current, { signal: controller.signal, fetcher });
       if (expected !== generation || !dialog.open) return;
-      modelIds = ids;model.replaceChildren(option('请选择主模型'), ...ids.map(id => option(id, id)));
-      model.disabled = false;note.textContent = `${ids.length} 个可用模型 · 来自当前 API`;ready();
+      modelIds = ids;
+      renderModels({ autoSelect: app === 'agy' });
     } catch (failure) {
       if (expected !== generation || failure.name === 'AbortError') return;
       model.replaceChildren(option('暂未读取到模型'));note.textContent = '可点「重新读取」重试。';
       showError(failure instanceof TypeError ? '网络连接失败，请稍后重新读取。' : failure.message);
     } finally { if (expected === generation) reload.disabled = false; }
   }
-  button.addEventListener('click', event => {
-    event.stopPropagation();
+  function openFor(initialApp) {
     if (dialog.open) return;
     clear();current = readCredentials();
     try { apiEndpoints(current?.baseUrl);if (!current?.apiKey) throw new Error('请先领取或找回你的 API Key。'); }
     catch { current = undefined;return; }
-    app = 'codex';dialog.querySelectorAll('input[name="app"]').forEach(input => { input.checked = input.value === app; });
-    name.value = '义父公益 · Codex';dialog.showModal();load();
-  });
+    app = Object.hasOwn(APPS, initialApp) ? initialApp : 'codex';
+    dialog.querySelectorAll('input[name="app"]').forEach(input => { input.checked = input.value === app; });
+    name.value = `义父公益 · ${APPS[app].title}`;dialog.showModal();load();
+  }
+  if (button) button.addEventListener('click', event => { event.stopPropagation(); openFor('codex'); });
+  if (agyButton) agyButton.addEventListener('click', event => { event.stopPropagation(); openFor('agy'); });
   dialog.querySelectorAll('input[name="app"]').forEach(input => input.addEventListener('change', () => {
     if (!input.checked) return;
     const wasDefault = name.value === `义父公益 · ${APPS[app].title}`;
     app = input.value;if (wasDefault) name.value = `义父公益 · ${APPS[app].title}`;
-    model.value = '';sent = false;launch.textContent = '打开 CC Switch ↗';showError();ready();
+    model.value = '';sent = false;launch.textContent = '打开 CC Switch ↗';showError();
+    if (modelIds.length) renderModels({ autoSelect: app === 'agy' });
+    else ready();
   }));
   reload.addEventListener('click', load);name.addEventListener('input', ready);
   model.addEventListener('change', () => { sent = false;launch.textContent = '打开 CC Switch ↗';showError();ready(); });

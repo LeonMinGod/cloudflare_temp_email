@@ -7,7 +7,12 @@ const credentials = { baseUrl: 'https://yifu.leonmingod.com/v1', apiKey: 'sk-lm-
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
 test('CC Switch imports use the native app format and exact live model alias without switching existing configuration', () => {
-  for (const [app, endpoint, format] of [['claude', 'https://yifu.leonmingod.com', 'anthropic'], ['codex', credentials.baseUrl, 'openai_responses'], ['gemini', 'https://yifu.leonmingod.com', 'gemini_native']]) {
+  for (const [app, endpoint, format] of [
+    ['claude', 'https://yifu.leonmingod.com', 'anthropic'],
+    ['codex', credentials.baseUrl, 'openai_responses'],
+    ['gemini', 'https://yifu.leonmingod.com', 'gemini_native'],
+    ['agy', 'https://yifu.leonmingod.com', 'gemini_native'],
+  ]) {
     const link = new URL(buildImportLink({ ...credentials, app, name: 'Leon · 自选', model: '哈基米/gemini-3.8-flash-high' }));
     assert.equal(link.protocol, 'ccswitch:');assert.equal(link.hostname, 'v1');assert.equal(link.pathname, '/import');
     assert.equal(link.searchParams.get('endpoint'), endpoint);assert.equal(link.searchParams.get('apiFormat'), format);
@@ -34,7 +39,7 @@ test('models come from authenticated GET /v1/models with no cookies, query key o
 });
 
 function fixture(fetcher) {
-  const { document, window } = parseHTML('<html><body><dialog id="owner" open><button id="entry">CC Switch</button></dialog></body></html>');
+  const { document, window } = parseHTML('<html><body><dialog id="owner" open><button id="entry">CC Switch</button><button id="entry-agy">反重力</button></dialog></body></html>');
   const selectPrototype = Object.getPrototypeOf(document.createElement('select'));
   if (!Object.getOwnPropertyDescriptor(selectPrototype, 'value')?.set) Object.defineProperty(selectPrototype, 'value', {
     configurable: true,
@@ -42,15 +47,15 @@ function fixture(fetcher) {
     set(value) { for (const item of this.options) item.toggleAttribute('selected', item.value === value); },
   });
   let current = { ...credentials };const navigations = [];
-  const owner = document.querySelector('#owner'), button = document.querySelector('#entry');
-  const { dialog } = installCcSwitch({ button, ownerDialog: owner, readCredentials: () => current, document, fetcher, navigate: link => navigations.push(link) });
+  const owner = document.querySelector('#owner'), button = document.querySelector('#entry'), agyButton = document.querySelector('#entry-agy');
+  const { dialog } = installCcSwitch({ button, agyButton, ownerDialog: owner, readCredentials: () => current, document, fetcher, navigate: link => navigations.push(link) });
   for (const item of [owner, dialog]) {
     Object.defineProperty(item, 'open', { get: () => item.hasAttribute('open') });
     item.showModal = () => item.setAttribute('open', '');
     item.close = () => { item.removeAttribute('open');item.dispatchEvent(new window.Event('close')); };
   }
   const fire = (node, type) => node.dispatchEvent(new window.Event(type, { bubbles: true, cancelable: true }));
-  return { document, dialog, owner, button, fire, navigations, setCredentials: value => { current = value; } };
+  return { document, dialog, owner, button, agyButton, fire, navigations, setCredentials: value => { current = value; } };
 }
 
 test('the reward button opens a live picker and only a selected model launches CC Switch; no key is embedded in HTML', async () => {
@@ -83,4 +88,24 @@ test('changing credentials while the picker is open prevents importing a stale k
   f.fire(f.button, 'click');await tick();const select=f.dialog.querySelector('select');select.value='gpt-live';f.fire(select,'change');
   f.setCredentials({ ...credentials, apiKey: 'sk-lm-changed-placeholder' });f.fire(f.dialog.querySelector('form'),'submit');
   assert.equal(f.navigations.length,0);assert.match(f.dialog.querySelector('.ccswitch-error').textContent,/已变化/);
+});
+
+test('the Antigravity one-click entry preselects agy app, native root endpoint, and preferred Gemini 4 model', async () => {
+  const f = fixture(async () => Response.json({ data: [{ id: 'deepseek-v4-flash' }, { id: 'gemini-4-carbon-high' }, { id: 'gemini-4-neon-high' }] }));
+  f.fire(f.agyButton, 'click');await tick();
+  assert(f.dialog.open);
+  assert.equal(f.dialog.querySelector('#ccswitch-name').value, '义父公益 · 反重力');
+  const select = f.dialog.querySelector('select');
+  const launch = f.dialog.querySelector('.ccswitch-launch');
+  assert.equal(select.options[1].value, 'gemini-4-neon-high');
+  assert.equal(select.value, 'gemini-4-neon-high');
+  assert.equal(launch.disabled, false);
+  f.fire(f.dialog.querySelector('form'), 'submit');
+  assert.equal(f.navigations.length, 1);
+  const link = new URL(f.navigations[0]);
+  assert.equal(link.searchParams.get('app'), 'agy');
+  assert.equal(link.searchParams.get('endpoint'), 'https://yifu.leonmingod.com');
+  assert.equal(link.searchParams.get('apiFormat'), 'gemini_native');
+  assert.equal(link.searchParams.get('model'), 'gemini-4-neon-high');
+  assert.equal(link.searchParams.get('name'), '义父公益 · 反重力');
 });

@@ -1,4 +1,4 @@
-import { installCcSwitch } from '../ccswitch-v2.mjs';
+import { installCcSwitch } from '../ccswitch-v2.mjs?v=3';
 import { RULES, createGame, step, phaseOf, installEntropy } from './engine-v8.mjs';
 import { verifyHuman } from '../human-v2.mjs';
 import { rememberEmailInput, startEmailVerification, takeResult } from '../verify-flow-v3.mjs';
@@ -312,4 +312,4 @@ if(returnedReward){$('score-note').textContent='邮箱验证成功 · 通关奖�
 else if(location.hash==='#verify-email'){history.replaceState(null,'',location.pathname);$('score-note').textContent='重新填写邮箱';showRewardSteps();}
 draw();hud();
 
-installCcSwitch({ button: $('open-ccswitch'), ownerDialog: $('reward'), readCredentials: () => ({ baseUrl: $('base-url').value, apiKey: $('api-key').value }) });
+installCcSwitch({ button: $('open-ccswitch'), agyButton: $('open-ccswitch-agy'), ownerDialog: $('reward'), readCredentials: () => ({ baseUrl: $('base-url').value, apiKey: $('api-key').value }) });

@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="/free-token/token-passage-v1.css">
   <script src="/free-token/token-passage-v1.js" defer></script>
   <link rel="stylesheet" href="/free-token/style.css?v=3">
-  <script type="module" src="/free-token/claim-v11.mjs"></script>
+  <script type="module" src="/free-token/claim-v11.mjs?v=3"></script>
 <style id="free-token-compact-layout">
 
 #token-fluid { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; opacity: .92; mix-blend-mode: screen; filter: saturate(1.2); transition: opacity .45s; }
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script><link rel="stylesheet" href="/free-token/claim-compact-v5.css">
-<link rel="stylesheet" href="/free-token/ccswitch-v1.css">
+<link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
 </head>
 <body><canvas id="token-fluid" aria-hidden="true"></canvas><span id="token-pointer-light" aria-hidden="true"></span>
   <div class="backdrop" aria-hidden="true"></div>
@@ -380,6 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="copy-row key-row"><textarea id="api-key" readonly rows="2" aria-label="专属 API Key" spellcheck="false"></textarea><button id="copy-key" class="copy-button" type="button">复制 Key</button></div>
     <button id="copy-all" class="primary copy-all" type="button">一键复制全部</button>
     <button id="open-ccswitch" class="ccswitch-entry" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>接入 CC Switch</span></button>
+    <button id="open-ccswitch-agy" class="ccswitch-entry ccswitch-entry-agy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>反重力一键接入 CC Switch</span></button>
     <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
   </dialog>
 

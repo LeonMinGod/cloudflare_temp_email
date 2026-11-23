@@ -1,5 +1,5 @@
 import { readSavedKey } from './verify-flow-v3.mjs';
-import { installCcSwitch } from './ccswitch-v2.mjs';
+import { installCcSwitch } from './ccswitch-v2.mjs?v=3';
 
 let dialog,base,key,status;
 function field(tag,text,className){const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;}
@@ -17,8 +17,9 @@ function createViewer(){
   }
   const all=field('button','复制地址与 Key','saved-key-primary');all.type='button';all.dataset.savedCopy='all';all.addEventListener('click',()=>copyValue('all'));
   const cc=field('button','接入 CC Switch','ccswitch-entry');cc.type='button';
-  status=field('p','','saved-key-status');status.setAttribute('role','status');dialog.append(all,cc,status);document.body.append(dialog);
-  installCcSwitch({button:cc,ownerDialog:dialog,readCredentials:()=>({baseUrl:base.value,apiKey:key.value})});
+  const agy=field('button','反重力一键接入 CC Switch','ccswitch-entry ccswitch-entry-agy');agy.type='button';
+  status=field('p','','saved-key-status');status.setAttribute('role','status');dialog.append(all,cc,agy,status);document.body.append(dialog);
+  installCcSwitch({button:cc,agyButton:agy,ownerDialog:dialog,readCredentials:()=>({baseUrl:base.value,apiKey:key.value})});
   dialog.addEventListener('click',event=>{if(event.target===dialog){const rect=dialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.close();}});
 }
 async function copyValue(kind){
