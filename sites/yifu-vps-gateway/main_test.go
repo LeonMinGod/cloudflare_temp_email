@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"io"
 	"net"
 	"net/http"
@@ -14,6 +15,15 @@ import (
 	"testing"
 	"time"
 )
+
+func smallTestGate() *gate {
+	return newGateWithConfig(gateConfig{
+		maxActive:   4,
+		maxPerKey:   2,
+		maxQueue:    4,
+		waitTimeout: 2 * time.Second,
+	})
+}
 
 func until(t *testing.T, fn func() bool) {
 	t.Helper()
@@ -27,7 +37,7 @@ func until(t *testing.T, fn func() bool) {
 }
 
 func TestAdmissionBoundsCancellationAndReuse(t *testing.T) {
-	g := newGate()
+	g := smallTestGate()
 	releases := []func(){}
 	for _, key := range []string{"a", "a", "b", "b"} {
 		release, ok := g.acquire(context.Background(), key)
@@ -59,7 +69,7 @@ func TestAdmissionBoundsCancellationAndReuse(t *testing.T) {
 }
 
 func TestPerKeyLimitAndBoundedQueue(t *testing.T) {
-	g := newGate()
+	g := smallTestGate()
 	a, _ := g.acquire(context.Background(), "same")
 	b, _ := g.acquire(context.Background(), "same")
 	defer a()
@@ -95,7 +105,7 @@ func TestPerKeyLimitAndBoundedQueue(t *testing.T) {
 }
 
 func TestQueuedRequestContinuesAfterCompletion(t *testing.T) {
-	g := newGate()
+	g := smallTestGate()
 	a, _ := g.acquire(context.Background(), "k")
 	b, _ := g.acquire(context.Background(), "k")
 	defer b()
@@ -268,7 +278,7 @@ func TestCredentialHeaderVariantsShareIdentity(t *testing.T) {
 }
 
 func TestBusyResponseIsRetryableAndModelsRemainReachable(t *testing.T) {
-	g := newGate()
+	g := smallTestGate()
 	for _, key := range []string{"a", "a", "b", "b"} {
 		release, _ := g.acquire(context.Background(), key)
 		defer release()
@@ -300,5 +310,35 @@ func TestBusyResponseIsRetryableAndModelsRemainReachable(t *testing.T) {
 	}
 	for range cancels {
 		<-done
+	}
+}
+
+func TestDefaultConfigHealthzAndEnvOverrides(t *testing.T) {
+	cfg := defaultGateConfig()
+	if cfg.maxActive != 20 || cfg.maxPerKey != 4 || cfg.maxQueue != 20 || cfg.waitTimeout != 10*time.Second {
+		t.Fatalf("unexpected defaults: %+v", cfg)
+	}
+	g := newGate()
+	target, _ := url.Parse("http://127.0.0.1:8317")
+	w := httptest.NewRecorder()
+	handler(target, g).ServeHTTP(w, httptest.NewRequest("GET", "http://gateway/_gateway/healthz", nil))
+	if w.Code != 200 {
+		t.Fatalf("healthz status = %d", w.Code)
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("invalid healthz json: %v", err)
+	}
+	if payload["maximum"] != float64(20) || payload["per_key"] != float64(4) || payload["max_queue"] != float64(20) || payload["wait_seconds"] != float64(10) {
+		t.Fatalf("unexpected healthz payload: %+v", payload)
+	}
+
+	t.Setenv("YIFU_GATEWAY_MAX_ACTIVE", "32")
+	t.Setenv("YIFU_GATEWAY_MAX_PER_KEY", "6")
+	t.Setenv("YIFU_GATEWAY_MAX_QUEUE", "24")
+	t.Setenv("YIFU_GATEWAY_WAIT_TIMEOUT", "15s")
+	envCfg := loadGateConfig()
+	if envCfg.maxActive != 32 || envCfg.maxPerKey != 6 || envCfg.maxQueue != 24 || envCfg.waitTimeout != 15*time.Second {
+		t.Fatalf("unexpected env config: %+v", envCfg)
 	}
 }

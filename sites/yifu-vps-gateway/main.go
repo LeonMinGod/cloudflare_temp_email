@@ -12,22 +12,107 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 )
 
+type gateConfig struct {
+	maxActive   int
+	maxPerKey   int
+	maxQueue    int
+	waitTimeout time.Duration
+}
+
+func defaultGateConfig() gateConfig {
+	return gateConfig{
+		maxActive:   20,
+		maxPerKey:   4,
+		maxQueue:    20,
+		waitTimeout: 10 * time.Second,
+	}
+}
+
+func envInt(name string, fallback int, minVal int) int {
+	raw := strings.TrimSpace(os.Getenv(name))
+	if raw == "" {
+		return fallback
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil || v < minVal {
+		return fallback
+	}
+	return v
+}
+
+func envDuration(name string, fallback time.Duration) time.Duration {
+	raw := strings.TrimSpace(os.Getenv(name))
+	if raw == "" {
+		return fallback
+	}
+	if d, err := time.ParseDuration(raw); err == nil && d > 0 {
+		return d
+	}
+	if secs, err := strconv.Atoi(raw); err == nil && secs > 0 {
+		return time.Duration(secs) * time.Second
+	}
+	return fallback
+}
+
+func loadGateConfig() gateConfig {
+	cfg := defaultGateConfig()
+	cfg.maxActive = envInt("YIFU_GATEWAY_MAX_ACTIVE", cfg.maxActive, 1)
+	cfg.maxPerKey = envInt("YIFU_GATEWAY_MAX_PER_KEY", cfg.maxPerKey, 1)
+	if cfg.maxPerKey > cfg.maxActive {
+		cfg.maxPerKey = cfg.maxActive
+	}
+	cfg.maxQueue = envInt("YIFU_GATEWAY_MAX_QUEUE", cfg.maxQueue, 0)
+	cfg.waitTimeout = envDuration("YIFU_GATEWAY_WAIT_TIMEOUT", cfg.waitTimeout)
+	return cfg
+}
+
 type gate struct {
 	mu              sync.Mutex
 	active, waiting int
+	maxActive       int
+	maxPerKey       int
+	maxQueue        int
+	waitTimeout     time.Duration
 	keys            map[string]int
 	notify          chan struct{}
 	draining        bool
 	streams         sync.WaitGroup
 }
 
-func newGate() *gate { return &gate{keys: make(map[string]int), notify: make(chan struct{})} }
+func newGate() *gate { return newGateWithConfig(defaultGateConfig()) }
+
+func newGateWithConfig(cfg gateConfig) *gate {
+	if cfg.maxActive < 1 {
+		cfg.maxActive = defaultGateConfig().maxActive
+	}
+	if cfg.maxPerKey < 1 {
+		cfg.maxPerKey = defaultGateConfig().maxPerKey
+	}
+	if cfg.maxPerKey > cfg.maxActive {
+		cfg.maxPerKey = cfg.maxActive
+	}
+	if cfg.maxQueue < 0 {
+		cfg.maxQueue = defaultGateConfig().maxQueue
+	}
+	if cfg.waitTimeout <= 0 {
+		cfg.waitTimeout = defaultGateConfig().waitTimeout
+	}
+	return &gate{
+		maxActive:   cfg.maxActive,
+		maxPerKey:   cfg.maxPerKey,
+		maxQueue:    cfg.maxQueue,
+		waitTimeout: cfg.waitTimeout,
+		keys:        make(map[string]int),
+		notify:      make(chan struct{}),
+	}
+}
 
 // These counters track live requests only. Existing persistent key quotas stay in CPA/CF.
 func (g *gate) acquire(ctx context.Context, key string) (func(), bool) {
@@ -37,10 +122,10 @@ func (g *gate) acquire(ctx context.Context, key string) (func(), bool) {
 		return nil, false
 	}
 	queued := false
-	timer := time.NewTimer(2 * time.Second)
+	timer := time.NewTimer(g.waitTimeout)
 	defer timer.Stop()
 	for {
-		if !g.draining && g.active < 4 && g.keys[key] < 2 {
+		if !g.draining && g.active < g.maxActive && g.keys[key] < g.maxPerKey {
 			if queued {
 				g.waiting--
 			}
@@ -65,7 +150,7 @@ func (g *gate) acquire(ctx context.Context, key string) (func(), bool) {
 			}, true
 		}
 		if !queued {
-			if g.waiting >= 4 {
+			if g.waiting >= g.maxQueue {
 				g.mu.Unlock()
 				return nil, false
 			}
@@ -155,7 +240,15 @@ func handler(target *url.URL, g *gate) http.Handler {
 		w.Header().Set("X-Yifu-Admission", "v1")
 		if r.URL.Path == "/_gateway/healthz" && r.Method == http.MethodGet {
 			g.mu.Lock()
-			data := map[string]any{"ok": !g.draining, "active": g.active, "queued": g.waiting, "maximum": 4, "per_key": 2}
+			data := map[string]any{
+				"ok":           !g.draining,
+				"active":       g.active,
+				"queued":       g.waiting,
+				"maximum":      g.maxActive,
+				"per_key":      g.maxPerKey,
+				"max_queue":    g.maxQueue,
+				"wait_seconds": int(g.waitTimeout / time.Second),
+			}
 			g.mu.Unlock()
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(data)
@@ -182,7 +275,7 @@ func handler(target *url.URL, g *gate) http.Handler {
 
 func main() {
 	target, _ := url.Parse("http://127.0.0.1:8317")
-	g := newGate()
+	g := newGateWithConfig(loadGateConfig())
 	server := &http.Server{Addr: "127.0.0.1:8319", Handler: handler(target, g), ReadHeaderTimeout: 10 * time.Second, MaxHeaderBytes: 1 << 20}
 	stopped := make(chan os.Signal, 1)
 	signal.Notify(stopped, syscall.SIGTERM, syscall.SIGINT)
@@ -198,7 +291,7 @@ func main() {
 		g.streams.Wait()
 		close(drained)
 	}()
-	log.Print("admission gateway listening on loopback; global=4 per_key=2 queue=4")
+	log.Printf("admission gateway listening on loopback; global=%d per_key=%d queue=%d wait=%s", g.maxActive, g.maxPerKey, g.maxQueue, g.waitTimeout)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("listen failed: %T", err)
 		os.Exit(1)
