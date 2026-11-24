@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "1025986d-64b6-4638-8801-3686e4a3aff1",
+  "baseline_parent": "a7540d4a-bf68-48db-b995-69187a0b5dd5",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Make the free Token entrance visibly clickable with a jade pulse and clear claim label",
+  "message": "Animate the jade token with ripples and a light sweep, and simplify the pool status link",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -11,6 +11,7 @@
     "free-token/index.html",
     "free-token/layout-v3.css",
     "free-token/token-entry-v1.css",
+    "free-token/token-entry-v2.css",
     "free-token/choose/index.html",
     "free-token/choose-v1.css",
     "free-token/claim/index.html",
