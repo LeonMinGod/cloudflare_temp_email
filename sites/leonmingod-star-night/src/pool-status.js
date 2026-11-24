@@ -66,6 +66,17 @@ export function extractApiKeyChannels(body){
   return channels;
 }
 
+function mistralBridgeChannel(body){
+  if(!Array.isArray(body?.keys)||!Array.isArray(body.models))throw new Error('CPA_INVALID_MISTRAL_STATUS');
+  const activeKeys=body.keys.filter(key=>key?.enabled===true);
+  const activeKeyIds=new Set(activeKeys.map(key=>key.id));
+  const models=body.models.filter(model=>model?.enabled===true&&(!activeKeys.length||!model.key_id||activeKeyIds.has(model.key_id)))
+    .map(model=>model.client_model).filter(safeModel);
+  const disabled=!activeKeys.length||!models.length;
+  return {id:'apikey:plugin:mistral-bridge',kind:'api_key',channel_name:'mistral',provider:'mistral',
+    status:disabled?'disabled':'ready',disabled,keys_count:body.keys.length,inline_models:[...new Set(models)]};
+}
+
 export function maskAccountEmail(file){
   const raw=typeof file.email==='string'?file.email:typeof file.account==='string'?file.account:'';
   if(raw.length>254||!/^[-\w.+%]+@[-\w.]+\.[a-z]{2,}$/i.test(raw))return null;
@@ -161,10 +172,10 @@ export async function summarizePool(files,inventory,secret,now=Date.now(),ids=un
     accounts:accounts.sort(compareAccounts)};
 }
 
-async function management(path,env,fetcher,signal,body){
+async function management(path,env,fetcher,signal,body,version='v8'){
   const options={method:body?'POST':'GET',headers:{Authorization:`Bearer ${env.CPA_STATUS_MANAGEMENT_KEY}`,Accept:'application/json'},redirect:'manual',signal};
   if(body){options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}
-  const response=await fetcher(`${env.CPA_STATUS_ORIGIN||ORIGIN}/v8/management/${path}`,options);
+  const response=await fetcher(`${env.CPA_STATUS_ORIGIN||ORIGIN}/${version}/management/${path}`,options);
   if(!response.ok)throw Object.assign(new Error('CPA status unavailable'),{status:response.status,managementAuth:[401,403].includes(response.status),code:`CPA_HTTP_${response.status}`});
   const reader=response.body.getReader(),chunks=[];let length=0;
   for(;;){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>4*1024*1024){await reader.cancel();throw new Error('CPA_RESPONSE_TOO_LARGE');}chunks.push(value);}
@@ -240,6 +251,13 @@ export class PoolStatusCoordinator{
             if(channels.length)combined=combined.concat(channels).slice(0,500);
           }catch(akError){
             if(akError?.managementAuth)throw akError;
+          }
+          try{
+            const bridge=await management('plugins/mistral-bridge/state',this.env,this.fetcher,signal,undefined,'v0');
+            combined=combined.concat(mistralBridgeChannel(bridge)).slice(0,500);
+          }catch(error){
+            // The plugin state route is absent when the plugin is not active.
+            if(error?.status!==404)throw error;
           }
         }
         this.files=combined;this.filesAt=now;return this.files;

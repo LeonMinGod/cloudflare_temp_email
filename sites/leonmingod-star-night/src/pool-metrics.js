@@ -1,4 +1,4 @@
-import { normalizeProvider } from '../public/model-status/order-v1.mjs';
+import { normalizeModelId, normalizeProvider } from '../public/model-status/order-v1.mjs';
 
 const WINDOW_MS=300_000, SLOTS=60;
 const validName=value=>typeof value==='string'&&value.length>0&&value.length<=256&&!/[\u0000-\u001f\u007f@]/u.test(value);
@@ -35,10 +35,10 @@ export function modelUsageRows(state,now=Date.now()){
   const grouped=new Map();
   for(const [key,row] of Object.entries(state.rows)){
     const provider=normalizeProvider(row.provider);
-    const groupKey=`${provider}\n${row.id}`;
+    const id=normalizeModelId(row.id,provider),groupKey=`${provider}\n${id}`;
     let agg=grouped.get(groupKey);
     if(!agg){
-      agg={id:row.id,provider,success:0,failed:0,buckets:new Map()};
+      agg={id,provider,success:0,failed:0,buckets:new Map()};
       grouped.set(groupKey,agg);
     }
     agg.success+=row.success;

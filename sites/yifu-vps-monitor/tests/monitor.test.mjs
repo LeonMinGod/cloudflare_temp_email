@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SqliteStorage } from '../src/storage.mjs';
 import { createCollector, signature } from '../src/service.mjs';
+import { attachRecordedUsage, dayRanges } from '../src/recorded-usage.mjs';
 import { relayPoolToVps } from '../../leonmingod-star-night/src/pool-vps.js';
 
 const now = Date.parse('2026-11-04T14:00:00Z'), secret = 'test-ops-secret';
@@ -9,13 +10,17 @@ function request(body, time = now, path = '/_pool/status') {
   const text = JSON.stringify(body), stamp = String(time);
   return new Request('https://yifu.leonmingod.com' + path, { method: 'POST', headers: { 'X-Yifu-Pool': stamp + ':' + signature(secret, stamp, path, text) }, body: text });
 }
-function fixture(storage = new SqliteStorage(':memory:')) {
+function fixture(storage = new SqliteStorage(':memory:'), { bridge, anonymousUsage, models = [] } = {}) {
   const calls = [];
-  const app = createCollector({ storage, secret, managementKey: 'dummy-management', clock: () => now, fetcher: async (url, init) => {
-    calls.push(url);assert(url.startsWith('http://127.0.0.1:8317/v8/management/'));assert.equal(init.headers.Authorization, 'Bearer dummy-management');
+  const app = createCollector({ storage, secret, managementKey: 'dummy-management', clock: () => now, readRecordedUsage: anonymousUsage, fetcher: async (url, init) => {
+    calls.push(url);assert.equal(init.headers.Authorization, 'Bearer dummy-management');
+    if (url === 'http://127.0.0.1:8317/v0/management/plugins/mistral-bridge/state') {
+      return bridge ? Response.json(bridge) : new Response(null, { status: 404 });
+    }
+    assert(url.startsWith('http://127.0.0.1:8317/v8/management/'));
     if (url.endsWith('/credentials')) return Response.json({ files: [{ name: 'private-test@example.invalid.json', id: 'private-test@example.invalid', provider: 'codex', status: 'active' }] });
     if (url.includes('/credentials/models?')) return Response.json({ models: [{ id: 'real-registered-model' }] });
-    return Response.json({ schema: 1, scope: 'upstream_executions', instance_id: '11111111-1111-4111-8111-111111111111', started_at: new Date(now).toISOString(), enabled: true, models: [] });
+    return Response.json({ schema: 1, scope: 'upstream_executions', instance_id: '11111111-1111-4111-8111-111111111111', started_at: new Date(now).toISOString(), enabled: true, models });
   } });
   return { app, storage, calls };
 }
@@ -28,6 +33,51 @@ test('SQLite storage transactions roll back and isolate pool/registry namespaces
     assert.deepEqual(await storage.get('one'), { value: 1 });
     const second = new SqliteStorage(storage.db, 'other');assert.equal(await second.get('one'), undefined);
   } finally { storage.close(); }
+});
+
+test('Mistral Bridge appears online and merges recorded and live usage with the original channel', async () => {
+  const modelId = 'zai-glm-5-3';
+  const models = [
+    { id: modelId, provider: 'openai-compatible-mistral', success: 3, failed: 1 },
+    { id: `mistral-bridge/${modelId}`, provider: 'mistral-bridge', success: 8, failed: 2 },
+  ];
+  const f = fixture(undefined, {
+    bridge: {
+      keys: [
+        { id: 'private-bridge-key', masked: 'private-key-tail', enabled: true, base_url: 'https://private-upstream.test' },
+        { id: 'retired-key', enabled: false },
+      ],
+      models: [
+        { client_model: modelId, enabled: true },
+        { client_model: 'disabled-mapping', enabled: false },
+        { client_model: 'unavailable-mapping', enabled: true, key_id: 'retired-key' },
+      ],
+    },
+    models,
+    anonymousUsage(snapshot, files, ids) {
+      attachRecordedUsage(snapshot, files, ids, { since: now - 1000, latest: now, rows: models.map(({ id, ...row }) => ({
+        ...row, model: id, day: dayRanges(now).today[0], last_used_ms: now,
+      })) }, now, null);
+    },
+  });
+  try {
+    const response = await f.app.fetch(request({ kind: 'snapshot' }));
+    assert.equal(response.status, 200);
+    const text = await response.text();
+    assert.doesNotMatch(text, /private-bridge-key|private-key-tail|private-upstream|retired-key|disabled-mapping|unavailable-mapping/);
+    const data = JSON.parse(text), account = data.accounts.find(row => row.provider === 'mistral');
+    assert.equal(account.state, 'ready');
+    assert.equal(account.keys_count, 2);
+    assert.deepEqual(account.preview_models, [modelId]);
+    assert.deepEqual(account.recorded_windows.today, { success: 11, failed: 3 });
+    const matching = data.models.filter(row => row.id.endsWith(modelId));
+    assert.equal(matching.length, 1);
+    assert.equal(matching[0].online, true);
+    assert.deepEqual(matching[0].providers, ['mistral']);
+    assert.deepEqual(matching[0].recorded_usage[0].windows.today, { success: 11, failed: 3 });
+    assert.equal(matching[0].usage[0].success, 11);
+    assert.equal(matching[0].usage[0].failed, 3);
+  } finally { await f.app.close();f.storage.close(); }
 });
 
 test('collector rejects missing, forged and expired signatures before upstream access', async () => {

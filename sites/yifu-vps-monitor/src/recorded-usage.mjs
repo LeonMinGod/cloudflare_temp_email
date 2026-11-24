@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { normalizeProvider } from '../../leonmingod-star-night/public/model-status/order-v1.mjs';
+import { normalizeModelId, normalizeProvider } from '../../leonmingod-star-night/public/model-status/order-v1.mjs';
 import { accountIdentity } from '../../leonmingod-star-night/src/pool-status.js';
 
 const run = promisify(execFile);
@@ -80,24 +80,25 @@ export function attachRecordedUsage(snapshot, files, ids, data, now, gap) {
     }
 
     const usageProvider = (id && apiKeyProviderById.get(id)) || provider;
-    const key = JSON.stringify([usageProvider, rawRow.model]);
+    const modelId = normalizeModelId(rawRow.model, usageProvider);
+    const key = JSON.stringify([usageProvider, modelId]);
     let usage = usageRows.get(key);
     if (!usage) {
       usage = { provider: usageProvider, windows: emptyWindows(), last_used_at: null, last_used_windows: emptyStampWindows() };
       usageRows.set(key, usage);
-      if (!models.has(rawRow.model)) {
+      if (!models.has(modelId)) {
         const historical = {
-          id: rawRow.model, total: 0, ready: 0, cooldown: 0, disabled: 0, error: 0, unknown: 0,
+          id: modelId, total: 0, ready: 0, cooldown: 0, disabled: 0, error: 0, unknown: 0,
           online: false, providers: [usageProvider], retry_at: null,
         };
-        models.set(rawRow.model, historical);
+        models.set(modelId, historical);
         snapshot.models.push(historical);
       }
-      const model = models.get(rawRow.model);
+      const model = models.get(modelId);
       model.recorded_usage ??= [];
       model.recorded_usage.push(usage);
     }
-    const model = models.get(rawRow.model);
+    const model = models.get(modelId);
     if (rowLastMs) {
       usage.last_used_at = newerIso(usage.last_used_at, rowLastMs);
       model.last_used_at = newerIso(model.last_used_at, rowLastMs);
