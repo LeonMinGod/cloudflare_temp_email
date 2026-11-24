@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "090c284d-fc48-4bfd-8d56-be6e31c7a00f",
+  "baseline_parent": "1025986d-64b6-4638-8801-3686e4a3aff1",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Add Antigravity (agy) one-click CC Switch import on free-token claim, game, and saved-key modals",
+  "message": "Make the free Token entrance visibly clickable with a jade pulse and clear claim label",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -10,6 +10,7 @@
     "home-orb-v3.css",
     "free-token/index.html",
     "free-token/layout-v3.css",
+    "free-token/token-entry-v1.css",
     "free-token/choose/index.html",
     "free-token/choose-v1.css",
     "free-token/claim/index.html",
