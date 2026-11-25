@@ -1,0 +1,17 @@
+{
+  "run": 41152117748,
+  "result": {
+    "service": "srv-d779u3mdqaus73blfk2g",
+    "name": "grok2api",
+    "suspended": "suspended",
+    "request_http": 202,
+    "deleted": false,
+    "cpa_service": "srv-d9c4kkvavr4c73ab3sfg",
+    "cpa_suspended": "not_suspended",
+    "cpa_deploy_unchanged": true,
+    "cpa_settings_unchanged": true,
+    "cpa_health_before": 200,
+    "cpa_health_after": 200,
+    "cpa_deploy": "dep-dbiabbdg1s2s73eelarg"
+  }
+}

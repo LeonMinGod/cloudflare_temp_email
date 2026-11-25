@@ -1,0 +1,90 @@
+{
+  "source": "production HTML/scripts and unmocked public API",
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "provider_order": [
+        "all",
+        "xai",
+        "codex",
+        "antigravity"
+      ],
+      "empty_providers_hidden": true,
+      "default_all": true,
+      "orders": [
+        {
+          "provider": "codex",
+          "view": "models",
+          "rows": 14,
+          "descending": true
+        },
+        {
+          "provider": "codex",
+          "view": "accounts",
+          "rows": 3,
+          "descending": true
+        },
+        {
+          "provider": "all",
+          "view": "models",
+          "rows": 35,
+          "descending": true
+        },
+        {
+          "provider": "all",
+          "view": "accounts",
+          "rows": 13,
+          "descending": true
+        }
+      ],
+      "one_snapshot": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "provider_order": [
+        "all",
+        "xai",
+        "codex",
+        "antigravity"
+      ],
+      "empty_providers_hidden": true,
+      "default_all": true,
+      "orders": [
+        {
+          "provider": "codex",
+          "view": "models",
+          "rows": 14,
+          "descending": true
+        },
+        {
+          "provider": "codex",
+          "view": "accounts",
+          "rows": 3,
+          "descending": true
+        },
+        {
+          "provider": "all",
+          "view": "models",
+          "rows": 35,
+          "descending": true
+        },
+        {
+          "provider": "all",
+          "view": "accounts",
+          "rows": 13,
+          "descending": true
+        }
+      ],
+      "one_snapshot": true,
+      "no_overflow": true
+    }
+  ],
+  "errors": []
+}

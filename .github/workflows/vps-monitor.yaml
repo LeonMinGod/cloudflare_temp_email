@@ -1,0 +1,39 @@
+name: Private VPS monitoring
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/vps-monitor-request.json']
+permissions:
+  contents: write
+concurrency:
+  group: yifu-vps-production
+  cancel-in-progress: false
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MONITOR_ROLE: source
+      YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+      YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+      YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+      YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+      YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+      - run: python .github/scripts/vps_monitor_io.py select
+      - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3
+      - run: python .github/scripts/vps_monitor.py
+      - if: always() && env.MONITOR_REQUEST_ID != ''
+        run: python .github/scripts/vps_monitor_io.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-vps-monitor-${{ github.run_id }}
+          path: monitor-operation/
+          retention-days: 14
+          if-no-files-found: ignore

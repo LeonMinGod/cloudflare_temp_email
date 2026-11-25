@@ -4,8 +4,24 @@ on:
     inputs:
       mode:
         type: choice
-        options: [inspect, setup, verify, verify-pass]
+        options: [inspect, setup, verify, verify-pass, audit-api, audit-cpa, pool-setup, pool-audit, pool-xai-audit, pool-enable-stats, grok2api-suspend, guard-write-audit, management-inspect, management-unban, management-verify-current, management-safe-deploy, guard-hold, guard-deploy, guard-status, guard-enable, guard-disable, guard-allow, guard-unallow, guard-unban]
         default: inspect
+      expected_commit:
+        description: Full CPA commit SHA for guard-deploy
+        type: string
+        required: false
+      verify_model_usage:
+        description: Send one small streamed model request during pool-audit and verify its counters
+        type: boolean
+        default: false
+      ip:
+        description: Client IP for guard allow/unallow/unban
+        type: string
+        required: false
+      reset_history:
+        description: Also reset repeat-ban history during guard-unban
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -14,16 +30,65 @@ concurrency:
 jobs:
   configure:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 25
     env:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       SECURITY_MODE: ${{ inputs.mode }}
+      CPA_EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+      CPA_GUARD_IP: ${{ inputs.ip }}
+      CPA_RESET_HISTORY: ${{ inputs.reset_history }}
     steps:
       - uses: actions/checkout@v6
-      - if: inputs.mode != 'verify'
+      - if: inputs.mode == 'grok2api-suspend'
+        run: python .github/scripts/suspend_unused_grok2api.py
+      - if: inputs.mode == 'guard-write-audit'
+        run: |
+          python -m pip install cryptography pyyaml
+          python .github/scripts/guard_write_audit.py
+      - if: inputs.mode == 'inspect' || inputs.mode == 'setup' || inputs.mode == 'verify-pass'
         run: python .github/scripts/leonmingod_security.py
+      - if: inputs.mode == 'pool-xai-audit'
+        run: |
+          python -m pip install pyyaml
+          python .github/scripts/leonmingod_xai_quota_audit.py
+      - if: inputs.mode == 'management-inspect' || inputs.mode == 'management-unban' || inputs.mode == 'management-verify-current'
+        run: |
+          python -m pip install cryptography pyyaml
+          python .github/scripts/leonmingod_management_ip.py
+      - if: inputs.mode == 'management-safe-deploy'
+        run: |
+          python -m pip install cryptography pyyaml
+          python .github/scripts/cpa_management_safe_deploy.py
+      - if: inputs.mode == 'pool-enable-stats'
+        run: |
+          python -m pip install cryptography pyyaml
+          python .github/scripts/leonmingod_pool_enable_stats.py
+      - if: inputs.mode == 'pool-audit'
+        env:
+          POOL_VERIFY_MODEL_USAGE: ${{ inputs.verify_model_usage }}
+        run: |
+          python -m pip install pyyaml
+          python .github/scripts/leonmingod_pool_audit.py
+      - if: inputs.mode == 'pool-setup'
+        run: |
+          python -m pip install pyyaml
+          python .github/scripts/leonmingod_pool_setup.py
+      - if: inputs.mode == 'audit-api'
+        run: |
+          python -m pip install cryptography
+          python .github/scripts/api_abuse_audit.py
+      - if: inputs.mode == 'audit-cpa'
+        run: |
+          python -m pip install cryptography pyyaml
+          python .github/scripts/cpa_abuse_inspect.py
+      - if: (inputs.mode == 'audit-api' || inputs.mode == 'audit-cpa') && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-abuse-configuration-backup
+          path: api-abuse-audit/
+          retention-days: 30
       - if: inputs.mode == 'verify'
         uses: actions/setup-node@v6
         with:
@@ -37,3 +102,41 @@ jobs:
           path: live-security-result.json
           if-no-files-found: ignore
           retention-days: 90
+      - if: startsWith(inputs.mode, 'guard-')
+        run: python -m pip install cryptography pyyaml
+      - if: inputs.mode == 'guard-hold'
+        env:
+          CPA_GUARD_MODE: hold
+        run: python .github/scripts/cpa_abuse_guard.py
+      - if: inputs.mode == 'guard-deploy'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sites/api-abuse-guard/package-lock.json
+      - if: inputs.mode == 'guard-deploy'
+        working-directory: sites/api-abuse-guard
+        run: |
+          npm ci --ignore-scripts
+          npm test
+          npm run build
+          npx wrangler deploy --config wrangler.jsonc
+      - if: inputs.mode == 'guard-deploy'
+        env:
+          CPA_GUARD_MODE: install-secrets
+        run: python .github/scripts/cpa_abuse_guard.py
+      - if: inputs.mode == 'guard-deploy'
+        env:
+          CPA_GUARD_MODE: deploy
+        run: python .github/scripts/cpa_abuse_guard.py
+      - if: (inputs.mode == 'guard-deploy' || inputs.mode == 'pool-enable-stats' || inputs.mode == 'management-safe-deploy') && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpa-abuse-rollout-backup-${{ github.run_id }}
+          path: cpa-abuse-rollout/
+          if-no-files-found: ignore
+          retention-days: 30
+      - if: contains(fromJSON('["guard-status","guard-enable","guard-disable","guard-allow","guard-unallow","guard-unban"]'), inputs.mode)
+        run: |
+          export CPA_GUARD_MODE="${SECURITY_MODE#guard-}"
+          python .github/scripts/cpa_abuse_guard.py

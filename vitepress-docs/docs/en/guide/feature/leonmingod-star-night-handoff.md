@@ -2,6 +2,8 @@
 
 > Current v62 uses the dedicated VPS. Read [VPS deployment](yifu-vps.md) and the root handoff first; the records below are historical.
 
+> **Historical handoff archive.** Use the [current v52 handoff](https://github.com/928886540/cloudflare_temp_email/blob/codex/free-token-home-20261024/LEONMINGOD_HANDOFF_CN.md) for per-email keys and deployment instructions. Shared-key statements and current-version labels below describe historical releases.
+
 ## v8: ward deflection/pickups, arrival glints and feedback
 
 Released and verified: parent/source `98a305ea-8544-45ec-809a-3c1f26ccaf5e`, unchanged forwarder `51a33be8-6ca4-4b4f-886f-613bfea996b0`; fresh baseline `7018e442-e644-4bdf-a38f-ca8cf9e31e8e`. All 27 checks passed, plus four presentation/layout sizes, three real local touch/live-progress sizes, 48 resources per public host and actual mobile widget loading. An owner-signed start followed by 45 live packets completed v8 with 24 jade/two shields, two gold pickups, 20 deflected swords and six near-miss events. Concurrent finishes returned 200/409/409; final-only traces, single batch progress, anonymous calls and fake verification remained rejected. Game/oath rewards match the existing key (fingerprint `a6bbe9c75913e4ec`), models 200 / 33. No Render/key changes; retain two-hour verification and in-flight v7 runs.
@@ -214,7 +216,7 @@ source `verification/*v3.json` and `artwork-v6.json`; versions below are histori
 
 Following real play feedback, v3 reduces shields to two and increases hazard speed and later double-sword probability. Duration remains 30 seconds with 16 jade. Browser/server share `engine-v3.mjs`; the browser uses a fresh `app-v3.mjs` URL. In-flight v1/v2 runs retain their original replay. The same regular bot profile won 20% of 160 runs versus 52.5% previously; this is offline calibration only.
 
-Native image_gen also refreshed the adult-character posters with more exposed shoulders, a deeper neckline and a fuller figure, retaining night scenery, pose, hand anatomy and lettering. Token posters are `free-token/welcome-*-v4.webp`; choice backgrounds use `choose-v2.css`. The homepage illustration has since been removed from the site source and must not be republished. Original token artwork and older game scripts remain available.
+Native image_gen also refreshed all four adult-character posters with more exposed shoulders, a deeper neckline and a fuller figure, retaining night scenery, pose, hand anatomy and lettering. New assets are `home-hero-*-v6.webp` and `free-token/welcome-*-v4.webp`; choice backgrounds use `choose-v2.css`. Original artwork and older game scripts remain available.
 
 ## Current release: dedicated choices and trial v2 (2026-10-25 16:40 UTC)
 

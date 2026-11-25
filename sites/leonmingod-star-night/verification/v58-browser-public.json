@@ -1,0 +1,48 @@
+{
+  "mocked": false,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "real_plan": "SuperGrok Heavy",
+      "remaining": 88,
+      "product_usage": true,
+      "pay_as_you_go": false,
+      "masked_email": true,
+      "cooldown_matches_schedule": true,
+      "status_reads": 1,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "real_plan": "SuperGrok Heavy",
+      "remaining": 88,
+      "product_usage": true,
+      "pay_as_you_go": false,
+      "masked_email": true,
+      "cooldown_matches_schedule": true,
+      "status_reads": 1,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "real_plan": "SuperGrok Heavy",
+      "remaining": 88,
+      "product_usage": true,
+      "pay_as_you_go": false,
+      "masked_email": true,
+      "cooldown_matches_schedule": true,
+      "status_reads": 1,
+      "no_overflow": true
+    }
+  ],
+  "errors": []
+}

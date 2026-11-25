@@ -1,0 +1,266 @@
+.star-sea-token .token-entry::before,
+.star-sea-token .token-entry::after {
+  content: none;
+}
+
+.token-signal {
+  position: absolute;
+  top: 44%;
+  left: 37%;
+  width: 94%;
+  aspect-ratio: 1;
+  border: 1px solid #ffe7aeaf;
+  border-radius: 50%;
+  background: radial-gradient(circle, #8effbf61, #42d49033 56%, transparent 74%);
+  box-shadow: 0 0 34px #a8ffb668, inset 0 0 26px #caffb747;
+  transform: translate(-50%, -50%);
+}
+
+.token-signal::before,
+.token-signal::after {
+  content: "";
+  position: absolute;
+  inset: -5%;
+  border: 2px solid #fff0af;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ffda7099, inset 0 0 7px #f8eeb87d;
+  pointer-events: none;
+  animation: jade-ring-spread 2.4s ease-out infinite;
+}
+
+.token-signal::after {
+  border-color: #bfffd2;
+  box-shadow: 0 0 17px #75ffbd9e, inset 0 0 8px #a4ffc878;
+  animation-delay: -1.2s;
+}
+
+.token-orbit {
+  position: absolute;
+  inset: -7%;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: jade-orbit 4.8s linear infinite;
+}
+
+.token-orbit::before,
+.token-orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.token-orbit::before {
+  top: 0;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #fff9df;
+  box-shadow: 0 0 8px 2px #ffeb9e, 0 0 24px 4px #ffba55bf;
+}
+
+.token-orbit::after {
+  top: 90%;
+  left: 20%;
+  width: 7px;
+  height: 7px;
+  background: #deffef;
+  box-shadow: 0 0 7px 2px #99ffbc, 0 0 20px 3px #57f592ac;
+}
+
+.star-sea-token .token-float {
+  z-index: 1;
+  transform-origin: 37% 44%;
+  animation: jade-token-lift 2.8s ease-in-out infinite;
+}
+
+.token-float::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(112deg, transparent 43%, #fff1b6b3 49%, #fff9dfed 51%, transparent 58%) 100% 0 / 280% 100%;
+  mask: url('/free-token/jade-token-v2.webp') center / 100% 100% no-repeat;
+  mix-blend-mode: screen;
+  transform: scale(var(--token-scale));
+  transform-origin: 31% 48%;
+  pointer-events: none;
+  animation: jade-token-glint 3.4s ease-in-out infinite;
+}
+
+.token-entry:active .token-float {
+  animation-play-state: paused;
+}
+
+@keyframes jade-ring-spread {
+  0% { transform: scale(.91); opacity: .98; }
+  52% { opacity: .7; }
+  100% { transform: scale(1.61); opacity: 0; }
+}
+
+@keyframes jade-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes jade-token-lift {
+  0%, 100% { transform: translateY(0) rotate(-1.6deg); filter: drop-shadow(0 0 7px #baffb56b); }
+  46% { transform: translateY(clamp(-20px, -2.4vmin, -9px)) rotate(2deg) scale(1.07); filter: drop-shadow(0 0 19px #e3ffafbd); }
+}
+
+@keyframes jade-token-glint {
+  0%, 22% { background-position: 100% 0; opacity: 0; }
+  33%, 51% { opacity: .9; }
+  64%, 100% { background-position: 0 0; opacity: 0; }
+}
+
+.welcome .top-entries {
+  position: fixed;
+  z-index: 5;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.welcome .top-entries .shame-entry,
+.welcome .top-entries .pool-entry {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: auto;
+  min-block-size: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 99px;
+  backdrop-filter: blur(10px);
+  font: 600 13px/1.2 "PingFang SC", "Microsoft YaHei", sans-serif;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  transform: none;
+  transition: border-color .18s ease-out, background-color .18s ease-out, box-shadow .18s ease-out, scale .14s ease-out;
+}
+
+.welcome .top-entries .shame-entry svg,
+.welcome .top-entries .pool-entry svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.welcome .top-entries .pool-entry {
+  border: 1px solid #baddb584;
+  background: linear-gradient(145deg, #20493eed, #0b252ee8);
+  box-shadow: inset 0 1px #edffd021, 0 4px 14px #01111950;
+  color: #fff0cf;
+}
+
+.welcome .top-entries .pool-entry svg {
+  stroke: #ddf2bd;
+}
+
+.welcome .top-entries .pool-entry:hover {
+  border-color: #fff0b6;
+  background: #1b443d;
+  box-shadow: 0 3px 15px #0c211bc0, 0 0 12px #b7f5a72e;
+  transform: none;
+}
+
+.welcome .top-entries .shame-entry {
+  border: 1px solid #f0b1798c;
+  background: linear-gradient(145deg, #4b1d28ee, #1d0d1be8);
+  box-shadow: inset 0 1px #ffdeb52b, 0 4px 14px #18040b64;
+  color: #ffe8c2;
+}
+
+.welcome .top-entries .shame-entry svg {
+  stroke: #ffb98a;
+}
+
+.welcome .top-entries .shame-entry:hover {
+  border-color: #ffd996;
+  background: linear-gradient(145deg, #632230f5, #2b1024f0);
+  box-shadow: 0 3px 16px #3a0d18c4, 0 0 14px #ff9b6a38;
+  transform: none;
+}
+
+.welcome .top-entries .shame-entry:active,
+.welcome .top-entries .pool-entry:active {
+  scale: 0.97;
+}
+
+.welcome .top-entries .shame-entry:focus-visible {
+  outline: 2px solid #ffd996;
+  outline-offset: 3px;
+}
+
+.welcome .top-entries .pool-entry:focus-visible {
+  outline: 2px solid #f1dfaa;
+  outline-offset: 3px;
+}
+
+@media (max-width: 420px) {
+  .welcome .top-entries {
+    gap: 7px;
+  }
+
+  .welcome .top-entries .shame-entry,
+  .welcome .top-entries .pool-entry {
+    padding: 5px 10px;
+    gap: 5px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 359px) {
+  .welcome .top-entries {
+    gap: 5px;
+  }
+
+  .welcome .top-entries .shame-entry,
+  .welcome .top-entries .pool-entry {
+    padding: 4px 8px;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .welcome .top-entries .shame-entry svg,
+  .welcome .top-entries .pool-entry svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 767px) and (orientation: landscape) {
+  .scene.star-sea-token {
+    --token-left: 24%;
+    --token-top: 47%;
+    --token-width: 16%;
+    width: max(100vw, calc(100dvh * 1672 / 941));
+    aspect-ratio: 1672 / 941;
+  }
+}
+
+@media (max-height: 460px) and (orientation: landscape) {
+  .token-signal {
+    width: min(94%, 40dvh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .token-signal::before, .token-signal::after, .token-orbit, .star-sea-token .token-float {
+    animation: none;
+  }
+
+  .token-signal::after, .token-float::after {
+    display: none;
+  }
+}

@@ -6,10 +6,15 @@
   <meta name="theme-color" content="#07171e">
   <title>这份礼，怎么拿？ · LeonMinGod</title>
   <link rel="icon" href="/assets/logo-v2.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/free-token/choose-v2.css">
+  <link rel="stylesheet" href="/free-token/choose-v3.css">
+  <link rel="stylesheet" href="/free-token/saved-key-v1.css">
+  <link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
+  <script type="module" src="/free-token/saved-key-v2.mjs?v=3"></script>
   <link rel="stylesheet" href="/free-token/token-passage-v1.css">
   <script>try{const p=JSON.parse(sessionStorage.getItem('lmg-token-passage')||'null');sessionStorage.removeItem('lmg-token-passage');if(p&&p.destination===location.pathname&&Date.now()-p.at<8000&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('token-arrival')}catch{}</script>
   <script src="/free-token/token-passage-v1.js" defer></script>
+  <link rel="stylesheet" href="/theme-xmas-v2.css">
+  <script src="/theme-xmas-v2.js"></script>
 </head>
 <body>
   <header class="choice-top"><a href="/free-token/" aria-label="返回令牌入口">← 返回令牌</a><span>LEON<span class="moon">☾</span></span></header>
@@ -18,16 +23,17 @@
     <div class="paths">
       <a class="path path-gift" href="/free-token/claim/" aria-labelledby="gift-title">
         <span class="path-number" aria-hidden="true">01</span>
-        <div class="path-art gift-art" aria-hidden="true"><span class="art-halo"></span><img src="/free-token/jade-token-v2.webp" width="1122" height="1402" alt=""></div>
+        <div class="path-art gift-art" aria-hidden="true"><span class="art-halo"></span><img src="/free-token/jade-token-v2.webp" data-xmas-src="/free-token/xmas-token-v1.webp" width="1122" height="1402" alt=""></div>
         <div class="path-copy"><span class="path-label">人情 · 一声就够</span><h2 id="gift-title">叫声义父</h2><p>两字到位，见面礼奉上。<br>这条路，主打一个熟。</p><span class="path-action">收下见面礼 <b aria-hidden="true">↗</b></span></div>
       </a>
       <a class="path path-trial" href="/free-token/game/" aria-labelledby="trial-title">
         <span class="path-number" aria-hidden="true">02</span>
         <div class="path-art sword-art" aria-hidden="true"><span class="art-halo"></span><span class="jade-sword"></span></div>
-        <div class="path-copy"><span class="path-label">实力 · 凭剑说话</span><h2 id="trial-title">御剑破阵</h2><p>三十秒见真章。<br>躲剑煞，夺灵玉，赢了就拿。</p><span class="path-action">拔剑，试一局 <b aria-hidden="true">↗</b></span></div>
+        <div class="path-copy"><span class="path-label">实力 · 凭剑说话</span><h2 id="trial-title">御剑破阵</h2><p>四十五秒见真章。<br>躲剑煞，夺灵玉，赢了就拿。</p><span class="path-action">拔剑，试一局 <b aria-hidden="true">↗</b></span></div>
       </a>
     </div>
     <p class="choice-note"><span aria-hidden="true">◇</span> 两条路，同一份 Token。选你喜欢的。</p>
+    <button type="button" class="saved-key-entry" data-saved-key-entry hidden>查看本浏览器保存的 API Key</button>
   </main>
 </body>
 </html>

@@ -1,0 +1,60 @@
+{
+  "mocked": false,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "first_model": "gpt-6.1-sol",
+      "real_model_counter": true,
+      "streaming_metrics": [
+        "1.88 s",
+        "41.0 token/s"
+      ],
+      "provider_order": true,
+      "dual_views": true,
+      "masked_email": true,
+      "quota": true,
+      "status_reads": 1,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "first_model": "gpt-6.1-sol",
+      "real_model_counter": true,
+      "streaming_metrics": [
+        "1.88 s",
+        "41.0 token/s"
+      ],
+      "provider_order": true,
+      "dual_views": true,
+      "masked_email": true,
+      "quota": true,
+      "status_reads": 1,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "first_model": "gpt-6.1-sol",
+      "real_model_counter": true,
+      "streaming_metrics": [
+        "1.88 s",
+        "41.0 token/s"
+      ],
+      "provider_order": true,
+      "dual_views": true,
+      "masked_email": true,
+      "quota": true,
+      "status_reads": 1,
+      "no_overflow": true
+    }
+  ],
+  "errors": []
+}

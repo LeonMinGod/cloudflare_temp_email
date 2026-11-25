@@ -1,0 +1,23 @@
+{
+  "worker": "cpa-abuse-guard",
+  "active_version": "1f389ed5-c6da-454c-9e59-86bc64a1c76f",
+  "previous_version": "6600a783-146f-40db-a963-10311045a884",
+  "deployment_id": "e0e63a86-5c41-4074-bd81-84cf6367b6a6",
+  "sha256": "d4d47ae6ab46a18680542d32fb7291c9600b89bfc7ca9c05870255baf28cc1dd",
+  "tests": 17,
+  "guard_reserved_row_thresholds": {
+    "warning": 50000,
+    "conserve": 70000,
+    "critical": 90000
+  },
+  "counter_scope": "conservative guard-only reservation; not account billing",
+  "quota_limits_unchanged": true,
+  "ban_thresholds_unchanged": true,
+  "ordinary_success_ip_history_disabled": true,
+  "shared_ip_refresh": "coalesced with at least 24h protection",
+  "metadata_signal_key": "ops:do-write-budget:v1",
+  "incident_signal_expires": "2026-11-01T00:00:00Z",
+  "paid_upgrade_performed": false,
+  "live_recovery_verified": false,
+  "note": "Daily quota already exhausted. Zero writes during enforcement are not measured savings."
+}

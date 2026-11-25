@@ -10,11 +10,16 @@
 
 ### Features
 
+- feat: |Monitor operations| Audit old-VPS Agent processes and reconnects read-only, encrypting diagnostics without invoking Workers or modifying services
+
+- feat: |Cloudflare operations| Add a read-only control-plane audit of daily Worker requests and time series with encrypted diagnostics, without visiting production pages or changing deployments
+
 - docs: |Public CPA VPS| Document Tunnel domain routing, boot service, read-only checks and cloud secret usage; add a copyable cloud handoff
 
 - feat: |Public CPA VPS| Move CPA and pool collection to a dedicated VPS at yifu.leonmingod.com with SQLite history; retain keys/OAuth, update CC Switch endpoints and encrypted backups, and retire Render/InstaBox operations
 
-- feat: |Yifu Token| Claim now sends an email code and reveals a one-time unique key (one claim per email); the trial page lists a usage leaderboard. The homepage keeps the original v5 cover illustration
+- feat: |LeonMinGod| Add CC Switch import with live models and an anonymous pool dashboard; refresh four star-sea backgrounds, animate an independent jade orb, and enable stronger flow by default
+
 - feat: |Jade Trial| Add ward-wide pickups/red-sword deflection, arrival glints, pickup/near-miss feedback and optional audio; show defeat deficits while preserving live checks and in-flight v7 runs
 
 - feat: |Render Client Keys| Support standalone prefix/numeric keys without website publication, encrypt delivery for the recipient, and preserve existing keys, logins and closed website state
@@ -24,10 +29,18 @@
 - feat: |Free Token| Restore the single-token entrance, add a dedicated two-path choice page, compact short-screen layouts, and upgrade trial artwork/shared v2 difficulty while retaining legacy runs and reward protection
 
 - feat: |Yifu Token| Add reusable default-branch add/remove workflows with live version checks, encrypted recovery, credential preservation, and website synchronization; no recurring code edits or temporary private keys
+- feat: |Yifu Token| Add client-key issuance that preserves existing Render keys and credentials, validates the new key, then updates only the CF Secret; pushes default to read-only inspection
+- feat: |Homepage and Free Token| Regenerate jade-green mobile/desktop homepage art with the Free Token heroine, enlarge palm light, and use compact translucent pill navigation; make Free Token artwork cover the viewport with a glowing floating token entrance
+- feat: |Homepage| Add the Address Proof navigation link and arrange secondary entries side by side on mobile, preserving the original homepage imagery and interactions
+- feat: |Free Token site| Add separately generated portrait and landscape poster entrance pages, retain the existing claim flow, and preserve the main site's assets and secret bindings
 - feat: |User| Search bound mailboxes by email address in address management with accurate pagination (issue #1156)
 - feat: |AI Extract| Add `AI_EXTRACT_MODE` to explicitly choose local rules only (`local`) or prefer Workers AI (`ai`); defaults to local rules when unset so mail content is never sent to AI. **Upgrade note**: deployments that relied on the Workers AI binding to enable AI extraction automatically must set `AI_EXTRACT_MODE = "ai"`
 
 ### Bug Fixes
+
+- fix: |Komari| Refuse duplicate node services before deployment and add minute-level quota comparisons
+
+- fix: |Komari| Back up and retire the duplicate old-VPS monitor service, preserve the canonical Agent/configuration, and observe reconnects with rollback on failure
 
 - fix: |Yifu Token| Remember verified browsers for two hours across refreshes, retries and claim paths while retaining signed server checks, live gameplay and rate limits
 
@@ -41,6 +54,8 @@
 
 - fix: |Jade Trial| Remove pause/resume controls, shortcuts, and focus/background auto-pause; advance by real elapsed time and catch up hidden frames to prevent touch-drag pauses
 
+- fix: |Free Token| Reduce mobile fluid resolution, cap drawing at 24–30 FPS, pause promptly when idle, remove costly touch blur layers, and debounce canvas resizing while retaining desktop quality
+- fix: |Free Token| Switch claims to Render CPA after validating the new client key, preserving existing keys, login credentials, configuration, and page interactions
 - fix: |Deployment| Skip backend deployment after failed or skipped upstream syncs; validate required secrets before setup and explain how to view deployment error logs
 - fix: |Database| Fix admin config 404s caused by stale deployment bundles; always build the Worker from current source and repair unversioned databases before recording the schema version, preserving mail and accounts
 - fix: |Frontend| Load database status and capacity settings independently, add refresh/retry and local loading states for database actions, hide usage when size is unknown, and soften admin navigation highlights
@@ -50,6 +65,8 @@
 - fix: |AI Extract| In `ai` mode, an address allowlist miss now skips only the Workers AI call and still falls back to local verification-code extraction
 
 ### Improvements
+
+- docs: |CF quota incident| Record the duplicate-Agent root cause, repair evidence and bilingual diagnostics, including shared budgets and the retired unit
 
 - fix: |Yifu Key Operations| Guard delayed rotation with the expected published fingerprint; stop on changes or management lockout and report only sanitized errors
 
@@ -75,6 +92,7 @@
 - docs: |Free Token terminology| Persist the user-defined site shorthand, Render client-key creation, and website issuance semantics in agent guidance and operations notes
 - docs: |Free Token operations| Record mobile rendering budgets, v2 cache refresh, release evidence and validation limits, and clarify historical navigation status
 - docs: |Free Token operations| Record the fluid/compact claim release version, deployment evidence, mobile viewport verification, and pending landscape circular navigation
+- feat: |Free Token| Add homepage-style jade fluid effects to entrance and claim pages, strengthen token motion and glow, and narrow/compact the claim card so mobile confirmation fits the first viewport
 - docs: |Free Token operations| Record Cloudflare/Render resources, branches, versions, secret locations, acceptance evidence, and credential recovery, with an AGENTS.md entry for future sessions
 - feat: |Frontend| Refine frost-glass control borders, highlights, focus and selection states; unify buttons, mail cards and overlays; fix narrow-screen login tab overflow and improve address bar and login form spacing
 - feat: |Custom Fork| Preserve LeonMinGod branding, responsive admin layouts, cache updates and subdomain mailbox UI; display frontend and Telegram mail timestamps in Asia/Shanghai and retain the deployment bundle synchronized with the standalone Worker repository

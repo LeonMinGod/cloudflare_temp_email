@@ -1,11 +1,13 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { handleGame } from './game.js';
 import { handleClaimCode, handleClaimVerify, handleLeaderboard, handleLegacyClaim } from './claim.js';
-import { securityConfig } from './security.js';
+import { securityConfig, operationProbe } from './security.js';
 import { staticResponse } from './static.js';
+import { handlePoolStatus } from './pool-status.js';
+import { handleHallOfShame } from './shame-board.js';
 export { GameRun } from './game.js';
 
-const RETIRED_HERO = /^\/(?:home-hero-(?:desktop|mobile)-v(?:[23]|6)\.webp|image|img|bg|wallpaper\.png)$/;
+const RETIRED_HERO = /^\/(?:home-hero-(?:desktop|mobile)-v[23]\.webp|image|img|bg|wallpaper\.png)$/;
 
 const site = {
   async fetch(request, env) {
@@ -14,6 +16,14 @@ const site = {
       return new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
     }
     if (url.pathname === '/api/leaderboard') return handleLeaderboard(request, env);
+    if (url.pathname === '/api/ops/pool-export') {
+      if (request.method !== 'POST' || !await operationProbe(request, env)) return new Response(null, { status: 403 });
+      const stub = env.GAME_RUNS.get(env.GAME_RUNS.idFromName('pool-status-cache-v2'));
+      return stub.fetch('https://pool.internal/pool-status', { method: 'POST', body: JSON.stringify({ kind: 'export', peek: true }) });
+    }
+    // Fixed read-only status routes are deliberately outside claim/game limits.
+    if (['/api/pool-status', '/api/pool-status/quota'].includes(url.pathname)) return handlePoolStatus(request, env);
+    if (url.pathname === '/api/hall-of-shame') return handleHallOfShame(request, env);
     if (url.pathname === '/api/free-token/security') return securityConfig(request, env);
     if (url.pathname === '/api/free-token/status') {
       const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };

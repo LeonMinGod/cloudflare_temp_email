@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cpa-abuse-guard",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-10-27",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "triggers": {
+    "crons": ["*/10 * * * *"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KEYS",
+      "id": "1b02d139375045f7a7d5ce2d994abd2c"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STATE",
+        "class_name": "AbuseState"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["AbuseState"]
+    }
+  ]
+}

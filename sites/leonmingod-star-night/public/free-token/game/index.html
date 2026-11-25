@@ -7,8 +7,13 @@
   <meta name="description" content="御剑破阵：45秒躲避剑煞，收集24枚灵玉，凭实力领取免费Token。">
   <title>御剑破阵 · 凭实力领 Token | LeonMinGod</title>
   <link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
-  <link rel="stylesheet" href="/free-token/game/style-v4.css">
-  <script type="module" src="/free-token/game/app-v13.mjs"></script>
+  <link rel="stylesheet" href="/free-token/game/style-v5.css">
+  <script type="module" src="/free-token/game/app-v18.mjs?v=3"></script>
+<link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
+<link rel="stylesheet" href="/free-token/saved-key-v1.css">
+<script type="module" src="/free-token/saved-key-v2.mjs?v=3"></script>
+<link rel="stylesheet" href="/theme-xmas-v2.css">
+<script src="/theme-xmas-v2.js"></script>
 </head>
 <body>
   <header class="top"><a href="/" class="brand"><img src="/assets/logo-v2.svg" width="32" height="32" alt=""><span>LeonMinGod<small>一念风起，万境星垂</small></span></a><a class="back" href="/free-token/choose/">退出 · 返回选择 ↗</a></header>
@@ -18,7 +23,7 @@
       <h1 id="title">御剑<span>破阵</span><i>凭实力，拿令牌。</i></h1>
       <p class="description">不必叫义父。<br>一剑入星河，过关自有礼。</p>
       <ol class="rules"><li><b>01</b><span>左右御剑<small>手指拖动 / 鼠标移动 / ← → 或 A D</small></span></li><li><b>02</b><span>集齐 <em>24</em> 枚灵玉<small>接住青玉，躲开红色剑煞</small></span></li><li><b>03</b><span>守住 <em>45</em> 秒<small>两点护盾，开局不停</small></span></li></ol>
-      <p class="reward-note"><span>令</span>通关后登记名字并验证邮箱，领取专属密钥<br><small>和「叫声义父」一样，每个邮箱只能领一次</small></p>
+      <p class="reward-note"><span>令</span>通关后验证邮箱，领取专属 API Key<br><small>同一邮箱以后可以找回原来的 Key</small></p>
       <a class="other-path" href="/free-token/choose/">也可以走人情路线 →</a>
     </section>
     <section class="arena" aria-label="御剑破阵游戏">
@@ -26,47 +31,14 @@
       <div class="field" id="field">
         <canvas id="game" width="720" height="1000" tabindex="0" aria-label="御剑破阵，左右移动收集青玉，避开红色剑煞。">请使用支持 Canvas 的浏览器。</canvas>
         <div class="phase" id="phase" aria-hidden="true">第一阵 · 风起</div>
-        <div class="screen" id="screen"><div class="seal" aria-hidden="true"><span class="seal-sword"></span></div><p class="eyebrow" id="screen-kicker">御剑破阵 · 凭实力领礼</p><h2 id="screen-title">准备入阵？</h2><p id="screen-description">收集 24 枚灵玉，并存活 45 秒。<br>两点护盾，受击两次挑战结束。</p><p class="loss-taunt" id="loss-taunt" hidden></p><button class="primary" id="start" type="button">执剑 · 开始挑战 <span>→</span></button><a class="oath-detour" id="oath-detour" href="/free-token/claim/" hidden>行，去叫义父领礼 →</a><p class="notice" id="notice" role="status"></p></div>
+        <div class="screen" id="screen"><div class="seal" aria-hidden="true"><span class="seal-sword"></span></div><p class="eyebrow" id="screen-kicker">御剑破阵 · 凭实力领礼</p><h2 id="screen-title">准备入阵？</h2><p id="screen-description">收集 24 枚灵玉，并存活 45 秒。<br>两点护盾，受击两次挑战结束。</p><p class="loss-taunt" id="loss-taunt" hidden></p><button class="primary" id="start" type="button">执剑 · 开始挑战 <span>→</span></button><a class="oath-detour" id="oath-detour" href="/free-token/claim/" hidden>行，去叫义父领礼 →</a><p class="notice" id="notice" role="status"></p><button type="button" class="saved-key-entry" data-saved-key-entry data-victory-only hidden>查看本浏览器保存的 API Key</button></div>
         <div class="countdown" id="countdown" hidden aria-live="polite"></div>
       </div>
       <div class="arena-foot"><span><i class="jade-dot"></i> 灵玉</span><span><i class="hazard-dot"></i> 剑煞</span><small id="control-hint">左右移动 · 触屏可按住任意位置拖动</small></div>
       <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
     </section>
   </main>
-  <section id="leaderboard" class="board" aria-labelledby="board-title">
-    <h2 id="board-title">令牌排行</h2>
-    <p class="board-note">按用量从高到低。用量尚未统计时，分数显示为 0。</p>
-    <ol id="board-list"></ol>
-    <p id="board-empty" hidden>还没有上榜的名字。</p>
-  </section>
-  <style>
-    .board { width: min(720px, calc(100% - 32px)); margin: 8px auto 40px; color: #d5e2d4; }
-    .board h2 { font: 28px "KaiTi", "STKaiti", serif; letter-spacing: .12em; margin: 0 0 8px; }
-    .board-note { color: #8eaaa4; font-size: 12px; margin: 0 0 14px; }
-    .board ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-    .board li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #829d7b40; border-radius: 8px; background: #071c22cc; }
-    .board b { font: 16px Georgia, serif; color: #e6d6ad; }
-  </style>
-  <script>
-    (function () {
-      var list = document.getElementById('board-list');
-      var empty = document.getElementById('board-empty');
-      fetch('/api/leaderboard').then(function (response) { return response.json(); }).then(function (data) {
-        var entries = (data && data.entries) || [];
-        if (!entries.length) { empty.hidden = false; return; }
-        entries.forEach(function (entry) {
-          var item = document.createElement('li');
-          var name = document.createElement('span');
-          var score = document.createElement('b');
-          name.textContent = entry.username || '';
-          score.textContent = String(entry.score ?? 0);
-          item.append(name, score);
-          list.append(item);
-        });
-      }).catch(function () { empty.hidden = false; });
-    })();
-  </script>
-  <dialog id="reward" aria-labelledby="reward-title"><button class="close" id="close-reward" type="button" aria-label="关闭奖励">×</button><p class="eyebrow">以剑为证 · 凭实力领取</p><h2 id="reward-title">破阵成功</h2><p id="score-note">这是你的通关奖励。</p><div id="reward-steps"><label for="player-name">名字 <small>1-20 字</small></label><div class="copy-row"><input id="player-name" maxlength="40" autocomplete="nickname"></div><label for="player-email">邮箱</label><div class="copy-row"><input id="player-email" type="email" maxlength="254" autocomplete="email"></div><label for="player-code">验证码</label><div class="copy-row"><input id="player-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 位数字"><button id="send-code" type="button">发送验证码</button></div><p id="reward-error" role="alert"></p><button id="reveal-key" class="primary" type="button">验证并领取</button></div><div id="reward-secret" hidden><label for="base-url">接口地址 <small>Base URL</small></label><div class="copy-row"><input id="base-url" readonly><button id="copy-url" type="button">复制</button></div><label for="api-key">专属密钥 <small>API Key</small></label><div class="copy-row"><textarea id="api-key" rows="2" readonly spellcheck="false"></textarea><button id="copy-key" type="button">复制</button></div><button id="copy-all" class="primary" type="button">复制地址与密钥</button><p id="copy-status" role="status"></p></div></dialog>
+  <dialog id="reward" aria-labelledby="reward-title"><button class="close" id="close-reward" type="button" aria-label="关闭奖励">×</button><p class="eyebrow">以剑为证 · 凭实力领取</p><h2 id="reward-title">破阵成功</h2><p id="score-note">这是你的通关奖励。</p><div id="reward-steps"><p class="reward-help">绑定邮箱后会进入独立验证码页面。邮箱只用于验证身份和找回同一把 API Key。</p><label for="player-email">邮箱地址</label><div class="copy-row"><input id="player-email" name="email" type="email" inputmode="email" maxlength="254" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send"></div><div id="claim-human" hidden></div><p id="reward-error" role="alert"></p><button id="send-code" class="primary" type="button">发送验证码</button><small class="resend-note">发送后 120 秒可重新发送。</small><button type="button" class="saved-key-entry" data-saved-key-entry hidden>查看本浏览器保存的 API Key</button></div><div id="reward-secret" hidden><p id="reward-result-note" class="reward-help">邮箱验证成功，专属 API Key 已准备好。</p><label for="base-url">接口地址 <small>Base URL</small></label><div class="copy-row"><input id="base-url" readonly><button id="copy-url" type="button">复制</button></div><label for="api-key">专属 API Key</label><div class="copy-row"><textarea id="api-key" rows="2" readonly spellcheck="false"></textarea><button id="copy-key" type="button">复制</button></div><button id="copy-all" class="primary" type="button">复制地址与 Key</button><button id="open-ccswitch" class="ccswitch-entry" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>接入 CC Switch</span></button><button id="open-ccswitch-agy" class="ccswitch-entry ccswitch-entry-agy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>反重力一键接入 CC Switch</span></button><p id="copy-status" role="status"></p></div></dialog>
   <noscript><p class="noscript">游戏需要开启 JavaScript。也可前往<a href="/free-token/choose/">原来的领取页</a>。</p></noscript>
 
 </body>

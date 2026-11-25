@@ -1,0 +1,18 @@
+# LeonMinGod homepage and Free Token entrance
+
+The main homepage at https://leonmingod.com/ uses separately generated jade-green portrait (941 × 1672) and landscape (1824 × 862) backgrounds. The character reference is the same woman in the Free Token posters. The palm light is slightly larger; the existing fluid renderer uses a coordinated jade/gold palette. Three small translucent capsule links along the bottom lead to the mailbox, Free Token, and Address Proof sites.
+
+The Free Token entrance at https://leonmingod.com/free-token/ fills the viewport with its original mobile/desktop artwork. It has no footer or large rectangular entry button. A clipped copy of the jade token gently floats and glows over the artwork, and an accessible link aligned to that token opens the original claim page at /free-token/claim/. Shared image-relative coordinates keep the artwork and hit target aligned during cover cropping. Reduced-motion preferences stop the animation.
+
+2026-10-24 update: `src/token-scene.js` reuses the homepage `/vendor/fluid.js` renderer and jade/gold palette on both entrance and claim pages. Mouse/touch effects do not intercept links, form controls, or dialogs; reduced motion, hidden pages, and idle pauses are supported. The token floats about 7px with a stronger outline glow and breathing aura. `src/claim.js` compacts the original claim HTML through HTMLRewriter without changing its application script. Mobile cards are capped at 340px, with extra tightening on short screens so confirmation fits the first viewport. The Render endpoint, issued key, and parent Worker are unchanged.
+
+The dedicated leonmingod-free-token Worker forwards original pages and static dependencies to leonmingod-home through its SITE service binding. src/homepage.js transforms the main homepage HTML, src/home-scene.js contains the adapted original interaction script, and src/landing.js contains the fullscreen Free Token page. src/site-original.js is a backup and is not uploaded. The parent Worker's static assets, API, and FREE_TOKEN_CPA_KEY secret stay in Cloudflare.
+
+Routes on the root and www hostnames cover /, /index.html, /free-token, /free-token/*, /home-hero-mobile-v4.webp, /home-hero-desktop-v4.webp, and /home-scene-v4.js. Versioned image/script paths use immutable caching; HTML revalidates.
+
+Deployment uses the existing GitHub CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN secrets from the codex/free-token-home-20261024 branch. deploy.py checks the reviewed parent and entrance version IDs before updating, rejects routes belonging to other Workers, and verifies all four image hashes, the main navigation, fullscreen token markup, claim page, and API method restrictions. On failure it restores the prior entrance version and deletes only newly created routes. Before another deployment, review the live versions and update EXPECTED_VERSION and EXPECTED_ENTRANCE_VERSION.
+
+Visual checks used actual browser rendering at phone and desktop sizes, including 320px-wide navigation, full-viewport artwork coverage, capsule dimensions, spacing from the hand, and token hit testing.
+
+
+2026-10-24 Landscape navigation update: On landscape/desktop viewports, the three homepage links are repositioned under the title/slogan over the water (approximate centers at 60.8%, 69.9%, and 80.9%, diameter 92–136px). They are restyled into circular jade-green buttons with vertical icon-and-text layout and luminous hover effects. Scene controls and footer hints have increased typography size for clarity; portrait mode retains responsive capsules with tightened padding for narrow screens.

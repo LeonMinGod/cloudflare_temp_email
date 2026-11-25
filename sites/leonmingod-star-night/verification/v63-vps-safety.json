@@ -1,0 +1,130 @@
+{
+  "checked_at": "2026-11-04T19:05:01.254413+00:00",
+  "stage_run": 41891715566,
+  "verification_run": 41892644325,
+  "staged": {
+    "local_gateway_ready": true,
+    "requires_tunnel_activation": true,
+    "global_inflight": 4,
+    "per_key_inflight": 2,
+    "queue": 4,
+    "logging": {
+      "logs-max-total-size-mb": 50,
+      "error-logs-max-files": 5,
+      "request-log": false
+    },
+    "existing_processes_unchanged": true,
+    "baseline_inference": {
+      "nonstream": {
+        "http": 200,
+        "admission": null,
+        "generated": true
+      },
+      "stream": {
+        "http": 200,
+        "admission": null,
+        "generated": true,
+        "done": true
+      }
+    },
+    "binary_sha256": "788a3388ed840d78607271d61bd96353ee72b5b46ba468772d5110271e799e17"
+  },
+  "verification": {
+    "global_inflight": 4,
+    "per_key_inflight": 2,
+    "queued_maximum": 4,
+    "queue_wait_seconds": 2,
+    "maximum_body_mib": 16,
+    "retry_after_seconds": 2,
+    "binary_sha256": "788a3388ed840d78607271d61bd96353ee72b5b46ba468772d5110271e799e17",
+    "cpa_tunnel_monitor_pids_unchanged": true,
+    "static_keys_unchanged": true,
+    "auths_disabled_flags_preserved": true,
+    "logging": {
+      "logs-max-total-size-mb": 50,
+      "error-logs-max-files": 5,
+      "request-log": false
+    },
+    "journald_persistent_max_mib": 32,
+    "journald_runtime_max_mib": 16,
+    "models": 51,
+    "model": "gpt-6.1-sol",
+    "after_inference": {
+      "nonstream": {
+        "http": 200,
+        "admission": "v1",
+        "generated": true
+      },
+      "stream": {
+        "http": 200,
+        "admission": "v1",
+        "generated": true,
+        "done": true
+      }
+    },
+    "resources": {
+      "cpu_count": 1,
+      "load": [
+        2.5,
+        1.99,
+        2.41
+      ],
+      "memory_bytes": {
+        "MemTotal": 512000000,
+        "MemAvailable": 431635456,
+        "SwapTotal": 512000000,
+        "SwapFree": 474025984
+      },
+      "disk_bytes": {
+        "total": 1277689856,
+        "used": 414056448,
+        "free": 863633408
+      },
+      "services": {
+        "yifu-cpa": {
+          "MainPID": "770",
+          "MemoryCurrent": "24944640",
+          "ActiveState": "active",
+          "NeedDaemonReload": "no"
+        },
+        "yifu-tunnel": {
+          "MainPID": "947",
+          "MemoryCurrent": "20996096",
+          "ActiveState": "active",
+          "NeedDaemonReload": "no"
+        },
+        "yifu-monitor": {
+          "MainPID": "1258",
+          "MemoryCurrent": "28409856",
+          "ActiveState": "active",
+          "NeedDaemonReload": "no"
+        },
+        "yifu-gateway": {
+          "MainPID": "2516",
+          "MemoryCurrent": "4509696",
+          "ActiveState": "active",
+          "NeedDaemonReload": "no"
+        }
+      },
+      "database_bytes": {
+        "pool.sqlite": 360448,
+        "pool.sqlite-wal": 4181832,
+        "pool.sqlite-shm": 32768
+      },
+      "application_log_bytes": 0,
+      "logging": {
+        "logging-to-file": false,
+        "request-log": false,
+        "logs-max-total-size-mb": 50,
+        "error-logs-max-files": 5
+      },
+      "static_keys": 4,
+      "bootstrap_enabled": false
+    }
+  },
+  "scope": "One real GPT model tested before/after; not all providers or full disaster recovery.",
+  "historical_failed_runs": {
+    "41888940271": "Read-only resource inspector expected Python on VPS; corrected to existing Node.",
+    "41890919493": "Tunnel API permission denied before route/business changes; split local stage and connected Cloudflare activation."
+  }
+}

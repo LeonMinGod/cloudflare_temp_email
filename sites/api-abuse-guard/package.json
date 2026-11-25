@@ -1,0 +1,16 @@
+{
+  "name": "cpa-abuse-guard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "pretest": "npm run build",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "miniflare": "4.20260730.0",
+    "wrangler": "4.153.0"
+  }
+}

@@ -24,21 +24,39 @@ import yifu_key_api as api
 
 PLAN = Path('yifu-operation.enc')
 SECRET = 'FREE_TOKEN_RENDER_KEY'
+# Set by public_claim() for the latest probe. True only for {ok: true, next: 'email'}.
+_per_user_claim = False
 
 
 def fingerprint(key):
     return hashlib.sha256(key.encode()).hexdigest()[:16]
 
 
+def per_user_claim(data):
+    """Same recognition public_claim() uses for the email per-user flow."""
+    return isinstance(data, dict) and data.get('ok') is True and data.get('next') == 'email'
+
+
 def public_claim():
+    global _per_user_claim
+    _per_user_claim = False
     try:
         data = api.site_claim()
     except RuntimeError as error:
         if str(error).endswith('HTTP 503'):
             return None
         raise
-    assert data.get('baseUrl') == api.RENDER_ORIGIN + '/v1' and isinstance(data.get('apiKey'), str), 'Unexpected claim response'
-    return data
+    if isinstance(data, dict) and data.get('baseUrl') == api.RENDER_ORIGIN + '/v1' and isinstance(data.get('apiKey'), str):
+        return data
+    # The per-user flow (email verification, one key per email) answers {ok: true, next: 'email'} and
+    # never publishes a shared key. Any other shape is reported without values and is not fatal here.
+    if per_user_claim(data):
+        _per_user_claim = True
+        print('CLAIM_FLOW=per-user', flush=True)
+    else:
+        shape = sorted(data) if isinstance(data, dict) else type(data).__name__
+        print('::warning::Unexpected claim response shape: ' + json.dumps(shape), flush=True)
+    return None
 
 
 def modules():
@@ -98,7 +116,7 @@ def read_state():
         if not os.environ.get(name, '').strip():
             raise RuntimeError('Missing GitHub Actions secret: ' + name)
     service = api.render('/services/' + api.SERVICE)
-    assert service['ownerId'] == api.WORKSPACE and service['repo'] == 'https://github.com/928886540/cpa'
+    assert service['ownerId'] == api.WORKSPACE and api.is_cpa_repo(service['repo'])
     assert service['branch'] == 'main'
     assert service['serviceDetails']['envSpecificDetails']['dockerCommand'] == './CLIProxyAPI --config /etc/secrets/config.yaml'
     secret = api.render('/services/' + api.SERVICE + '/secret-files/config.yaml')
@@ -350,7 +368,10 @@ def apply(plan):
         assert {v['envVar']['key']: v['envVar']['value'] for v in api.render('/services/' + api.SERVICE + '/env-vars?limit=100')} == state['env']
         assert api.request(api.RENDER_ORIGIN + '/healthz')[0] == 200
         availability = json.loads(api.request(api.ORIGIN + '/api/free-token/status')[2])
-        assert availability['open'] is (public_claim() is not None), 'Token click mode did not follow the issued key'
+        claim = public_claim()
+        # Per-user issuance stays open and returns no shared key. Every other open/claim pair stays exact.
+        per_user_open = availability['open'] is True and claim is None and _per_user_claim
+        assert availability['open'] is (claim is not None) or per_user_open, 'Token click mode did not follow the issued key'
     except Exception:
         if published_version and api.active('leonmingod-home') == published_version:
             api.cf('leonmingod-home/deployments', 'POST', {'strategy': 'percentage',

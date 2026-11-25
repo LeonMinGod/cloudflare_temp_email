@@ -1,0 +1,43 @@
+{
+  "result": {
+    "description": "Scoped read-only status page exemption; model API and claim protections retained",
+    "id": "06e73eeed2ba48e5bcaba19d606bddbc",
+    "kind": "zone",
+    "last_updated": "2026-10-29T16:35:06.811463Z",
+    "name": "LeonMinGod public pool status read exceptions",
+    "phase": "http_request_firewall_custom",
+    "rules": [
+      {
+        "action": "skip",
+        "action_parameters": {
+          "phases": [
+            "http_ratelimit",
+            "http_request_firewall_managed"
+          ],
+          "products": [
+            "bic",
+            "securityLevel",
+            "uaBlock"
+          ],
+          "ruleset": "current"
+        },
+        "description": "Public pool dashboard GET/HEAD only; upstream refresh is server gated",
+        "enabled": true,
+        "expression": "(http.host in {\"leonmingod.com\" \"www.leonmingod.com\"} and http.request.method in {\"GET\" \"HEAD\"} and (http.request.uri.path eq \"/model-status\" or starts_with(http.request.uri.path, \"/model-status/\") or http.request.uri.path in {\"/api/pool-status\" \"/api/pool-status/quota\"}))",
+        "id": "8ff6e55df6f04e189212bef11389cadc",
+        "last_updated": "2026-10-29T16:35:06.811463Z",
+        "logging": {
+          "enabled": true
+        },
+        "ref": "leonmingod_pool_read_allow",
+        "version": "1"
+      }
+    ],
+    "source": "firewall_custom",
+    "version": "1"
+  },
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "status": 200
+}

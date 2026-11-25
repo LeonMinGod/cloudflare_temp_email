@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-29T23:22:28.201Z",
+  "counted_since": "2026-10-29T23:18:28.046326525Z",
+  "metrics_at": "2026-10-29T23:22:28.471Z",
+  "metrics_stale": false,
+  "models": 35,
+  "accounts": {
+    "total": 13,
+    "ready": 3,
+    "cooldown": 0,
+    "disabled": 10,
+    "error": 0,
+    "unknown": 0
+  },
+  "first_model": "gpt-6.1-sol",
+  "real_usage": [
+    {
+      "id": "gpt-6.1-sol",
+      "provider": "codex",
+      "success": 1,
+      "failed": 0,
+      "total": 1,
+      "success_rate": 100,
+      "ttft_seconds": 1.88,
+      "ttft_samples": 1,
+      "output_tokens_per_second": 41,
+      "recent_summary": {
+        "success": 1,
+        "failed": 0,
+        "ttft_ms": 1880,
+        "ttft_samples": 1,
+        "output_tokens": 5,
+        "output_ms": 122
+      },
+      "recent": [
+        {
+          "at": "2026-10-29T23:15:00.000Z",
+          "success": 1,
+          "failed": 0
+        }
+      ]
+    }
+  ],
+  "twelve_reads": {
+    "successful": 12,
+    "masked_email_only": true
+  },
+  "render_health": 200
+}

@@ -1,0 +1,30 @@
+{
+  "mocked": false,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "pool_http": 503,
+      "interval_seconds": 300,
+      "no_poll_within_four_minutes": true,
+      "one_retry_after_five_minutes": true,
+      "no_overflow": true,
+      "script": "status-v6.mjs"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pool_http": 503,
+      "interval_seconds": 300,
+      "no_poll_within_four_minutes": true,
+      "one_retry_after_five_minutes": true,
+      "no_overflow": true,
+      "script": "status-v6.mjs"
+    }
+  ],
+  "errors": []
+}

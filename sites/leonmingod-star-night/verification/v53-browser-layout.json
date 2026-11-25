@@ -1,0 +1,163 @@
+{
+  "method": "Cloudflare Browser Rendering; screenshots reduced by device scale factor for transport",
+  "cc_switch": "Dummy credential and isolated mocked models only; no native app launch",
+  "scenarios": [
+    {
+      "key": "home_desktop",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "effects": "on",
+        "orb": {
+          "x": 259.9375,
+          "y": 469.5,
+          "width": 204,
+          "height": 204,
+          "top": 469.5,
+          "right": 463.9375,
+          "bottom": 673.5,
+          "left": 259.9375
+        },
+        "orbAnimation": "orb-rise-v4",
+        "art": "https://leonmingod.com/home-hero-desktop-v7.webp"
+      }
+    },
+    {
+      "key": "home_mobile",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 393,
+        "scrollWidth": 393,
+        "effects": "on",
+        "orbAnimation": "orb-rise-v4",
+        "art": "https://leonmingod.com/home-hero-mobile-v7.webp"
+      }
+    },
+    {
+      "key": "token_desktop",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "pool": {
+          "x": 864,
+          "y": 585,
+          "width": 390,
+          "height": 84,
+          "top": 585,
+          "right": 1254,
+          "bottom": 669,
+          "left": 864
+        },
+        "orbAnimation": null,
+        "art": "https://leonmingod.com/free-token/welcome-desktop-v5.webp"
+      }
+    },
+    {
+      "key": "token_mobile",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 393,
+        "scrollWidth": 393,
+        "pool": {
+          "x": 39.3046875,
+          "y": 722.78125,
+          "width": 314.390625,
+          "height": 69.59375,
+          "top": 722.78125,
+          "right": 353.6953125,
+          "bottom": 792.375,
+          "left": 39.3046875
+        },
+        "token": {
+          "x": 119.765625,
+          "y": 477.1171875,
+          "width": 143.84375,
+          "height": 179.734375,
+          "top": 477.1171875,
+          "right": 263.609375,
+          "bottom": 656.8515625,
+          "left": 119.765625
+        },
+        "art": "https://leonmingod.com/free-token/welcome-mobile-v5.webp"
+      }
+    },
+    {
+      "key": "ccswitch_desktop",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 1100,
+        "scrollWidth": 1100,
+        "dialog": {
+          "x": 315,
+          "y": 157.3125,
+          "width": 470,
+          "height": 535.375,
+          "top": 157.3125,
+          "right": 785,
+          "bottom": 692.6875,
+          "left": 315
+        },
+        "modelOptions": 3,
+        "model": "gpt-5.3-codex",
+        "launchEnabled": true,
+        "appRadios": 3
+      }
+    },
+    {
+      "key": "ccswitch_mobile",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 393,
+        "scrollWidth": 393,
+        "dialog": {
+          "x": 14,
+          "y": 32.109375,
+          "width": 365,
+          "height": 515.78125,
+          "top": 32.109375,
+          "right": 379,
+          "bottom": 547.890625,
+          "left": 14
+        },
+        "modelOptions": 3,
+        "launchEnabled": true
+      }
+    },
+    {
+      "key": "pool_desktop",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "total": "13",
+        "ready": "3",
+        "models": "35",
+        "connected": true,
+        "rows": 35
+      }
+    },
+    {
+      "key": "pool_mobile",
+      "success": true,
+      "status": 200,
+      "metrics": {
+        "width": 393,
+        "scrollWidth": 393,
+        "total": "13",
+        "ready": "3",
+        "models": "35",
+        "connected": true,
+        "rows": 3
+      }
+    }
+  ]
+}

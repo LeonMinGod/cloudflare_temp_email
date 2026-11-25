@@ -1,0 +1,111 @@
+.star-sea-token .token-entry::before,
+.star-sea-token .token-entry::after {
+  inset: auto;
+  left: 37%;
+  top: 45%;
+  width: 75%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: normal;
+}
+
+.star-sea-token .token-entry::before {
+  border: 1px solid #e1ffbccc;
+  background: radial-gradient(circle, #a4f9a56b, #73e5a531 58%, transparent 76%);
+  box-shadow: 0 0 22px #9cfeb673, inset 0 0 18px #adffc43b;
+}
+
+.star-sea-token .token-entry::after {
+  border: 2px solid #edffd4;
+  box-shadow: 0 0 18px #b0ffb6a6;
+  animation: jade-entry-ripple 2s ease-out infinite;
+}
+
+.star-sea-token .token-float {
+  z-index: 1;
+}
+
+.token-action {
+  position: absolute;
+  z-index: 2;
+  left: 40%;
+  top: 82%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 8px 18px;
+  border: 1px solid #fff5ce;
+  border-radius: 999px;
+  background: linear-gradient(#fff0c6, #efca7a);
+  box-shadow: 0 0 0 4px #09281cb3, 0 6px 18px #011810cc, 0 0 22px #f5cf7873;
+  color: #18291e;
+  font-size: clamp(15px, 1.35vw, 18px);
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: background-color .16s, box-shadow .16s, transform .16s;
+}
+
+.token-action > span {
+  font: 22px/1 Georgia, serif;
+}
+
+.token-entry:focus-visible .token-action {
+  outline: 2px solid #fff5ce;
+  outline-offset: 5px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .token-entry:hover .token-action {
+    background: #fff3d4;
+    box-shadow: 0 0 0 4px #22513abf, 0 7px 20px #011810cc, 0 0 28px #f7d681b3;
+    transform: translate(-50%, -3px);
+  }
+}
+
+.token-entry:active .token-action {
+  transform: translateX(-50%) scale(.97);
+}
+
+@keyframes jade-entry-ripple {
+  0% { opacity: .95; transform: translate(-50%, -50%) scale(.86); }
+  80%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.57); }
+}
+
+@media (orientation: portrait) {
+  .token-action {
+    /* Reserve room above the fixed pool link even when the artwork is cropped. */
+    top: min(82%, calc(50dvh - max(7dvh, env(safe-area-inset-bottom)) - 122px - max(6dvh, 10.67vw)));
+  }
+}
+
+@media (orientation: landscape) {
+  .token-action {
+    top: min(82%, calc(50dvh - 58px + max(3dvh, 1.69vw)));
+  }
+}
+
+@media (max-width: 767px) and (orientation: landscape) {
+  .scene.star-sea-token {
+    --token-left: 24%;
+    --token-top: 47%;
+    --token-width: 16%;
+    width: max(100vw, calc(100dvh * 1672 / 941));
+    aspect-ratio: 1672 / 941;
+  }
+
+  .token-action {
+    /* Keep the action on the token side of the pool card on a rotated phone. */
+    left: clamp(calc(90px - 50vw + max(26vw, 46.2dvh)), calc(max(26vw, 46.2dvh) - 9vw - 92px), 40%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-sea-token .token-entry::after {
+    animation: none;
+    opacity: .5;
+  }
+}

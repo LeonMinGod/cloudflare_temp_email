@@ -52,7 +52,8 @@ class KeyOperationsTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             tool.select_operation(state, 'remove', target='a' * 16)
 
-    def run_operation(self, operation, publish=True, noncurrent=False, closed=False, concurrent=False):
+    def run_operation(self, operation, publish=True, noncurrent=False, closed=False, concurrent=False,
+                      per_user=False, force_open=False):
         active = 'current-test-key'
         original_keys = ['retained-test-key', active, 'other-test-key']
         config = 'api-keys: [retained-test-key, current-test-key, other-test-key]\nport: 8317\n'
@@ -122,12 +123,22 @@ class KeyOperationsTest(unittest.TestCase):
             return 34
 
         plan = dict(state=state, op=op, backups={'auth.json': '{}'} if op['render_change'] else {}, visuals={'page': 'unchanged'})
-        with tempfile.TemporaryDirectory() as directory, patch.object(tool, 'public_claim', lambda: current['claim']), \
+
+        def public_claim():
+            tool._per_user_claim = bool(per_user) and current['claim'] is None
+            return current['claim']
+
+        def website_open():
+            if per_user or force_open:
+                return True
+            return current['claim'] is not None
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(tool, 'public_claim', public_claim), \
              patch.object(tool, 'modules', lambda: manifest), patch.object(tool, 'snapshot', lambda: plan['visuals']), \
              patch.object(tool, 'Path', lambda name: Path(directory) / name), \
              patch.multiple(tool.api, render=render, cf=cf, management_request=management, models=models,
                             active=lambda worker: current['parent'] if worker == 'leonmingod-home' else state['entrance'],
-                            latest_deploy=lambda: current['deploy'], request=lambda url, *a, **kw: (200, {}, json.dumps({'open': current['claim'] is not None}).encode() if url.endswith('/api/free-token/status') else b'{}')), \
+                            latest_deploy=lambda: current['deploy'], request=lambda url, *a, **kw: (200, {}, json.dumps({'open': website_open()}).encode() if url.endswith('/api/free-token/status') else b'{}')), \
              contextlib.redirect_stdout(io.StringIO()):
             if concurrent:
                 with self.assertRaises(AssertionError):
@@ -197,6 +208,14 @@ class KeyOperationsTest(unittest.TestCase):
 
     def test_closed_website_remove_is_idempotent(self):
         self.run_operation('remove', closed=True)
+
+    def test_per_user_flow_accepts_open_without_a_shared_key(self):
+        self.run_operation('add', publish=False, closed=True, per_user=True)
+
+    def test_open_without_per_user_flow_still_fails(self):
+        with self.assertRaises(AssertionError) as error:
+            self.run_operation('add', publish=False, closed=True, force_open=True)
+        self.assertIn('Token click mode did not follow the issued key', str(error.exception))
 
     def test_concurrent_change_aborts_before_mutation(self):
         self.run_operation('add', concurrent=True)

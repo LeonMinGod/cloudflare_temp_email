@@ -1,0 +1,76 @@
+{
+  "stage_run": 41602642773,
+  "stage": {
+    "mode": "stage",
+    "version_id": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
+    "production_unchanged": true,
+    "parent_version": "366eeb9c-ce76-4ba5-a695-11fc702a9724",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "module_sha256": "9868f6c0d4eb954168dd3db6e86971f07948936e2cb1ae2aa0f78487d0e2d751",
+    "resources_summary": {
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CPA_STATUS_MANAGEMENT_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_CPA_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_OPS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_RENDER_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SITEKEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "GAME_RUNS",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "KEY_ENC_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KV",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        }
+      ],
+      "assets_config": null
+    }
+  },
+  "publish_run": 41602849241,
+  "publish": {
+    "mode": "publish",
+    "version_id": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
+    "previous_version": "366eeb9c-ce76-4ba5-a695-11fc702a9724",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "previous_entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "forwarder_source_unchanged": true,
+    "shared_key_not_exposed": true,
+    "website_open": true,
+    "issuance_state_preserved": true,
+    "game_namespace_preserved": true,
+    "source_pages_verified": 7,
+    "pool_api_verified": true,
+    "pool_preexisting_outage": false
+  }
+}

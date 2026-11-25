@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "esbuild": "0.25.12",
+    "linkedom": "0.18.12",
     "miniflare": "4.20260730.0"
   }
 }

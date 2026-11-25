@@ -1,0 +1,20 @@
+name: Read-only Cloudflare request quota audit
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/cf-usage-audit-request.json']
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - run: python -m pip install cryptography==46.0.3
+      - env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python .github/scripts/production_cf_usage.py
+      - if: always() && env.OPS_REQUEST_ID != ''
+        run: python .github/scripts/production_io.py publish

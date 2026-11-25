@@ -1,0 +1,36 @@
+name: Connect Free Token to Render
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [inspect, connect, revoke_key]
+        default: inspect
+permissions:
+  contents: read
+concurrency:
+  group: free-token-home-production
+  cancel-in-progress: false
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install YAML parser
+        run: pip install PyYAML==6.0.3
+      - name: Inspect or connect Render and Cloudflare
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CONNECTION_MODE: ${{ inputs.mode || 'inspect' }}
+        run: python .github/scripts/free_token_render.py
+      - name: Retain encrypted recovery backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-render-integration-backup
+          path: render-integration-backup.enc
+          if-no-files-found: ignore
+          retention-days: 2

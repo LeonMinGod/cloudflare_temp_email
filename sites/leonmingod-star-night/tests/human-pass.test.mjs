@@ -4,6 +4,7 @@ import { Miniflare } from 'miniflare';
 import { verifyHuman, humanVerifiedUntil, securityConfig } from '../src/security.js';
 
 const env = { FREE_TOKEN_TURNSTILE_SECRET: 'test-human-secret' };
+const TEST_ENC_SECRET = btoa(String.fromCharCode(...Array.from({ length: 32 }, (_, i) => i)));
 const origin = 'https://leonmingod.com';
 function request(cookie = '', host = origin, ua = 'mobile-browser', ip = '192.0.2.1') {
   return new Request(host + '/api/free-token/security', { headers: { Cookie: cookie, 'User-Agent': ua, 'CF-Connecting-IP': ip } });
@@ -40,18 +41,18 @@ test('one real verification grants a fixed two-hour signed browser pass across b
   } finally { globalThis.fetch = original; }
 });
 
-test('deployed Worker keeps both cookies, reuses verification, rejects forgery and retains reward/rate checks', async () => {
+test('deployed Worker reuses one human pass while oath issues its separate claim grant', async () => {
   let calls = 0;
   const used = new Set();
   const mf = new Miniflare({ modules: true, scriptPath: 'dist/index.js', compatibilityDate: '2025-04-01',
-    bindings: { ...env, FREE_TOKEN_RENDER_KEY: 'test-reward-placeholder' },
+    bindings: { ...env, FREE_TOKEN_RENDER_KEY: 'test-reward-placeholder', KEY_ENC_SECRET: TEST_ENC_SECRET },
     durableObjects: { GAME_RUNS: { className: 'GameRun', useSQLite: true } },
     serviceBindings: { ASSETS: () => new Response('Not found', { status: 404 }) },
     outboundService: async req => {
       assert.equal(req.url, 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
       calls++; const token = new URLSearchParams(await req.text()).get('response');
-      const success = ['test-start', 'test-claim'].includes(token) && !used.has(token); used.add(token);
-      return Response.json({ success, hostname: 'leonmingod.com', action: token === 'test-claim' ? 'oath_claim' : 'game_start' });
+      const success = token === 'test-start' && !used.has(token); used.add(token);
+      return Response.json({ success, hostname: 'leonmingod.com', action: 'game_start' });
     }
   });
   const send = (path, body, cookie = '', host = origin) => mf.dispatchFetch(host + '/api/free-token/' + path, {
@@ -73,13 +74,16 @@ test('deployed Worker keeps both cookies, reuses verification, rejects forgery a
     assert.equal(calls, 1);
     assert.equal((await send('claim', { oath: 'wrong', confirmed: true }, pass)).status, 400);
     assert.equal((await send('game/finish', { id: run.id, receipt: run.receipt }, pass + '; ' + game)).status, 400, 'Trust alone never wins the game');
-    assert.equal((await send('claim', { oath: '义父', confirmed: true }, pass + '0')).status, 403);
+    const directOath = await send('claim', { oath: '义父', confirmed: true }, pass + '0');
+    assert.equal(directOath.status, 200, 'Oath itself does not trigger another Cloudflare challenge');
+    assert.match(directOath.headers.get('Set-Cookie'),/__Secure-lmg_claim=/);
     assert.equal((await send('game/start', {})).status, 403, 'Clearing cookies requires verification');
     assert.equal((await send('game/start', { humanToken: 'test-start' })).status, 403, 'Raw Turnstile tokens remain single-use');
-    const oath = await send('claim', { oath: '义父', confirmed: true, humanToken: 'test-claim' });
+    const beforeOath = calls;
+    const oath = await send('claim', { oath: '义父', confirmed: true });
     assert.equal(oath.status, 200); assert.equal(oath.headers.getSetCookie().length, 1);
-    const oathPass = oath.headers.getSetCookie()[0].split(';')[0];
-    assert.equal((await send('game/start', {}, oathPass)).status, 200, 'Oath verification also covers games');
+    assert.match(oath.headers.getSetCookie()[0],/__Secure-lmg_claim=/);
+    assert.equal(calls,beforeOath,'Oath never consumes another Turnstile token');
     let limited;
     for (let i = 0; i < 25; i++) { limited = await send('game/start', {}, pass); if (limited.status === 429) break; }
     assert.equal(limited.status, 429, 'Trusted browsers still have rate limits');

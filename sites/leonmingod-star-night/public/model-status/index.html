@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f9">
+<meta name="description" content="实时查看义父公益站全渠道 AI 提供商、模型可用率热力矩阵、首字延迟、吞吐速度与账号额度。">
+<title>号池与模型监控矩阵 · LeonMinGod</title>
+<link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
+<link rel="stylesheet" href="/model-status/status-v10.css?v=2">
+<script type="module" src="/model-status/status-v10.mjs?v=2"></script>
+<link rel="stylesheet" href="/theme-xmas-v2.css">
+<script src="/theme-xmas-v2.js"></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">
+    <img src="/assets/logo-v2.svg" width="32" height="32" alt="">
+    <span>LeonMinGod<small>灵境号池 · RELAY PULSE</small></span>
+  </a>
+  <nav class="top-nav">
+    <button id="copy-endpoint" class="ghost-btn" type="button" title="复制公益站 API Base URL">
+      <span aria-hidden="true">⧉</span> <span class="hide-xs">复制接口地址</span><span class="show-xs">接口</span>
+    </button>
+    <button id="theme" class="icon-button" type="button" aria-label="切换深浅色">◐</button>
+    <a class="back" href="/free-token/">返回令牌入口 ↗</a>
+  </nav>
+</header>
+
+<main>
+  <section class="heading">
+    <div>
+      <p class="eyebrow"><span class="live-dot" id="live-dot"></span> POOL &amp; RELAY OBSERVATORY</p>
+      <h1>号池与模型状态大屏</h1>
+      <p class="subtitle" id="status-note" role="status" aria-live="polite">正在连接实时号池监控…</p>
+    </div>
+    <div class="refresh-wrap">
+      <span id="refresh-countdown">每 5 分钟同步</span>
+      <button id="refresh" type="button"><span aria-hidden="true">↻</span> 刷新状态</button>
+    </div>
+  </section>
+
+  <nav id="provider-tabs" class="provider-tabs" aria-label="AI 提供商筛选"></nav>
+
+  <section class="metrics" aria-label="实时概览指标">
+    <article>
+      <span>可用渠道 / 凭证</span>
+      <strong id="ready">—</strong>
+      <small id="ready-note">正在读取渠道</small>
+    </article>
+    <article>
+      <span>在线模型数</span>
+      <strong id="model-count">—</strong>
+      <small id="model-coverage">正在汇总模型</small>
+    </article>
+    <article>
+      <span>周期请求成功率</span>
+      <strong id="success-rate">—</strong>
+      <small id="success-note">按北京时间统计</small>
+    </article>
+    <article>
+      <span>实时响应表现</span>
+      <strong id="perf-speed">—</strong>
+      <small id="perf-ttft">近期流式采样</small>
+    </article>
+  </section>
+
+  <section class="board" aria-label="号池实时看板">
+    <div class="view-bar">
+      <div class="view-tabs" role="tablist" aria-label="切换看板视图">
+        <button id="models-tab" type="button" role="tab" aria-selected="true" aria-controls="models-view">
+          模型可用性矩阵 <span id="models-count" class="tab-badge">0</span>
+        </button>
+        <button id="accounts-tab" type="button" role="tab" aria-selected="false" aria-controls="accounts-view">
+          渠道与账号额度 <span id="accounts-count" class="tab-badge">0</span>
+        </button>
+      </div>
+      <div class="view-actions">
+        <button id="online-only" class="chip-toggle" type="button" aria-pressed="true" title="默认隐藏已停用渠道与下线历史模型">
+          <span class="chip-dot"></span> 仅看当前在线
+        </button>
+        <div id="layout-switch" class="seg-group" role="group" aria-label="模型展示布局">
+          <button id="layout-matrix" type="button" aria-pressed="true" title="RelayPulse 紧凑矩阵视图">☰ 矩阵</button>
+          <button id="layout-cards" type="button" aria-pressed="false" title="详细卡片视图">⊞ 卡片</button>
+        </div>
+        <span id="updated" class="updated-at">最后更新：—</span>
+      </div>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="筛选与排序">
+      <div class="search-wrap">
+        <label class="sr-only" for="search">搜索模型、厂商或渠道</label>
+        <input id="search" type="search" placeholder="搜索模型 ID（点击模型名可一键复制）或提供商…" autocomplete="off">
+      </div>
+      <label class="sr-only" for="state-filter">状态筛选</label>
+      <select id="state-filter">
+        <option value="">全部状态</option>
+        <option value="ready">正常在线</option>
+        <option value="degraded">连续失败</option>
+        <option value="cooldown">冷却恢复中</option>
+        <option value="disabled">已停用 / 归档</option>
+      </select>
+      <label id="usage-period-label" class="sr-only" for="usage-period">统计周期</label>
+      <select id="usage-period" aria-labelledby="usage-period-label">
+        <option value="today" selected>今天（北京时间）</option>
+        <option value="yesterday">昨天</option>
+        <option value="week">本周</option>
+        <option value="month">本月</option>
+        <option value="all">累计全部</option>
+      </select>
+      <label class="sr-only" for="sort">排序方式</label>
+      <select id="sort">
+        <option value="requests" selected>可用优先 · 调用量↓</option>
+        <option value="latest">最新调用↓</option>
+        <option value="rate">可用优先 · 成功率↓</option>
+        <option value="speed">吐字速度↓</option>
+        <option value="common">常用模型优先</option>
+        <option value="name">名称 A → Z</option>
+        <option value="quota">额度余量↑</option>
+      </select>
+    </div>
+
+    <section id="models-view" role="tabpanel" aria-labelledby="models-tab">
+      <div id="models-matrix-wrap" class="matrix-wrap" tabindex="0" role="region" aria-label="模型可用性实时矩阵">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th scope="col">模型 ID / 提供商</th>
+              <th scope="col">状态</th>
+              <th scope="col">近 4 小时可用性热力（5m/格）</th>
+              <th scope="col">周期成功率 / 调用</th>
+              <th scope="col">首字 / 吐字速度</th>
+            </tr>
+          </thead>
+          <tbody id="models-tbody"></tbody>
+        </table>
+      </div>
+      <div id="models-cards" class="cards" hidden></div>
+      <p id="models-empty" class="empty" hidden>没有符合当前筛选条件的模型。</p>
+    </section>
+
+    <section id="accounts-view" role="tabpanel" aria-labelledby="accounts-tab" hidden>
+      <div id="accounts-cards" class="cards"></div>
+      <p id="accounts-empty" class="empty" hidden>没有符合当前筛选条件的渠道或凭证。</p>
+    </section>
+
+    <button id="archive-banner" class="archive-banner" type="button" hidden></button>
+
+    <div class="panel-foot">
+      <span id="result-count">—</span>
+      <span>支持 OAuth 凭证与自定义 API 渠道自动发现 · 敏感密钥与完整邮箱已脱敏</span>
+    </div>
+  </section>
+
+  <p id="method-note" class="method-note">状态与额度每 5 分钟共享同步，无需消耗额外探针 Token；页面隐藏时自动暂停轮询。</p>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<noscript><p class="empty">请开启 JavaScript 查看实时号池状态。</p></noscript>
+</body>
+</html>

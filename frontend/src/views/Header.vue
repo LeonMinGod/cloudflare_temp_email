@@ -212,9 +212,9 @@ const menuOptions = computed(() => [
 ]);
 
 useHead({
-    title: () => openSettings.value.title || 'LeonMinGod — Immortal Mail',
+    title: () => openSettings.value.title || 'LeonMinGod · 灵境云邮 | Immortal Mail',
     meta: [
-        { name: "description", content: openSettings.value.description || 'LeonMinGod — Immortal Mail' },
+        { name: "description", content: openSettings.value.description || 'LeonMinGod 灵境云邮 · 仙境临风，万简星驰。' },
     ]
 });
 

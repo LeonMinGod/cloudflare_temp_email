@@ -1,0 +1,34 @@
+{
+  "monitor": {
+    "samples": 13,
+    "failures": 0,
+    "keys_checked": 4
+  },
+  "deploy": {
+    "deploy": "dep-dbiukprbc2fs73bc85e0",
+    "commit": "bf86b75181a2fff5b74a5345cf1e1057da3e45d3",
+    "credentials_retained": 13,
+    "static_keys_retained": 4,
+    "bootstrap_before_readiness": true,
+    "guard_policy_unchanged": true,
+    "website_unchanged": true,
+    "auto_deploy": "no",
+    "management_ip_cleared": false
+  },
+  "run": 41204870819,
+  "first_attempt_run": 41204622438,
+  "first_attempt_stopped_before_deploy": true,
+  "counter_backup": {
+    "copied_to_kv": true,
+    "read_back_verified": true,
+    "captured_at": "2026-10-31T13:17:26.430161+00:00",
+    "models": 21,
+    "sha256": "d61ae9834dad88ed6248177423b9e097cd3dfebbd6d87cbfc9cae115f7e97d58",
+    "artifact_id": 13044371854,
+    "private_fields_absent": true
+  },
+  "go_full_tests_passed": true,
+  "go_race_tests_passed": true,
+  "go_build_passed": true,
+  "new_personal_key_api_recovery_verified": false
+}

@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-31",
+  "scope": "personal key authorization recovery; existing website and Render unchanged",
+  "commit": "9bc090ae64f9e06a0a23b90c48a9e09c0606cef9",
+  "guard_previous_version": "1f389ed5-c6da-454c-9e59-86bc64a1c76f",
+  "guard_version": "8adadc8e-05d3-442a-bf60-7c4f5531edc1",
+  "guard_deployment": "485fe25d-aa34-4952-8978-46f7a093d649",
+  "bundle_sha256": "428afa736d7296806ebe85041aa465bd7874e78b7ea8514587360001c76dd90a",
+  "bindings_preserved": {
+    "KEYS": "1b02d139375045f7a7d5ce2d994abd2c",
+    "STATE": "73670c63f6e64753b5402345406cd140",
+    "secret_names": [
+      "ADMIN_SECRET",
+      "SERVICE_SECRET"
+    ]
+  },
+  "recovery": {
+    "kv_switch": "ops:auth-recovery:v1",
+    "scope": "do-write-quota-20261031",
+    "expires_utc": "2026-11-01T00:00:00Z",
+    "expires_beijing": "2026-11-01T08:00:00+08:00",
+    "automatic_hard_expiry": true,
+    "registered_keys_only": true,
+    "temporary_limits": "per-isolate bounded memory only; not globally exact; reset on isolate eviction",
+    "central_accounting_paused": true,
+    "per_request_persistent_writes": 0,
+    "unknown_outages_fail_closed": true
+  },
+  "tests": {
+    "unit_and_native_worker": {
+      "passed": 22,
+      "failed": 0
+    },
+    "before": {
+      "canary_models_http": 503,
+      "auth_unavailable": true
+    },
+    "after": {
+      "canary_models_http": 200,
+      "models": 22,
+      "unknown_key_models_http": 401,
+      "revoked_key_models_http": 401
+    },
+    "grok_stream": {
+      "phase": "grok_stream",
+      "http": 200,
+      "content_type": "text/event-stream",
+      "sse_chunks": 44,
+      "done": true,
+      "content_characters": 76,
+      "first_content_seconds": 13.22,
+      "html_detected": false,
+      "elapsed_seconds": 13.38
+    }
+  },
+  "render": {
+    "restarted": false,
+    "deployment_unchanged": "dep-dbiukprbc2fs73bc85e0",
+    "commit_unchanged": "bf86b75181a2fff5b74a5345cf1e1057da3e45d3",
+    "paid_upgrade": false
+  },
+  "canary": {
+    "auto_expiry_seconds": 900,
+    "revoked": true,
+    "deleted": true,
+    "raw_key_logged": false,
+    "local_secret_removed": true
+  },
+  "limitations": [
+    "Original HTML/CSS screenshot source remains unconfirmed",
+    "One completed Grok stream is not proof that every upstream failure is resolved",
+    "DO-backed website pool/game services are not restored by this guard-only auth mitigation"
+  ]
+}

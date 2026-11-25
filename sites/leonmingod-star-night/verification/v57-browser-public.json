@@ -1,0 +1,84 @@
+{
+  "mocked_local_key": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "path": "/free-token/choose/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": false,
+      "modal_fits": true
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "path": "/free-token/game/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": true,
+      "modal_fits": true
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "path": "/free-token/choose/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": false,
+      "modal_fits": true
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "path": "/free-token/game/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": true,
+      "modal_fits": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "path": "/free-token/choose/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": false,
+      "modal_fits": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "path": "/free-token/game/",
+      "no_key_hides_entry": true,
+      "shared_local_record": true,
+      "copy": true,
+      "no_api_requests": true,
+      "victory_entry": true,
+      "modal_fits": true
+    }
+  ],
+  "errors": []
+}

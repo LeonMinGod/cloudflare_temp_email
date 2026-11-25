@@ -1,0 +1,133 @@
+{
+  "version": "968904cd-207b-4691-863c-d63cc4487640",
+  "resources": [
+    {
+      "host": "leonmingod.com",
+      "file": "index.html",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/claim/index.html",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/verify/index.html",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/game/index.html",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/claim-v9.mjs",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/game/app-v16.mjs",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/verify-flow-v2.mjs",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/verify-v2.mjs",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/verify-v2.css",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "free-token/claim-compact-v5.css",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "home-hero-desktop-v6.webp",
+      "status": 200
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "home-hero-mobile-v6.webp",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "index.html",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/claim/index.html",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/verify/index.html",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/game/index.html",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/claim-v9.mjs",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/game/app-v16.mjs",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/verify-flow-v2.mjs",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/verify-v2.mjs",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/verify-v2.css",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "free-token/claim-compact-v5.css",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "home-hero-desktop-v6.webp",
+      "status": 200
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "home-hero-mobile-v6.webp",
+      "status": 200
+    }
+  ],
+  "unsigned_send": 403,
+  "unsigned_verify": 403,
+  "empty_signature": 400,
+  "signed_oath": 200,
+  "signature_in_signed_grant": true,
+  "shared_key_not_exposed": true,
+  "render_health": 200,
+  "emails_sent_by_this_probe": 0
+}

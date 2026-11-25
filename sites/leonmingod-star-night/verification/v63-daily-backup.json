@@ -1,0 +1,27 @@
+{
+  "run": 41892900083,
+  "workflow": "yifu-vps-backup.yaml",
+  "trigger": "workflow_dispatch",
+  "schedule_utc": "30 20 * * *",
+  "schedule_asia_shanghai": "04:30 daily",
+  "retention_days": 14,
+  "report": {
+    "encrypted": true,
+    "files": 34,
+    "database_included": true,
+    "roundtrip_verified": true,
+    "database_consistency_checked": true,
+    "temporary_database_removed": true
+  },
+  "artifacts": [
+    {
+      "id": 13354178012,
+      "name": "yifu-daily-backup-41892900083",
+      "size_in_bytes": 747921,
+      "created_at": "2026-11-04T19:02:05Z",
+      "expires_at": "2026-11-18T19:02:04Z",
+      "expired": false
+    }
+  ],
+  "full_disaster_recovery_exercised": false
+}

@@ -1,0 +1,15 @@
+{
+  "mode": "publish",
+  "version_id": "8419c16f-c7c5-4b90-aa89-21e087b26b8c",
+  "previous_version": "de1909dc-78c8-4df2-9735-c3d3aaa225c0",
+  "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+  "previous_entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+  "forwarder_source_unchanged": true,
+  "shared_key_not_exposed": true,
+  "website_open": true,
+  "issuance_state_preserved": true,
+  "game_namespace_preserved": true,
+  "source_pages_verified": 7,
+  "pool_api_verified": true,
+  "pool_preexisting_outage": false
+}

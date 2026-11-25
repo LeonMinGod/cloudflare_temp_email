@@ -1,0 +1,37 @@
+{
+  "cpa_commit": "97fbbcd7a2f7bd5b214212104a227097f296517e",
+  "render_deploy": "dep-dbiabbdg1s2s73eelarg",
+  "root_cause": "Management used Gin.ClientIP with no trusted proxies, attributing shared Render ingress login failures to one IP.",
+  "before": {
+    "management_http": 403,
+    "native_management_banned": true,
+    "trusted_proxies": [],
+    "outer_guard_active": null
+  },
+  "after": {
+    "management_http": 200,
+    "target_native_active": false,
+    "client_ip_is_public": true,
+    "outer_guard_active": null,
+    "credentials": 13,
+    "model_checks": {
+      "successful": 20,
+      "failed": 0,
+      "keys": 4
+    }
+  },
+  "safe_deploy_run": 41069688318,
+  "safe_deploy_workflow_conclusion": "failure",
+  "deployment_status": "live",
+  "cutover_monitor": {
+    "samples": 60,
+    "failed": 1,
+    "detailed_failure_reason": "not captured by the initial monitor"
+  },
+  "subsequent_verify_run": 41071018022,
+  "subsequent_verify_conclusion": "success",
+  "auto_deploy": "no",
+  "oauth_before_readiness": true,
+  "no_key_rotation": true,
+  "guard_policy_not_changed": true
+}

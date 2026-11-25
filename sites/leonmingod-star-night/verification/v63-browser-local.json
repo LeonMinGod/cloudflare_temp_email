@@ -1,0 +1,33 @@
+{
+  "mocked": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "initial_minutes": 5,
+      "after_one_minute": 4,
+      "subminute_seconds": 30,
+      "quota_and_renewal_included": true,
+      "model_cooldown_included": true,
+      "no_extra_requests": true,
+      "no_overflow": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "initial_minutes": 5,
+      "after_one_minute": 4,
+      "subminute_seconds": 30,
+      "quota_and_renewal_included": true,
+      "model_cooldown_included": true,
+      "no_extra_requests": true,
+      "no_overflow": true,
+      "errors": []
+    }
+  ]
+}

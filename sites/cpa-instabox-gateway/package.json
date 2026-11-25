@@ -1,0 +1,1 @@
+{"name":"leonmingod-cpa-instabox-gateway","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.mjs"}}

@@ -1,0 +1,38 @@
+{
+  "origin": "http://127.0.0.1:8792",
+  "cases": [
+    {
+      "case": "oath-signature-email-memory-paste-and-saved-key",
+      "status": "passed"
+    },
+    {
+      "case": "game-email-prefill",
+      "status": "passed"
+    },
+    {
+      "case": "same-browser-new-tab-email-link-verifies",
+      "status": "passed"
+    },
+    {
+      "case": "same-browser-email-link-auto-verifies-once",
+      "status": "passed"
+    },
+    {
+      "case": "other-browser-copy-only-no-verification-request",
+      "status": "passed"
+    },
+    {
+      "case": "mismatched-email-link-does-not-spend-an-attempt",
+      "status": "passed"
+    },
+    {
+      "case": "home-v6-393",
+      "status": "passed"
+    },
+    {
+      "case": "home-v6-1440",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

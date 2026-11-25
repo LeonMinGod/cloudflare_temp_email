@@ -1,0 +1,303 @@
+{
+  "mocked": false,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "pool_http": 200,
+      "modelRows": [
+        {
+          "id": "gpt-6.1-terra",
+          "state": "cooldown",
+          "requests": 1658
+        },
+        {
+          "id": "gpt-6.1-sol",
+          "state": "cooldown",
+          "requests": 644
+        },
+        {
+          "id": "gpt-6-astra",
+          "state": "cooldown",
+          "requests": 314
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "state": "cooldown",
+          "requests": 115
+        },
+        {
+          "id": "gpt-6-luna",
+          "state": "cooldown",
+          "requests": 17
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "state": "cooldown",
+          "requests": 7
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "state": "cooldown",
+          "requests": 3
+        },
+        {
+          "id": "gpt-6-sol",
+          "state": "cooldown",
+          "requests": 2
+        },
+        {
+          "id": "codex-auto-review",
+          "state": "cooldown",
+          "requests": 1
+        },
+        {
+          "id": "gpt-image-1.5",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5-flare",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5-sunburst",
+          "state": "cooldown",
+          "requests": 0
+        }
+      ],
+      "accountRows": [
+        {
+          "id": "c5985aab",
+          "state": "cooldown",
+          "requests": 658
+        },
+        {
+          "id": "a6ddcea3",
+          "state": "cooldown",
+          "requests": 375
+        },
+        {
+          "id": "74827efb",
+          "state": "disabled",
+          "requests": 3584
+        },
+        {
+          "id": "9c13bcf5",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "c13d9e4a",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "ec08dd96",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "a332e498",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "b5d4afee",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "2c470fec",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "01b641cd",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "661f9f2d",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "a5713182",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "b343abb3",
+          "state": "disabled",
+          "requests": 0
+        }
+      ],
+      "one_shared_read": true,
+      "no_overflow": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "pool_http": 200,
+      "modelRows": [
+        {
+          "id": "gpt-6.1-terra",
+          "state": "cooldown",
+          "requests": 1658
+        },
+        {
+          "id": "gpt-6.1-sol",
+          "state": "cooldown",
+          "requests": 644
+        },
+        {
+          "id": "gpt-6-astra",
+          "state": "cooldown",
+          "requests": 314
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "state": "cooldown",
+          "requests": 115
+        },
+        {
+          "id": "gpt-6-luna",
+          "state": "cooldown",
+          "requests": 17
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "state": "cooldown",
+          "requests": 7
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "state": "cooldown",
+          "requests": 3
+        },
+        {
+          "id": "gpt-6-sol",
+          "state": "cooldown",
+          "requests": 2
+        },
+        {
+          "id": "codex-auto-review",
+          "state": "cooldown",
+          "requests": 1
+        },
+        {
+          "id": "gpt-image-1.5",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5-flare",
+          "state": "cooldown",
+          "requests": 0
+        },
+        {
+          "id": "gpt-image-2.5-sunburst",
+          "state": "cooldown",
+          "requests": 0
+        }
+      ],
+      "accountRows": [
+        {
+          "id": "c5985aab",
+          "state": "cooldown",
+          "requests": 658
+        },
+        {
+          "id": "a6ddcea3",
+          "state": "cooldown",
+          "requests": 375
+        },
+        {
+          "id": "74827efb",
+          "state": "disabled",
+          "requests": 3584
+        },
+        {
+          "id": "9c13bcf5",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "c13d9e4a",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "ec08dd96",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "a332e498",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "b5d4afee",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "2c470fec",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "01b641cd",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "661f9f2d",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "a5713182",
+          "state": "disabled",
+          "requests": 0
+        },
+        {
+          "id": "b343abb3",
+          "state": "disabled",
+          "requests": 0
+        }
+      ],
+      "one_shared_read": true,
+      "no_overflow": true,
+      "errors": []
+    }
+  ]
+}

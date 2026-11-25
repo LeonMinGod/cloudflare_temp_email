@@ -1,0 +1,32 @@
+{
+  "resources": [
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/index.html",
+      "http": 200,
+      "local_match": true,
+      "sha256": "8511c34d10a9c0fe496ae38bcfbda89b21822f1a2d02b0897c2de67634434db9"
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/status-v5.mjs",
+      "http": 200,
+      "local_match": true,
+      "sha256": "ae1526c7cd4c80003224237aac206e1e6b9a3cb18e43870d0780dad447db3212"
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/index.html",
+      "http": 200,
+      "local_match": true,
+      "sha256": "8511c34d10a9c0fe496ae38bcfbda89b21822f1a2d02b0897c2de67634434db9"
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/status-v5.mjs",
+      "http": 200,
+      "local_match": true,
+      "sha256": "ae1526c7cd4c80003224237aac206e1e6b9a3cb18e43870d0780dad447db3212"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "date_utc": "2026-10-31",
+  "commit": "f068990",
+  "tests": 16,
+  "worker": "cpa-abuse-guard",
+  "previous_version": "05fc1f57-a27b-4fbf-9836-5259321d4eca",
+  "active_version": "6600a783-146f-40db-a963-10311045a884",
+  "deployment_id": "329c96f5-9045-474a-926d-1f22abc001ca",
+  "published_at": "2026-10-31T11:03:59.941686Z",
+  "sha256": "1ea09c551a78bc95f616bfcc1c11d92106a9bb64d595d4eeea3ed1d069eaeab1",
+  "bindings_preserved": true,
+  "state_namespace_preserved": true,
+  "render_redeployed": false,
+  "website_version_unchanged": "401ac7d3-59af-4c00-81fa-cc6a7b6d020b",
+  "analytics_observation": {
+    "at_start": {
+      "home_and_game_rows_written": 4808,
+      "guard_rows_written": 94013
+    },
+    "later": {
+      "home_and_game_rows_written": 4817,
+      "guard_rows_written": 97587
+    },
+    "later_total": 102404,
+    "last_nonzero_guard_minute": "2026-10-31T10:59:00Z",
+    "note": "Requests were quota-blocked before publication; subsequent zero rows are NOT evidence of successful write savings."
+  },
+  "post_publish_audit_run": 41195500037,
+  "post_publish_audit_conclusion": "failure",
+  "billing_access": "OAuth connector has no Billing Read/Write scope; HTTP 403",
+  "upgrade_performed": false,
+  "reset_utc": "2026-11-01T00:00:00Z",
+  "reset_beijing": "2026-11-01T08:00:00+08:00",
+  "limitations": [
+    "Consumed daily quota cannot be refunded by code changes.",
+    "No live personal-key recovery claim until quota reset or paid-plan activation and verification.",
+    "Harmless read/success-observation replay cache is bounded and ephemeral; abnormal evidence, admin mutations and consumed key/email allowances retain durable replay.",
+    "Gateway-denied/exempt suppression is not persisted per request; counters can differ for these diagnostic-only events."
+  ],
+  "post_publish_audit_failure": {
+    "endpoint": "/admin",
+    "http": 500,
+    "static_models_performed": false,
+    "personal_key_authorization_performed": false
+  }
+}

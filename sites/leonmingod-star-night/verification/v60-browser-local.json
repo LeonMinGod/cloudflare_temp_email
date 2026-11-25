@@ -1,0 +1,29 @@
+{
+  "mocked": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "interval_seconds": 300,
+      "no_early_poll": true,
+      "provider_switch_no_request": true,
+      "hidden_no_poll": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "interval_seconds": 300,
+      "no_early_poll": true,
+      "provider_switch_no_request": true,
+      "hidden_no_poll": true,
+      "no_overflow": true
+    }
+  ],
+  "error_backoff_seconds": 300,
+  "errors": []
+}

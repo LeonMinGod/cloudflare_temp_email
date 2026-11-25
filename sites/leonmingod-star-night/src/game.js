@@ -3,6 +3,8 @@ import * as previous from '../public/free-token/game/engine-v7.mjs';
 const { RULES, createGame, installEntropy } = current;
 const engineFor = run => run.rulesVersion === 7 ? previous : run.rulesVersion === 8 ? current : null;
 import { json, hash, sessionIdentity, verifyHuman, rateLimit } from './security.js';
+import { issueClaimGrant } from './claim-grant.js';
+import { PoolStatusCoordinator } from './pool-status.js';
 export { json } from './security.js';
 export const MAX_AGE = 180000;
 const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
@@ -53,9 +55,14 @@ export function verifyProgress(run, body, now) {
 }
 
 export class GameRun {
-  constructor(ctx) { this.ctx = ctx; }
+  constructor(ctx, env) { this.ctx = ctx; this.env = env; }
   async fetch(request) {
-    const path = new URL(request.url).pathname, body = await request.json();
+    const path = new URL(request.url).pathname;
+    if (path === '/pool-status') {
+      this.pool ||= new PoolStatusCoordinator(this.ctx, this.env);
+      return this.pool.fetch(request);
+    }
+    const body = await request.json();
     if (path === '/mutex') {
       const now = Date.now();
       const current = await this.ctx.storage.get('mutex');
@@ -117,7 +124,14 @@ export class GameRun {
       return json(200, response);
     });
   }
-  async alarm() { await this.ctx.storage.deleteAll(); }
+  async alarm() {
+    if (await this.ctx.storage.get('pool-status-kind') === 'pool') {
+      this.pool ||= new PoolStatusCoordinator(this.ctx, this.env);
+      await this.pool.alarm();
+      return;
+    }
+    await this.ctx.storage.deleteAll();
+  }
 }
 
 export async function handleGame(request, env) {
@@ -150,5 +164,10 @@ export async function handleGame(request, env) {
   const response = await env.GAME_RUNS.get(env.GAME_RUNS.idFromName(body.id)).fetch('https://game.internal/' + action, { method: 'POST', body: JSON.stringify({ sessionHash: await hash(secret + ':' + await sessionIdentity(request)), receipt: body.receipt, frame: body.frame, trace: body.trace }) });
   const result = await response.json();
   if (!response.ok || action === 'progress') return json(response.status, result);
-  return json(200, { ...result, claimable: true, baseUrl: 'https://cpa-dhke.onrender.com/v1', label: 'Leon🌙 破阵奖励' });
+  const issued = await issueClaimGrant(request, env, 'game');
+  if (!issued) return json(503, { error: '通关已记录，但领取暂时不可用，请稍后重试。' });
+  const headers = new Headers();
+  headers.append('Set-Cookie', issued.cookie);
+  headers.append('Set-Cookie', `lmg_game=; HttpOnly; SameSite=Strict; Path=/api/free-token/game; Max-Age=0${url.protocol === 'https:' ? '; Secure' : ''}`);
+  return json(200, { ...result, claimable: true }, headers);
 }

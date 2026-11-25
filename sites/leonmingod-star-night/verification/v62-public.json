@@ -1,0 +1,35 @@
+{
+  "version": "v62",
+  "checked_at": 1793805488,
+  "public_api": "https://yifu.leonmingod.com/v1",
+  "health_http": 200,
+  "management_http": 200,
+  "source_text_assets_matched_after_lf_normalization": 14,
+  "public_pools": [
+    {
+      "host": "leonmingod.com",
+      "http": 200,
+      "backend": "vps",
+      "accounts": 13,
+      "models": 35,
+      "stale": false,
+      "stats_scope": "account"
+    },
+    {
+      "host": "www.leonmingod.com",
+      "http": 200,
+      "backend": "vps",
+      "accounts": 13,
+      "models": 35,
+      "stale": false,
+      "stats_scope": "account"
+    }
+  ],
+  "private_fields_absent": true,
+  "unsigned_monitor_http": 403,
+  "temporary_personal_key_models_http": 200,
+  "temporary_personal_key_models_count": 35,
+  "temporary_personal_key_removed": true,
+  "inference_verified": false,
+  "inference_limitation": "Recovered public OAuth credentials require user reauthorization."
+}

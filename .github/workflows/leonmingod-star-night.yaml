@@ -39,6 +39,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          YIFU_OPS_SECRET: ${{ secrets.YIFU_OPS_SECRET }}
           WEBSITE_MODE: ${{ inputs.mode }}
           WEBSITE_VERSION: ${{ inputs.version_id }}
         run: python .github/scripts/leonmingod_release.py

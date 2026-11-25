@@ -1,0 +1,55 @@
+name: Stop RAK migration and verify original public station
+on:
+  push:
+    branches: [codex/free-token-home-20261024]
+    paths: ['.github/closeout-request.json']
+permissions:
+  actions: write
+  contents: write
+concurrency:
+  group: yifu-migration-closeout
+  cancel-in-progress: false
+jobs:
+  closeout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MIGRATION_ROLE: source
+      GH_TOKEN: ${{ github.token }}
+      YIFU_SSH_HOST: ${{ secrets.YIFU_SSH_HOST }}
+      YIFU_SSH_PORT: ${{ secrets.YIFU_SSH_PORT }}
+      YIFU_SSH_USER: ${{ secrets.YIFU_SSH_USER }}
+      YIFU_SSH_PRIVATE_KEY: ${{ secrets.YIFU_SSH_PRIVATE_KEY }}
+      YIFU_SSH_KNOWN_HOSTS: ${{ secrets.YIFU_SSH_KNOWN_HOSTS }}
+      YIFU_OPS_SECRET: ${{ secrets.YIFU_OPS_SECRET }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install paramiko==4.0.0 cryptography==46.0.3 PyYAML==6.0.3
+      - name: Read closeout request
+        run: |
+          python - <<'PY'
+          import json,os,re
+          from pathlib import Path
+          req=json.loads(Path('.github/closeout-request.json').read_text())
+          assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{5,79}',req['request_id'])
+          assert req['mode']=='cancel-and-verify'
+          with open(os.environ['GITHUB_ENV'],'a') as stream:
+              stream.write('MIGRATION_REQUEST_ID='+req['request_id']+'\nMIGRATION_MODE=verify\n')
+          PY
+      - run: python .github/scripts/migration_closeout.py
+      - if: always() && env.MIGRATION_REQUEST_ID != ''
+        run: python .github/scripts/migration_io.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: migration-closeout-${{ github.run_id }}
+          path: migration-operation/
+          retention-days: 14
+          if-no-files-found: ignore

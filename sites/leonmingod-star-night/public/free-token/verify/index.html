@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07161b">
+  <meta name="description" content="输入邮箱验证码，领取或找回 LeonMinGod 专属 API Key。">
+  <meta name="referrer" content="no-referrer">
+  <title>输入验证码 · LeonMinGod</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
+  <link rel="stylesheet" href="/free-token/verify-v2.css">
+  <script type="module" src="/free-token/verify-v3.mjs"></script>
+  <link rel="stylesheet" href="/theme-xmas-v2.css">
+  <script src="/theme-xmas-v2.js"></script>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <main>
+    <section class="verify-card" aria-labelledby="verify-title">
+      <div class="seal" aria-hidden="true"><img src="/free-token/jade-token-v2.webp" data-xmas-src="/free-token/xmas-token-v1.webp" alt=""></div>
+      <p class="eyebrow">EMAIL VERIFICATION</p>
+      <h1 id="verify-title">输入验证码</h1>
+      <p class="description">验证码已发送至<br><strong id="masked-email">你的邮箱</strong></p>
+      <form id="verify-form" autocomplete="on">
+        <label class="sr-only" for="verify-code">六位邮箱验证码</label>
+        <div class="code-shell" id="code-shell" data-state="idle">
+          <input id="verify-code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="verify-hint verify-status" autofocus>
+        </div>
+      </form>
+      <p id="verify-hint" class="hint">填满 6 位后自动验证，验证码 10 分钟内有效。</p>
+      <p id="verify-status" class="status" role="status" aria-live="polite"></p>
+      <button id="copy-code" class="copy-code" type="button" hidden>复制验证码</button>
+      <div id="claim-human" class="human" hidden></div>
+      <button id="resend" class="resend" type="button" disabled>120 秒后可重新发送</button>
+      <button id="change-email" class="change" type="button">邮箱填错了？返回修改</button>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-30T14:54:09.009Z",
+  "totals": {
+    "total": 13,
+    "ready": 3,
+    "cooldown": 0,
+    "disabled": 10,
+    "error": 0,
+    "unknown": 0
+  },
+  "models": 35,
+  "first_model": "gpt-6.1-sol",
+  "model_metrics_available": true,
+  "model_stats_since": "2026-10-29T23:18:28.046326525Z",
+  "xai": {
+    "id": "74827efb",
+    "quota": {
+      "plan": "SuperGrok Heavy",
+      "credits": null,
+      "windows": [
+        {
+          "label": "周限额",
+          "remaining": 88,
+          "reset_at": "2026-11-04T13:58:09.743Z",
+          "seconds": 604800
+        }
+      ],
+      "product_usage": [
+        {
+          "product": "GrokBuild",
+          "used_percent": 5
+        },
+        {
+          "product": "Cursor",
+          "used_percent": 4
+        },
+        {
+          "product": "GrokBot",
+          "used_percent": 3
+        }
+      ],
+      "pay_as_you_go": {
+        "enabled": false,
+        "cap_usd": 0,
+        "used_usd": null
+      },
+      "prepaid_usd": 0,
+      "observed_at": "2026-10-30T14:51:04.612Z",
+      "source": "live",
+      "supported": true,
+      "primary_remaining": 88,
+      "secondary_remaining": null,
+      "renew_at": null,
+      "next_refresh_at": "2026-10-30T14:56:04.612Z"
+    }
+  },
+  "private_fields_absent": true,
+  "health": 200
+}

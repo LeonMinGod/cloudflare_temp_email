@@ -1,0 +1,79 @@
+{
+  "mocked": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "accounts": [
+        "ready-high",
+        "ready-low",
+        "cooldown",
+        "error",
+        "unknown",
+        "disabled"
+      ],
+      "models": [
+        "gpt-6.1-sol",
+        "gpt-6-astra",
+        "gpt-6.1-terra",
+        "gemini-test",
+        "qwen-test",
+        "grok-4.7"
+      ],
+      "providers": [
+        "all",
+        "codex",
+        "antigravity",
+        "gemini",
+        "qwen",
+        "xai"
+      ],
+      "disabled_history_retained": true,
+      "disabled_filter_works": true,
+      "provider_switch_no_extra_request": true,
+      "refresh_seconds": 300,
+      "hidden_no_poll": true,
+      "no_overflow": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "accounts": [
+        "ready-high",
+        "ready-low",
+        "cooldown",
+        "error",
+        "unknown",
+        "disabled"
+      ],
+      "models": [
+        "gpt-6.1-sol",
+        "gpt-6-astra",
+        "gpt-6.1-terra",
+        "gemini-test",
+        "qwen-test",
+        "grok-4.7"
+      ],
+      "providers": [
+        "all",
+        "codex",
+        "antigravity",
+        "gemini",
+        "qwen",
+        "xai"
+      ],
+      "disabled_history_retained": true,
+      "disabled_filter_works": true,
+      "provider_switch_no_extra_request": true,
+      "refresh_seconds": 300,
+      "hidden_no_poll": true,
+      "no_overflow": true,
+      "errors": []
+    }
+  ]
+}

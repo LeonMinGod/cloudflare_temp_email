@@ -1,0 +1,36 @@
+name: Issue and publish Yifu Token key
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [inspect, issue]
+        default: inspect
+permissions:
+  contents: read
+concurrency:
+  group: free-token-home-production
+  cancel-in-progress: false
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install YAML parser
+        run: pip install PyYAML==6.0.3
+      - name: Inspect or issue and publish client key
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          YIFU_MODE: ${{ inputs.mode || 'inspect' }}
+        run: python .github/scripts/issue_yifu_key.py
+      - name: Retain encrypted recovery backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-yifu-issuance-backup
+          path: yifu-issuance-backup.enc
+          if-no-files-found: ignore
+          retention-days: 2

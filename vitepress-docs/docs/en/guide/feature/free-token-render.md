@@ -296,7 +296,6 @@ backups use `yifu-issue-backup-public.pem`; retain its matching private key outs
 the repository. Never commit client keys or private keys. Issuance appends without
 removing existing Render keys; a failed website switch restores the previous CF version.
 
-
 ## User-defined shorthand (confirmed 2026-10-25)
 
 | User phrase | Meaning and action in this project |
@@ -343,13 +342,6 @@ key registered with Render CPA. The main Worker stores it as `FREE_TOKEN_RENDER_
 the original `FREE_TOKEN_CPA_KEY` remains in place. Homepage artwork, pill navigation,
 the fullscreen Free Token layout, and token interactions are preserved.
 
-
-`https://leonmingod.com/api/free-token/claim` retains its existing confirmation request.
-Successful responses return `baseUrl: https://cpa-dhke.onrender.com/v1` and the same client
-key registered with Render CPA. The main Worker stores it as `FREE_TOKEN_RENDER_KEY`;
-the original `FREE_TOKEN_CPA_KEY` remains in place. Homepage artwork, pill navigation,
-the fullscreen Free Token layout, and token interactions are preserved.
-
 ## Latest page deployment — 2026-10-24 05:23 UTC
 
 The entrance and claim pages now share the homepage jade/gold fluid effects. Token
@@ -379,13 +371,11 @@ Cloudflare's injected analytics script; all four original images were retained. 
 integration version table below is historical. Consult this newer entrance snapshot and
 read actual live versions again before future changes.
 
-## Historical landscape navigation request (subsequently adjusted)
+## Landscape homepage navigation update (completed)
 
 After the page release, the user reported that the three homepage navigation links
 are too small at the bottom in landscape and supplied a screenshot with three red circles.
-Subsequent branch commits added four circular navigation links, branding, and centered claim cards.
-This historical section is not a current pending task; read the latest `src/homepage.js`
-and live page before making further changes. The original request was:
+Implemented and deployed as requested by user screenshot:
 
 - Target the homepage `https://leonmingod.com/`, editing `src/homepage.js` on the website branch.
 - Move the three links below the logo/slogan on the right, matching the marked circles.
@@ -477,7 +467,7 @@ working branch instead of recreating the site.
 | Post-cutover parent source SHA-256 | `1bfd639be2c04996d8e7fac80c2ab42e085acc5200f416b02a2904adc749562a` |
 
 Entrance routes on the apex and www hosts cover `/`, `/index.html`, `/free-token`,
-`/free-token/*` and `/home-scene-v4.js`. The original homepage illustration is no longer part of the site source. The original
+`/free-token/*`, both `home-hero-*-v4.webp` images, and `/home-scene-v4.js`. The original
 parent serves the claim API. Treat these as separate deployment targets.
 
 `src/site-original.js` is a **historical backup** containing the old URL and binding.

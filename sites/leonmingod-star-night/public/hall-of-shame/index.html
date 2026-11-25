@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090d16">
+<meta name="description" content="义父公益站封神榜：每日汇总 Prompt Guard 风控拦截与违规密钥吊销公示，所有 IP 与邮箱均已脱敏处理。">
+<title>封神榜 · 灵境天劫录 | LeonMinGod</title>
+<link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
+<link rel="stylesheet" href="/hall-of-shame/shame-v3.css">
+<script type="module" src="/hall-of-shame/shame-v3.mjs"></script>
+<link rel="stylesheet" href="/theme-xmas-v2.css">
+<script src="/theme-xmas-v2.js"></script>
+</head>
+<body>
+<div class="cosmos-backdrop" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="/">
+    <img src="/assets/logo-v2.svg" width="32" height="32" alt="">
+    <span>LeonMinGod<small>灵境天劫录 · HALL OF SHAME</small></span>
+  </a>
+  <nav class="top-nav" aria-label="页面导航">
+    <a class="nav-pill" href="/model-status/">号池状态</a>
+    <button id="theme" class="icon-button" type="button" aria-label="切换深浅色">◐</button>
+    <a class="back" href="/free-token/">返回令牌入口 ↗</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="live-dot" id="live-dot"></span> DAILY ENFORCEMENT LEDGER · PROMPT GUARD + KV</p>
+      <h1>义父公益站 · 封神榜</h1>
+      <p class="subtitle" id="status-note" role="status" aria-live="polite">正在读取今日封神石碑，汇总封禁与破限预警记录…</p>
+    </div>
+    <div class="sync-badge" aria-label="榜单更新频率">
+      <span class="sync-freq">每日自动更新一次</span>
+      <span id="sync-stamp" class="sync-stamp">按北京时间每日刷新</span>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="风控统计概览">
+    <article class="metric-card" data-tone="crimson">
+      <span>永久封神（永封）</span>
+      <strong id="stat-permanent">—</strong>
+      <small id="stat-permanent-note">正在读取永久封禁记录</small>
+    </article>
+    <article class="metric-card" data-tone="amber">
+      <span>天劫预警（黄牌）</span>
+      <strong id="stat-warning">—</strong>
+      <small id="stat-warning-note">满 3 次自动触发永封</small>
+    </article>
+    <article class="metric-card" data-tone="gold">
+      <span>累计挡劫拦截</span>
+      <strong id="stat-hits">—</strong>
+      <small id="stat-hits-note">Prompt Guard 累计拦截计数</small>
+    </article>
+    <article class="metric-card" data-tone="jade">
+      <span>榜单更新周期</span>
+      <strong id="stat-source">—</strong>
+      <small id="stat-updated">等待读取今日快照</small>
+    </article>
+  </section>
+
+  <section class="board" aria-label="封神榜单">
+    <div class="board-bar">
+      <div class="view-tabs" role="tablist" aria-label="榜单分类筛选">
+        <button id="tab-all" type="button" role="tab" aria-selected="true" data-filter="all">
+          全部上榜 <span id="count-all" class="tab-badge">0</span>
+        </button>
+        <button id="tab-permanent" type="button" role="tab" aria-selected="false" data-filter="permanent">
+          永久封神 <span id="count-permanent" class="tab-badge">0</span>
+        </button>
+        <button id="tab-revoked" type="button" role="tab" aria-selected="false" data-filter="revoked">
+          密钥吊销 <span id="count-revoked" class="tab-badge">0</span>
+        </button>
+        <button id="tab-warning" type="button" role="tab" aria-selected="false" data-filter="warning">
+          天劫预警 <span id="count-warning" class="tab-badge">0</span>
+        </button>
+      </div>
+
+      <div class="toolbar" role="search">
+        <div class="search-wrap">
+          <label class="sr-only" for="search">搜索落款、脱敏 IP、脱敏邮箱或违规类型</label>
+          <input id="search" type="search" placeholder="搜索落款、脱敏 IP / 邮箱或违规行为…" autocomplete="off">
+        </div>
+        <label class="sr-only" for="sort">排序方式</label>
+        <select id="sort">
+          <option value="severity" selected>封神级别优先</option>
+          <option value="recent">最近触发 ↓</option>
+          <option value="hits">拦截次数 ↓</option>
+          <option value="strikes">违规进度 ↓</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="permanent-section" class="tier-section">
+      <div class="section-head">
+        <h2><span class="seal-dot crimson" aria-hidden="true"></span> 永久封神录</h2>
+        <span class="section-sub">已永久拉黑 IP 或吊销公益 API Key，恕不解封</span>
+      </div>
+      <div id="permanent-grid" class="shame-grid"></div>
+    </div>
+
+    <div id="warning-section" class="tier-section">
+      <div class="section-head">
+        <h2><span class="seal-dot amber" aria-hidden="true"></span> 天劫预警榜 · 破限黄牌</h2>
+        <span class="section-sub">触发 Prompt Guard 安全拦截但未满 3 次，继续尝试破限将自动升入封神录</span>
+      </div>
+      <div id="warning-grid" class="warning-grid"></div>
+    </div>
+
+    <p id="board-empty" class="empty" hidden>当前筛选条件下没有上榜记录。</p>
+  </section>
+
+  <section class="rules-panel" aria-label="灵境封禁铁律">
+    <div class="section-head">
+      <h2><span class="seal-dot jade" aria-hidden="true"></span> 灵境公益站 · 封神铁律</h2>
+      <span class="section-sub">公益资源来之不易，公平使用人人有责</span>
+    </div>
+    <div id="rules-grid" class="rules-grid"></div>
+    <p class="privacy-note">
+      隐私与更新声明：本榜单按北京时间每日自动更新一次，所有 IP 均只保留前两段、邮箱仅保留前缀，绝不公开任何原始 IP、完整邮箱、API Key 或对话正文。
+    </p>
+  </section>
+</main>
+
+<noscript><p class="empty">请开启 JavaScript 查看封神榜。</p></noscript>
+</body>
+</html>

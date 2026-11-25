@@ -1,0 +1,14 @@
+{
+  "version": "f1872be0-f97d-4890-9800-0f2f3eb19cf5",
+  "previous": "71cc78b8-48bc-4d9a-ac7b-a5cd73b20386",
+  "forwarder": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+  "stage_run": 40915716462,
+  "publish_run": 40915906456,
+  "tests": 49,
+  "bindings_preserved": 11,
+  "render_redeployed": false,
+  "waf_rule": "8ff6e55df6f04e189212bef11389cadc",
+  "refresh_seconds": 60,
+  "quota_seconds": 300,
+  "management_auth_backoff_seconds": 900
+}

@@ -1,0 +1,102 @@
+{
+  "stage_run": 40971792221,
+  "publish_run": 40972514083,
+  "stage": {
+    "mode": "stage",
+    "version_id": "2b31bdc4-5d08-4716-8589-411b49f0017c",
+    "production_unchanged": true,
+    "parent_version": "f1872be0-f97d-4890-9800-0f2f3eb19cf5",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "module_sha256": "aaadebc168368a5d2c4defb09b849b6f79bbc7032937a8b04ca226ce23a69c99",
+    "resources_summary": {
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CPA_STATUS_MANAGEMENT_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_CPA_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_OPS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_RENDER_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SITEKEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "GAME_RUNS",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "KEY_ENC_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KV",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        }
+      ],
+      "assets_config": null
+    }
+  },
+  "publish": {
+    "mode": "publish",
+    "version_id": "2b31bdc4-5d08-4716-8589-411b49f0017c",
+    "previous_version": "f1872be0-f97d-4890-9800-0f2f3eb19cf5",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "previous_entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "forwarder_source_unchanged": true,
+    "shared_key_not_exposed": true,
+    "website_open": true,
+    "issuance_state_preserved": true,
+    "game_namespace_preserved": true,
+    "source_pages_verified": 7
+  },
+  "website_tests": 54,
+  "go_full_tests_build_and_race": true,
+  "cpa_commit": "6b7dc9b34f1da0171ce8004dc1ba031e27cd1d21",
+  "cpa_deploy": "dep-dbht8a9srm7s73dt3a30",
+  "config_run": 40972135000,
+  "config": {
+    "enabled": true,
+    "only_config_path_changed": "usage-statistics-enabled",
+    "credentials_retained": 13,
+    "client_keys_retained": 4
+  },
+  "audit_run": 40971772148,
+  "real_model_verification": {
+    "model": "gpt-6.1-sol",
+    "http_status": 200,
+    "before": 0,
+    "after": 1,
+    "non_destructive": true,
+    "rows": 1,
+    "fields": [
+      "failed",
+      "id",
+      "provider",
+      "recent",
+      "success"
+    ]
+  },
+  "read_waf_exception_enabled": true
+}

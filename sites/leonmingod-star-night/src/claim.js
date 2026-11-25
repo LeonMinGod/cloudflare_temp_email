@@ -1,13 +1,17 @@
 import { json, verifyHuman, rateLimit } from './security.js';
-import { beginCode, cancelCode, completeClaim, normalizeEmail, readLeaderboard, sha256Hex, validateUsername } from './claim-store.js';
+import { RESEND_COOLDOWN_MS, beginCode, cancelCode, completeClaim, importEncKey, normalizeEmail, readLeaderboard, sha256Hex, validateUsername } from './claim-store.js';
+import { clearClaimGrant, issueClaimGrant, readClaimGrant } from './claim-grant.js';
+import { verificationEmail } from './claim-email.js';
 
-const BASE_URL = 'https://cpa-dhke.onrender.com/v1';
+const BASE_URL = 'https://yifu.leonmingod.com/v1';
 const FROM_DEFAULT = 'noreply@leonmingod.com';
 
-const reply = (status, body, extra = {}) => json(status, body, {
-  ...(status === 405 ? { Allow: extra.allow || 'POST' } : {}),
-  ...(body?.retry_after ? { 'Retry-After': String(body.retry_after) } : {}),
-});
+const reply = (status, body, extra = {}, carry = null) => {
+  const headers = new Headers(carry || undefined);
+  if (status === 405) headers.set('Allow', extra.allow || 'POST');
+  if (body?.retry_after) headers.set('Retry-After', String(body.retry_after));
+  return json(status, body, headers);
+};
 
 async function readBody(request) {
   const text = await request.text();
@@ -41,17 +45,17 @@ async function withClaimLock(env, email, run) {
   }
 }
 
-async function sendCode(env, email, code) {
+async function sendCode(env, email, code, origin) {
   const from = env.CLAIM_MAIL_FROM || FROM_DEFAULT;
+  const sender = from.includes('<') ? from : `LeonMinGod <${from}>`;
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from,
+        from: sender,
         to: [email],
-        subject: 'Leon🌙 贵宾密钥验证码',
-        text: `你的验证码是 ${code}，10 分钟内有效。如果不是你本人操作，请忽略这封邮件。`,
+        ...verificationEmail(email, code, origin),
       }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -74,12 +78,18 @@ export async function handleLegacyClaim(request, env) {
   if (typeof body.oath !== 'string' || body.oath.trim() !== '义父' || body.confirmed !== true) {
     return reply(400, { error: '请先输入「义父」，再完成二次确认。' });
   }
+  // Older in-flight clients may have no signature. New clients require it; when
+  // supplied, validate it and bind it into the signed grant, not a later field.
+  const signature = body.username === undefined ? { ok: true, username: '' } : validateUsername(body.username);
+  if (!signature.ok) return reply(400, { error: signature.error });
+  if (!env.KEY_ENC_SECRET || !env.GAME_RUNS) return reply(503, { error: '领取暂时不可用，请稍后再试。' });
   const limited = await rateLimit(request, env, 'claim');
   if (limited) return limited;
   const headers = new Headers();
-  const human = await verifyHuman(request, env, body.humanToken, 'oath_claim', headers);
-  if (human) return human;
-  return json(200, { ok: true, next: 'email' }, headers);
+  const issued = await issueClaimGrant(request, env, 'oath', Date.now(), signature.username);
+  if (!issued) return reply(503, { error: '领取暂时不可用，请稍后再试。' });
+  headers.append('Set-Cookie', issued.cookie);
+  return json(200, { ok: true, next: 'email', expires_in: Math.floor((issued.grant.expires_at - Date.now()) / 1000) }, headers);
 }
 
 export async function handleClaimCode(request, env) {
@@ -89,8 +99,8 @@ export async function handleClaimCode(request, env) {
   const verificationRequest = request.clone();
   const { body, error } = await readBody(request);
   if (error) return error;
-  const username = validateUsername(body.username);
-  if (!username.ok) return reply(400, { error: username.error });
+  const grant = await readClaimGrant(verificationRequest, env);
+  if (!grant) return reply(403, { error: '请先叫声义父，或完成御剑破阵。' });
   const email = normalizeEmail(body.email);
   if (!email) return reply(400, { error: '请填写有效的邮箱地址。' });
   const limited = await rateLimit(verificationRequest, env, 'claim');
@@ -101,14 +111,15 @@ export async function handleClaimCode(request, env) {
   const ipHash = await sha256Hex(`ip\n${request.headers.get('CF-Connecting-IP') || 'local'}`);
   const code = sixDigit();
   return withClaimLock(env, email, async () => {
-    const prepared = await beginCode(env.KV, { email, username: username.username, now: Date.now(), ipHash, code });
-    if (!prepared.ok) return reply(prepared.status, { error: prepared.error, retry_after: prepared.retry_after });
-    const sent = await sendCode(env, email, code);
+    // Every reply after a passed human check carries the pass cookie, so the check is not asked again.
+    const prepared = await beginCode(env.KV, { email, now: Date.now(), ipHash, code, grantId: grant.id });
+    if (!prepared.ok) return reply(prepared.status, { error: prepared.error, retry_after: prepared.retry_after, ...(prepared.cooldown ? { cooldown: true } : {}) }, {}, headers);
+    const sent = await sendCode(env, email, code, new URL(request.url).origin);
     if (!sent.ok) {
       await cancelCode(env.KV, email);
-      return reply(sent.status, { error: sent.error });
+      return reply(sent.status, { error: sent.error }, {}, headers);
     }
-    return json(200, { sent: true }, headers);
+    return json(200, { sent: true, resend_after: RESEND_COOLDOWN_MS / 1000 }, headers);
   });
 }
 
@@ -119,18 +130,25 @@ export async function handleClaimVerify(request, env) {
   const verificationRequest = request.clone();
   const { body, error } = await readBody(request);
   if (error) return error;
+  const grant = await readClaimGrant(verificationRequest, env);
+  if (!grant) return reply(403, { error: '领取资格已失效，请返回后重新进入领取流程。' });
   const email = normalizeEmail(body.email);
   if (!email) return reply(400, { error: '请填写有效的邮箱地址。' });
   if (typeof body.code !== 'string' || !/^\d{6}$/.test(body.code)) return reply(400, { error: '请输入 6 位验证码。' });
+  // No human check here: it guards sending (mail quota). Guessing is bounded by the
+  // per-code attempt limit (MAX_ATTEMPTS, then a new human-checked send) and the rate limit.
   const limited = await rateLimit(verificationRequest, env, 'claim');
   if (limited) return limited;
-  const headers = new Headers();
-  const human = await verifyHuman(verificationRequest, env, body.humanToken, 'claim_verify', headers);
-  if (human) return human;
+  const encKey = await importEncKey(env.KEY_ENC_SECRET);
+  if (!encKey) return reply(503, { error: '验证暂时不可用，请稍后再试。' });
   return withClaimLock(env, email, async () => {
-    const result = await completeClaim(env.KV, { email, code: body.code, now: Date.now() });
-    if (!result.ok) return reply(result.status, { error: result.error });
-    return json(200, { baseUrl: BASE_URL, apiKey: result.apiKey, label: 'Leon🌙 贵宾密钥', username: result.username }, headers);
+    const result = await completeClaim(env.KV, { email, code: body.code, now: Date.now(), encKey, grantId: grant.id, username: grant.username || '' });
+    if (!result.ok) {
+      const { ok, status, apiKey, ...details } = result;
+      return reply(status, details);
+    }
+    const headers = new Headers({ 'Set-Cookie': clearClaimGrant(request) });
+    return json(200, { baseUrl: BASE_URL, apiKey: result.apiKey, username: result.username || '', label: 'LeonMinGod 专属 API Key', replaced: Boolean(result.replaced), existing: Boolean(result.existing) }, headers);
   });
 }
 

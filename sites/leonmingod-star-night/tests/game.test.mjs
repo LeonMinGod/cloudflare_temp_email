@@ -11,6 +11,8 @@ import { build } from 'esbuild';
 import { play } from '../scripts/calibrate.mjs';
 import { playPlanned } from '../scripts/planner.mjs';
 
+const TEST_ENC_SECRET=btoa(String.fromCharCode(...Array.from({length:32},(_,i)=>i)));
+
 function winning(seed, engine) {
   if(!engine){for(const options of [{reaction:6,horizon:96},{reaction:4,horizon:120},{reaction:5,horizon:100}]){const result=playPlanned(seed,options);if(result.state.won)return result;}return null;}
   for (const reaction of [4,7,10,14]) for (const foresight of [20,30,45,60]) {
@@ -70,7 +72,7 @@ test('finish checks authoritative state, timing, identity, receipt and single-us
 test('real SQLite Durable Object locks prefixes, supports exact retries and grants one concurrent reward',async()=>{
   const fixtureClass=`export {default, Site} from './src/index.js';import {GameRun} from './src/game.js';export class TestGameRun extends GameRun { async fetch(request) { const path=new URL(request.url).pathname; if(path==='/test-read')return Response.json(await this.ctx.storage.get('run')); if(path==='/test-put'){await this.ctx.storage.put('run',await request.json());return Response.json({ok:true});}return super.fetch(request); }};`;
   const bundled=await build({stdin:{contents:fixtureClass,resolveDir:process.cwd()},bundle:true,format:'esm',target:'es2022',external:['cloudflare:workers'],write:false});
-  const mf=new Miniflare({modules:true,script:bundled.outputFiles[0].text,compatibilityDate:'2025-04-01',bindings:{FREE_TOKEN_RENDER_KEY:'test-reward-placeholder',FREE_TOKEN_LOCAL_TEST:'local-test-only'},durableObjects:{GAME_RUNS:{className:'TestGameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
+  const mf=new Miniflare({modules:true,script:bundled.outputFiles[0].text,compatibilityDate:'2025-04-01',bindings:{FREE_TOKEN_RENDER_KEY:'test-reward-placeholder',FREE_TOKEN_LOCAL_TEST:'local-test-only',KEY_ENC_SECRET:TEST_ENC_SECRET},durableObjects:{GAME_RUNS:{className:'TestGameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
   const origin='http://localhost',headers={'Content-Type':'application/json',Origin:origin,'User-Agent':'test-browser'};
   const send=(action,body,cookie)=>mf.dispatchFetch(origin+'/api/free-token/game/'+action,{method:'POST',headers:{...headers,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(body)});
   try{
@@ -89,7 +91,7 @@ test('real SQLite Durable Object locks prefixes, supports exact retries and gran
     await stub.fetch('https://game.internal/test-put',{method:'POST',body:JSON.stringify(ready)});
     const responses=await Promise.all(Array.from({length:6},()=>send('finish',{id:challenge.id,receipt:receipt.receipt},cookie)));
     assert.equal(responses.filter(r=>r.status===200).length,1);assert.equal(responses.filter(r=>r.status===409).length,5);
-    const reward=await responses.find(r=>r.status===200).json();assert.equal(reward.won,true);assert.equal(reward.claimable,true);assert.equal(reward.apiKey,undefined);
+    const won=responses.find(r=>r.status===200);const reward=await won.json();assert.equal(reward.won,true);assert.equal(reward.claimable,true);assert.equal(reward.apiKey,undefined);assert.match(won.headers.get('Set-Cookie'),/lmg_claim_local=/);
   }finally{await mf.dispose();}
 });
 
@@ -184,21 +186,17 @@ test('a second gold pickup refreshes five seconds instead of stacking time',()=>
 
 test('availability exposes no secret and closed issuance blocks both claim paths',async()=>{
   for(const enabled of [false,true]){
-    const mf=new Miniflare({modules:true,scriptPath:'dist/index.js',compatibilityDate:'2025-04-01',bindings:enabled?{FREE_TOKEN_RENDER_KEY:'availability-test-placeholder',FREE_TOKEN_TURNSTILE_SECRET:'test-turnstile-secret',FREE_TOKEN_OPS_SECRET:'test-ops-secret'}:{},durableObjects:{GAME_RUNS:{className:'GameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
+    const mf=new Miniflare({modules:true,scriptPath:'dist/index.js',compatibilityDate:'2025-04-01',bindings:enabled?{FREE_TOKEN_RENDER_KEY:'availability-test-placeholder',FREE_TOKEN_TURNSTILE_SECRET:'test-turnstile-secret',KEY_ENC_SECRET:TEST_ENC_SECRET}:{},durableObjects:{GAME_RUNS:{className:'GameRun',useSQLite:true}},serviceBindings:{ASSETS:()=>new Response('Not found',{status:404})}});
     try{
       const response=await mf.dispatchFetch('http://localhost/api/free-token/status');assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
       const text=await response.text();assert.equal(JSON.parse(text).open,enabled);assert.ok(!text.includes('availability-test-placeholder'));assert.ok(!text.includes('apiKey'));
       const headers={'Content-Type':'application/json',Origin:'http://localhost'};
-      const claim=await mf.dispatchFetch('http://localhost/api/free-token/claim',{method:'POST',headers,body:JSON.stringify({oath:'义父',confirmed:true})});assert.equal(claim.status,enabled?403:503);
+      const claim=await mf.dispatchFetch('http://localhost/api/free-token/claim',{method:'POST',headers,body:JSON.stringify({oath:'义父',confirmed:true})});assert.equal(claim.status,enabled?200:503);
       if(enabled){
-        const body=JSON.stringify({oath:'义父',confirmed:true}),timestamp=String(Date.now());
-        const signature=createHmac('sha256','test-ops-secret').update(`${timestamp}\nPOST\n/api/free-token/claim\n${body}`).digest('hex');
-        const probe=await mf.dispatchFetch('http://localhost/api/free-token/claim',{method:'POST',headers:{...headers,'X-LMG-Operation':timestamp+':'+signature},body});
-        assert.equal(probe.status,200,'Operational probes still work after consuming the request body');
-        const issued=await probe.json();assert.equal(issued.next,'email');assert.equal(issued.apiKey,undefined);
+        const issued=await claim.json();assert.equal(issued.next,'email');assert.equal(issued.apiKey,undefined);
         const start=await mf.dispatchFetch('http://localhost/api/free-token/game/start',{method:'POST',headers,body:'{}'});assert.equal(start.status,403);
       }
-      if(!enabled){assert.match((await claim.json()).error,/验证暂时不可用/);const start=await mf.dispatchFetch('http://localhost/api/free-token/game/start',{method:'POST',headers,body:'{}'});assert.equal(start.status,503);assert.match((await start.json()).error,/暂未开放/);}
+      if(!enabled){assert.match((await claim.json()).error,/领取暂时不可用/);const start=await mf.dispatchFetch('http://localhost/api/free-token/game/start',{method:'POST',headers,body:'{}'});assert.equal(start.status,503);assert.match((await start.json()).error,/暂未开放/);}
     }finally{await mf.dispose();}
   }
 });

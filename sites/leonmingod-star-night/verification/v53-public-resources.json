@@ -1,0 +1,469 @@
+{
+  "release": "71cc78b8-48bc-4d9a-ac7b-a5cd73b20386",
+  "resource_checks": [
+    {
+      "host": "leonmingod.com",
+      "path": "/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 15160
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 3195
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/choose/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 2973
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/claim/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 19074
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/verify/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 2478
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/game/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 5961
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 4574
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/home-scene-v6.js",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 10388
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/star-sea-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6079
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/home-hero-desktop-v7.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 671686
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/home-hero-mobile-v7.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 767430
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/assets/jade-orb-v4.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 675592
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/welcome-desktop-v5.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 674076
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/welcome-mobile-v5.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 774470
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/ccswitch-v1.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 9821
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/ccswitch-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 5264
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/claim-v10.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6478
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/game/app-v17.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 20252
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/game/style-v5.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 16599
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/free-token/choose-v3.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 7416
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/index.html",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 4574
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/status-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6255
+    },
+    {
+      "host": "leonmingod.com",
+      "path": "/model-status/status-v1.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6341
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 15160
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 3195
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/choose/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 2973
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/claim/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 19074
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/verify/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 2478
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/game/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 5961
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 4574
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/home-scene-v6.js",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 10388
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/star-sea-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6079
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/home-hero-desktop-v7.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 671686
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/home-hero-mobile-v7.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 767430
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/assets/jade-orb-v4.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 675592
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/welcome-desktop-v5.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 674076
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/welcome-mobile-v5.webp",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 774470
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/ccswitch-v1.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 9821
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/ccswitch-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 5264
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/claim-v10.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6478
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/game/app-v17.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 20252
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/game/style-v5.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 16599
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/free-token/choose-v3.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 7416
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/index.html",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "no-store",
+      "bytes": 4574
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/status-v1.css",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6255
+    },
+    {
+      "host": "www.leonmingod.com",
+      "path": "/model-status/status-v1.mjs",
+      "http": 200,
+      "matches_source": true,
+      "cache_control": "public, max-age=31536000, immutable",
+      "bytes": 6341
+    }
+  ],
+  "all_resources_match": true,
+  "leonmingod.com": {
+    "http": 200,
+    "totals": {
+      "total": 13,
+      "ready": 3,
+      "cooldown": 0,
+      "disabled": 10,
+      "error": 0,
+      "unknown": 0
+    },
+    "models": 35,
+    "models_partial": false,
+    "providers": [
+      {
+        "provider": "other",
+        "total": 8,
+        "ready": 1,
+        "cooldown": 0,
+        "disabled": 7,
+        "error": 0,
+        "unknown": 0
+      },
+      {
+        "provider": "codex",
+        "total": 3,
+        "ready": 2,
+        "cooldown": 0,
+        "disabled": 1,
+        "error": 0,
+        "unknown": 0
+      },
+      {
+        "provider": "antigravity",
+        "total": 2,
+        "ready": 0,
+        "cooldown": 0,
+        "disabled": 2,
+        "error": 0,
+        "unknown": 0
+      }
+    ],
+    "stale": false,
+    "updated_at": "2026-10-29T15:48:56.834Z",
+    "private_fields_absent": true
+  },
+  "www.leonmingod.com": {
+    "http": 200,
+    "totals": {
+      "total": 13,
+      "ready": 3,
+      "cooldown": 0,
+      "disabled": 10,
+      "error": 0,
+      "unknown": 0
+    },
+    "models": 35,
+    "models_partial": false,
+    "providers": [
+      {
+        "provider": "other",
+        "total": 8,
+        "ready": 1,
+        "cooldown": 0,
+        "disabled": 7,
+        "error": 0,
+        "unknown": 0
+      },
+      {
+        "provider": "codex",
+        "total": 3,
+        "ready": 2,
+        "cooldown": 0,
+        "disabled": 1,
+        "error": 0,
+        "unknown": 0
+      },
+      {
+        "provider": "antigravity",
+        "total": 2,
+        "ready": 0,
+        "cooldown": 0,
+        "disabled": 2,
+        "error": 0,
+        "unknown": 0
+      }
+    ],
+    "stale": false,
+    "updated_at": "2026-10-29T15:48:56.834Z",
+    "private_fields_absent": true
+  },
+  "render_health": 200,
+  "issuance_status": {
+    "open": true,
+    "message": ""
+  }
+}

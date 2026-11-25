@@ -1,0 +1,35 @@
+{
+  "resources": [
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/index.html",
+      "match": true
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/status-v2.mjs",
+      "match": true
+    },
+    {
+      "host": "leonmingod.com",
+      "file": "model-status/status-v2.css",
+      "match": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/index.html",
+      "match": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/status-v2.mjs",
+      "match": true
+    },
+    {
+      "host": "www.leonmingod.com",
+      "file": "model-status/status-v2.css",
+      "match": true
+    }
+  ],
+  "render_health": 200
+}

@@ -1,0 +1,49 @@
+{
+  "mocked": true,
+  "source": "safe fields from real xAI audit",
+  "results": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "plan": true,
+      "remaining": 88,
+      "reset_Beijing": "21:58",
+      "shared_product_usage": true,
+      "masked_email": true,
+      "cooldown": true,
+      "one_status_read": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "plan": true,
+      "remaining": 88,
+      "reset_Beijing": "21:58",
+      "shared_product_usage": true,
+      "masked_email": true,
+      "cooldown": true,
+      "one_status_read": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "plan": true,
+      "remaining": 88,
+      "reset_Beijing": "21:58",
+      "shared_product_usage": true,
+      "masked_email": true,
+      "cooldown": true,
+      "one_status_read": true,
+      "no_overflow": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,74 @@
+{
+  "stage_run": 41071012306,
+  "publish_run": 41071501187,
+  "stage": {
+    "mode": "stage",
+    "version_id": "3453ed6c-697c-4174-9a16-14cd4c377e9b",
+    "production_unchanged": true,
+    "parent_version": "a767d9be-e5e3-4701-b117-77206ad6390c",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "module_sha256": "60f0928d91a273c5e086f582bac967b2ef2c90f5d71b4f59f17edead102e6928",
+    "resources_summary": {
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CPA_STATUS_MANAGEMENT_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_CPA_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_OPS_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_RENDER_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "FREE_TOKEN_TURNSTILE_SITEKEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "GAME_RUNS",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "KEY_ENC_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "KV",
+          "type": "kv_namespace"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        }
+      ],
+      "assets_config": null
+    }
+  },
+  "publish": {
+    "mode": "publish",
+    "version_id": "3453ed6c-697c-4174-9a16-14cd4c377e9b",
+    "previous_version": "a767d9be-e5e3-4701-b117-77206ad6390c",
+    "entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "previous_entrance_version": "51a33be8-6ca4-4b4f-886f-613bfea996b0",
+    "forwarder_source_unchanged": true,
+    "shared_key_not_exposed": true,
+    "website_open": true,
+    "issuance_state_preserved": true,
+    "game_namespace_preserved": true,
+    "source_pages_verified": 7
+  }
+}

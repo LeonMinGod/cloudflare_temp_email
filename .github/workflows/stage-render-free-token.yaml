@@ -1,0 +1,101 @@
+name: Stage new Render Free Token key
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Generate and stage new client key
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: python
+        run: |
+          import os, json, secrets, subprocess, urllib.request, urllib.error, uuid
+          from pathlib import Path
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"].strip()
+          cf_token = os.environ["CLOUDFLARE_API_TOKEN"].strip()
+          api_root = "https://api.cloudflare.com/client/v4/accounts/" + account + "/workers/scripts/leonmingod-home"
+          def api(suffix, method="GET", body=None, content_type="application/json"):
+              data = json.dumps(body).encode() if isinstance(body, dict) else body
+              req = urllib.request.Request(api_root + suffix, data=data, method=method,
+                  headers={"Authorization": "Bearer " + cf_token, "Content-Type": content_type})
+              try:
+                  with urllib.request.urlopen(req, timeout=45) as r: response = json.load(r)
+              except urllib.error.HTTPError as error:
+                  try: detail = json.dumps(json.load(error).get("errors", []))
+                  except Exception: detail = "No validation detail"
+                  for value in [cf_token, globals().get("client_key", "")]:
+                      if value: detail = detail.replace(value, "[redacted]")
+                  raise RuntimeError("Cloudflare HTTP " + str(error.code) + ": " + detail) from None
+              if not response.get("success", True): raise RuntimeError("Cloudflare rejected the operation")
+              return response.get("result")
+          def claim():
+              req = urllib.request.Request("https://leonmingod.com/api/free-token/claim",
+                  data=json.dumps({"oath": "义父", "confirmed": True}).encode(), method="POST",
+                  headers={"Content-Type": "application/json", "Origin": "https://leonmingod.com"})
+              with urllib.request.urlopen(req, timeout=30) as response: return json.load(response)
+          active = api("/deployments")["deployments"][0]["versions"]
+          previous = "0a14864c-6cd7-408f-b15c-9e476f2eea5c"
+          if len(active) != 1 or active[0]["version_id"] != previous:
+              raise RuntimeError("Parent website changed since review; stop before staging")
+          settings = api("/settings")
+          if any(b.get("name") == "FREE_TOKEN_RENDER_KEY" for b in settings.get("bindings", [])):
+              raise RuntimeError("A staged Render key already exists; do not overwrite it")
+          client_key = "sk-leon-free-" + secrets.token_urlsafe(32)
+          print("::add-mask::" + client_key)
+          Path("reader-public.pem").write_text("-----BEGIN CERTIFICATE-----\nMIIDJTCCAg2gAwIBAgIUTL+Hmjmu3LqwlvFB61qp0OJ1qA4wDQYJKoZIhvcNAQEL\nBQAwIjEgMB4GA1UEAwwXRnJlZS1Ub2tlbi1LZXktVHJhbnNmZXIwHhcNMjYxMDI0\nMDQzNzI0WhcNMjYxMDI2MDQzNzI0WjAiMSAwHgYDVQQDDBdGcmVlLVRva2VuLUtl\neS1UcmFuc2ZlcjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKct1B45\n6/dAXpMIWewBGRuqhirgzRX2sH6Y7dodUBDDpG5Wn5imRSYd1Nixzc+YdylpjwHp\n7OK0N1u2nPeY6ZIBtcso68rtiTCS8Ztc4mFfF87a2sUayP0x0inPAATtJyY1J2kJ\nJ0yFdSoMIw566CGxe//sPGrbbQYif9ERSeiBvz1cYr069+Ac3+HUGKiptO01audW\nFUNq1IBn/SN5YAECxc6zTUHGcmHtpWwiHCp6MkTu5Xm6wee1L5NvOcGqxcy4fGJv\nVwN+7Xr/SGP8bP+fWqPhoynW0kIZv9t60ILMzD2VlYV6mqJrBpQhn9bONxL0X4kT\nKk8cTgjEMJ56DFECAwEAAaNTMFEwHQYDVR0OBBYEFEVYc8pGAk+I8DOqj461Uv8k\nGqkcMB8GA1UdIwQYMBaAFEVYc8pGAk+I8DOqj461Uv8kGqkcMA8GA1UdEwEB/wQF\nMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAF5X4c5nisHooRDrLKCZmJek3WT934db\nxIbD6VM9OZ/8cJ1CXlv3KJrh4lGTw/3YsJS7zRlT2m7jySP7CiFnnqgJQbGGLy9A\nLIfXbuWmjmwx1Rm+Vih8pDvxyfuP+z5c/NW9gDZklBieweUujQlkGEA8ykEljk2n\n0GAbsDjoapANa7bTqvtrN6sWGlceOYGpaohUlkdhITb7dlz78jbFrYcxvEf2z+An\nBqrYESVPhecIlOmIhrdbUwGBJ3z+XLGuhgOG0XE6rmjPSh/6oPXzsKVnobhGmen2\nBtZzIW2vwheVXOwdqmGgNUzu0qeuh16fk+tpArIZiAQkKTxASprOCiM=\n-----END CERTIFICATE-----\n")
+          protected = Path("payload.json")
+          protected.write_text(json.dumps({"api_key": client_key, "base_url": "https://cpa-dhke.onrender.com/v1"}))
+          protected.chmod(0o600)
+          subprocess.run(["openssl", "cms", "-encrypt", "-binary", "-aes256",
+              "-in", str(protected), "-outform", "DER", "-out", "render-key.enc", "reader-public.pem"], check=True)
+          protected.unlink()
+          metadata = {
+              "main_module": "index.js", "keep_assets": True,
+              "compatibility_date": settings["compatibility_date"],
+              "compatibility_flags": settings.get("compatibility_flags", []),
+              "keep_bindings": ["secret_text", "plain_text", "json"],
+              "bindings": [{"name": "ASSETS", "type": "assets"},
+                  {"name": "FREE_TOKEN_RENDER_KEY", "type": "secret_text", "text": client_key}],
+              "annotations": {"workers/message": "Stage unused Render client key; retain existing public claim"}
+          }
+          source = Path("sites/free-token-home/src/site-original.js").read_text().split("//# sourceMappingURL=")[0]
+          if source.count("env.FREE_TOKEN_CPA_KEY") != 2 or "https://cpa.leonmingod.com/v1" not in source:
+              raise RuntimeError("Original backend source does not match the reviewed behavior")
+          boundary = "stage-" + uuid.uuid4().hex
+          parts = []
+          crlf = bytes([13, 10])
+          for name, value, mime in [
+              ("metadata", json.dumps(metadata), "application/json"),
+              ("index.js", source, "application/javascript+module")]:
+              disposition = "Content-Disposition: form-data; name=" + json.dumps(name)
+              if name == "index.js": disposition += "; filename=" + json.dumps(name)
+              parts.append(b"--" + boundary.encode() + crlf + disposition.encode() +
+                  crlf + b"Content-Type: " + mime.encode() + crlf + crlf + value.encode() + crlf)
+          parts.append(b"--" + boundary.encode() + b"--" + crlf)
+          api("", "PUT", b"".join(parts), "multipart/form-data; boundary=" + boundary)
+          try:
+              settings = api("/settings")
+              if not any(b.get("name") == "FREE_TOKEN_RENDER_KEY" for b in settings.get("bindings", [])):
+                  raise RuntimeError("Staged binding is missing")
+          except Exception:
+              api("/deployments", "POST", {"strategy": "percentage",
+                  "versions": [{"version_id": previous, "percentage": 100}]})
+              raise
+          deployment = api("/deployments")["deployments"][0]
+          print("STAGED_RENDER_KEY=" + json.dumps({
+              "secret_name": "FREE_TOKEN_RENDER_KEY", "base_url": "https://cpa-dhke.onrender.com/v1",
+              "parent_version": deployment["versions"][0]["version_id"],
+              "existing_claim_binding_retained": True
+          }))
+      - name: Save encrypted client-key handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-render-client-key
+          path: render-key.enc
+          retention-days: 2

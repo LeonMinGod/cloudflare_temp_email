@@ -275,7 +275,6 @@ gh workflow run yifu-remove-key.yaml -R 928886540/cloudflare_temp_email
 加密备份使用 `yifu-issue-backup-public.pem`，必须持有其对应的私钥；不要将私钥或客户端 Key 写入仓库。
 新发放只追加 Key，不删除、覆盖现有 Render Key；网页切换失败时恢复前一个 CF 版本。
 
-
 ## 用户固定用语（2026-10-25 确认）
 
 | 用户说法 | 在本项目中的含义与执行目标 |
@@ -315,12 +314,6 @@ resize 合并、令牌点击和确认表单。浏览器模拟验证不代表已�
 客户端 Key 存在主站 Worker 的 `FREE_TOKEN_RENDER_KEY` Secret 中；原 `FREE_TOKEN_CPA_KEY`
 继续保留。首页图片、胶囊导航、免费 Token 满屏布局和令牌点击动效不受影响。
 
-
-`https://leonmingod.com/api/free-token/claim` 仍接受原有的确认请求，成功后返回
-`baseUrl: https://cpa-dhke.onrender.com/v1` 和在 Render CPA 注册的同一把客户端 Key。
-客户端 Key 存在主站 Worker 的 `FREE_TOKEN_RENDER_KEY` Secret 中；原 `FREE_TOKEN_CPA_KEY`
-继续保留。首页图片、胶囊导航、免费 Token 满屏布局和令牌点击动效不受影响。
-
 ## 最新页面发布（2026-10-24 05:23 UTC）
 
 免费 Token 入口和领取页现已加入首页同款青玉/淡金流光，令牌浮动约 7px，
@@ -346,12 +339,10 @@ Chromium 渲染检查覆盖 320×480、375×548、393×664、430×740、1440×90
 线上页面与预览内容一致（比对时排除 Cloudflare 自动注入的统计脚本），四张原图保留。
 下方 05:08 的对接版本表是历史验收快照；后续修改入口前以此节的新版本为参考并重新读线上。
 
-## 横屏主页导航历史请求（后续分支已调整）
+## 横屏主页导航更新（已完成）
 
 用户在本次页面发布后指出，主站横屏底部的三个入口过小，提供了画有三个红圈的位置参考。
-以下是当时的请求记录。后续分支已加入圆形四按钮导航、品牌 Logo 和居中领取卡片；
-不要把此历史段落当作当前未完成任务。后续修改应先读取最新 `src/homepage.js` 与线上页面。
-当时的具体要求为：
+已按照用户红圈截图与要求完成以下改动并发布：
 
 - 页面为主站 `https://leonmingod.com/`，修改网站工作分支的 `src/homepage.js` 导航布局。
 - 三个入口移到画面右侧 Logo/题字下方的红圈位置。1920×909 参考图的圆心约为
@@ -432,7 +423,7 @@ GitHub Actions 的 `Connect Free Token to Render` 工作流使用仓库 Secrets
 | 发布后主站源码 SHA-256 | `1bfd639be2c04996d8e7fac80c2ab42e085acc5200f416b02a2904adc749562a` |
 
 入口 Worker 的根域与 www 路由覆盖首页、`/index.html`、`/free-token`、`/free-token/*`、
-`/home-scene-v4.js`。首页主视觉已从站点源码移除。领取 API 由原主站处理。
+两张 `home-hero-*-v4.webp` 和 `/home-scene-v4.js`。领取 API 由原主站处理。
 不要将主站 Worker 与入口 Worker 混为一个部署目标。
 
 `src/site-original.js` 仍包含旧地址和旧绑定，这是**历史备份**，不能直接覆盖线上主站。

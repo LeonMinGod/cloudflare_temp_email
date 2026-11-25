@@ -1,0 +1,53 @@
+{
+  "website_version": "a767d9be-e5e3-4701-b117-77206ad6390c",
+  "stage_run": 40979061456,
+  "publish_run": 40979321483,
+  "previous_version": "2b31bdc4-5d08-4716-8589-411b49f0017c",
+  "tests": 55,
+  "counter_start_preserved": "2026-10-29T23:18:28.046326525Z",
+  "counters_not_reset": true,
+  "model_metrics_available": true,
+  "models": 35,
+  "credential_totals": {
+    "total": 13,
+    "ready": 3,
+    "cooldown": 0,
+    "disabled": 10,
+    "error": 0,
+    "unknown": 0
+  },
+  "first_model": "gpt-6.1-sol",
+  "real_usage": {
+    "gpt-6.1-sol": [
+      {
+        "id": "gpt-6.1-sol",
+        "provider": "codex",
+        "success": 1,
+        "failed": 0,
+        "total": 1,
+        "success_rate": 100,
+        "ttft_seconds": 1.88,
+        "ttft_samples": 1,
+        "output_tokens_per_second": 41,
+        "recent_summary": {
+          "success": 1,
+          "failed": 0,
+          "ttft_ms": 1880,
+          "ttft_samples": 1,
+          "output_tokens": 5,
+          "output_ms": 122
+        },
+        "recent": [
+          {
+            "at": "2026-10-29T23:15:00.000Z",
+            "success": 1,
+            "failed": 0
+          }
+        ]
+      }
+    ]
+  },
+  "render_health": 200,
+  "render_not_deployed": true,
+  "worker_module_sha256": "0cc3de1db3f7087379f347256595042290b5a8add2052577cef0377c9adf469e"
+}

@@ -1,0 +1,23 @@
+{
+  "origin": "http://127.0.0.1:8792",
+  "mocked": true,
+  "cases": [
+    {
+      "case": "hidden-polling-pauses-and-visible-resumes",
+      "status": "passed"
+    },
+    {
+      "case": "dual-views-factory-tabs-masked-email-quota-and-cooldown-393",
+      "status": "passed"
+    },
+    {
+      "case": "dual-views-factory-tabs-masked-email-quota-and-cooldown-320",
+      "status": "passed"
+    },
+    {
+      "case": "dual-views-factory-tabs-masked-email-quota-and-cooldown-1440",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

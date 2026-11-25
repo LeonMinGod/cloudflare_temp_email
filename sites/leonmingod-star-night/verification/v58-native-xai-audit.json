@@ -1,0 +1,53 @@
+{
+  "run": 41071829805,
+  "read_only": true,
+  "generation_requests": 0,
+  "result": {
+    "credits": {
+      "http": 200,
+      "config": {
+        "creditUsagePercent": 12.0,
+        "prepaidBalance": 0,
+        "currentPeriod": {
+          "type": "USAGE_PERIOD_TYPE_WEEKLY",
+          "start": "2026-10-28T13:58:09.743+00:00",
+          "end": "2026-11-04T13:58:09.743+00:00"
+        },
+        "productUsage": [
+          {
+            "product": "GrokBuild",
+            "usagePercent": 5.0,
+            "usage_percent": null
+          },
+          {
+            "product": "Cursor",
+            "usagePercent": 4.0,
+            "usage_percent": null
+          },
+          {
+            "product": "GrokBot",
+            "usagePercent": 3.0,
+            "usage_percent": null
+          }
+        ]
+      }
+    },
+    "billing": {
+      "http": 200,
+      "config": {
+        "monthlyLimit": 0,
+        "used": 0,
+        "onDemandCap": 0,
+        "productUsage": []
+      }
+    },
+    "user": {
+      "http": 200,
+      "subscriptionTier": "SuperGrokPro"
+    },
+    "settings": {
+      "http": 200,
+      "subscription_tier_display": "SuperGrok Heavy"
+    }
+  }
+}

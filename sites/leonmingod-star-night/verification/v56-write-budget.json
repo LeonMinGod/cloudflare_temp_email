@@ -1,0 +1,29 @@
+{
+  "kind": "synthetic application row-write calls, not Cloudflare measured usage or billing",
+  "scenario": {
+    "models": 35,
+    "accounts": 13,
+    "availability_history_max": 60,
+    "period_minutes": 60,
+    "active": "one alarm and twenty coalesced snapshot reads each simulated minute",
+    "idle": "only background alarms, no visitors",
+    "excluded": "upstream quota probes, game/email/guard traffic, object cold starts, Cloudflare storage optimizations/index accounting"
+  },
+  "before": {
+    "active_rows_per_hour": 2760,
+    "idle_rows_per_hour": 1440
+  },
+  "after": {
+    "active_rows_per_hour": 900,
+    "idle_rows_per_hour": 240,
+    "hundred_in_memory_cache_hit_reads_additional_writes": 0
+  },
+  "after_daily_extrapolation": {
+    "active_rows": 21600,
+    "idle_rows": 5760
+  },
+  "official_free_sqlite_do_rows_written_per_day": 100000,
+  "pricing_reference": "https://developers.cloudflare.com/durable-objects/platform/pricing/",
+  "website_tests": 55,
+  "history_note": "The old implementation already retained 60 history entries; no unbounded history bug existed."
+}

@@ -1,0 +1,31 @@
+{
+  "version": "f1872be0-f97d-4890-9800-0f2f3eb19cf5",
+  "totals": {
+    "total": 13,
+    "ready": 3,
+    "cooldown": 0,
+    "disabled": 10,
+    "error": 0,
+    "unknown": 0
+  },
+  "models": 35,
+  "stale": false,
+  "masked_email_only": true,
+  "real_codex_windows": [
+    {
+      "label": "5 小时限额",
+      "remaining": 58,
+      "reset_at": "2026-10-29T20:09:55.000Z"
+    },
+    {
+      "label": "周限额",
+      "remaining": 70,
+      "reset_at": "2026-11-04T06:36:01.000Z"
+    }
+  ],
+  "quota_next_refresh_at": "2026-10-29T16:58:17.189Z",
+  "consecutive_read_responses": 30,
+  "all_reads_200": true,
+  "no_challenges": true,
+  "snapshot_timestamps": 1
+}

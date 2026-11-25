@@ -1,0 +1,54 @@
+{
+  "mocked": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "model_counts": true,
+      "performance": true,
+      "GPT_first": true,
+      "common_model_order": true,
+      "request_sort": true,
+      "dual_views": true,
+      "masked_email": true,
+      "refresh_limits": true,
+      "provider_switch_no_fetch": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "model_counts": true,
+      "performance": true,
+      "GPT_first": true,
+      "common_model_order": true,
+      "request_sort": true,
+      "dual_views": true,
+      "masked_email": true,
+      "refresh_limits": true,
+      "provider_switch_no_fetch": true,
+      "no_overflow": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "model_counts": true,
+      "performance": true,
+      "GPT_first": true,
+      "common_model_order": true,
+      "request_sort": true,
+      "dual_views": true,
+      "masked_email": true,
+      "refresh_limits": true,
+      "provider_switch_no_fetch": true,
+      "no_overflow": true
+    }
+  ],
+  "errors": []
+}

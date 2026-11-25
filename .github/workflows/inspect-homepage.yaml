@@ -1,0 +1,103 @@
+name: Inspect homepage Cloudflare deployment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect deployment metadata
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: python
+        run: |
+          import os, json, urllib.request, urllib.error
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"].strip()
+          token = os.environ["CLOUDFLARE_API_TOKEN"].strip()
+          if not account or not token:
+              raise SystemExit("Required Cloudflare secrets are missing")
+          def get(path):
+              request = urllib.request.Request(
+                  "https://api.cloudflare.com/client/v4" + path,
+                  headers={"Authorization": "Bearer " + token, "Accept": "application/json"})
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      data = json.load(response)
+                  return data.get("result", [])
+              except urllib.error.HTTPError as error:
+                  print(json.dumps({"endpoint": path, "http_status": error.code}))
+                  return []
+          scripts = get("/accounts/" + account + "/workers/scripts")
+          print("WORKER_SERVICES=" + json.dumps([
+              {"id": x.get("id"), "modified_on": x.get("modified_on")}
+              for x in scripts
+          ]))
+          domains = get("/accounts/" + account + "/workers/domains")
+          print("WORKER_DOMAINS=" + json.dumps([
+              {k: x.get(k) for k in ["id", "hostname", "service", "environment", "zone_id"]}
+              for x in domains
+          ]))
+          pages = get("/accounts/" + account + "/pages/projects")
+          print("PAGES_PROJECTS=" + json.dumps([
+              {"name": x.get("name"), "domains": x.get("domains"),
+               "production_branch": x.get("production_branch"),
+               "source_type": (x.get("source") or {}).get("type"),
+               "source_repository": {
+                   k: ((x.get("source") or {}).get("config") or {}).get(k)
+                   for k in ["owner", "repo_name", "production_branch"]
+               }}
+              for x in pages
+          ]))
+          zones = get("/zones?name=leonmingod.com")
+          for zone in zones:
+              zone_id = zone["id"]
+              routes = get("/zones/" + zone_id + "/workers/routes")
+              print("ZONE_ROUTES=" + json.dumps(routes))
+          from pathlib import Path
+          out = Path("homepage-backup")
+          out.mkdir()
+          request = urllib.request.Request(
+              "https://api.cloudflare.com/client/v4/accounts/" + account + "/workers/scripts/leonmingod-home",
+              headers={"Authorization": "Bearer " + token})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              (out / "worker-content.bin").write_bytes(response.read())
+              (out / "content-headers.json").write_text(json.dumps({
+                  "content_type": response.headers.get("Content-Type"),
+                  "entrypoint": response.headers.get("cf-entrypoint")
+              }))
+          settings = get("/accounts/" + account + "/workers/scripts/leonmingod-home/settings")
+          safe_settings = {
+              k: settings.get(k) for k in
+              ["compatibility_date", "compatibility_flags", "main_module", "body_part", "assets", "usage_model"]
+          }
+          safe_settings["bindings"] = [
+              {k: b.get(k) for k in ["name", "type"]}
+              for b in settings.get("bindings", [])
+          ]
+          (out / "settings.json").write_text(json.dumps(safe_settings))
+          print("HOME_SETTINGS=" + json.dumps(safe_settings))
+          print("SETTINGS_KEYS=" + json.dumps(list(settings.keys())))
+          deployment = get("/accounts/" + account + "/workers/scripts/leonmingod-home/deployments")
+          print("HOME_DEPLOYMENTS=" + json.dumps(deployment))
+          entrance = get("/accounts/" + account + "/workers/scripts/leonmingod-free-token/deployments")
+          print("ENTRANCE_CURRENT=" + json.dumps(entrance.get("deployments", [{}])[0].get("versions", [])))
+          recent = deployment.get("deployments", []) if isinstance(deployment, dict) else []
+          if recent:
+              version_id = recent[0]["versions"][0]["version_id"]
+              version = get("/accounts/" + account + "/workers/scripts/leonmingod-home/versions/" + version_id)
+              resources = version.get("resources", {})
+              print("VERSION_KEYS=" + json.dumps(list(version.keys())))
+              print("RESOURCE_KEYS=" + json.dumps(list(resources.keys())))
+              print("SCRIPT_CONFIG=" + json.dumps(resources.get("script")))
+              print("ASSET_CONFIG=" + json.dumps(resources.get("assets")))
+              print("ASSET_ROUTER=" + json.dumps(resources.get("asset_router")))
+
+      - name: Save existing homepage source
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-source
+          path: homepage-backup/
+          retention-days: 7

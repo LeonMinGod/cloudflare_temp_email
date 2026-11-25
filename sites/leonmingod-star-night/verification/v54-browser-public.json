@@ -1,0 +1,30 @@
+{
+  "mocked": false,
+  "results": [
+    {
+      "viewport": {
+        "width": 393,
+        "height": 580
+      },
+      "cards": 3,
+      "dual_views": true,
+      "provider_tabs": true,
+      "masked_email": true,
+      "real_quota_windows": true,
+      "read_requests": 1
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "cards": 3,
+      "dual_views": true,
+      "provider_tabs": true,
+      "masked_email": true,
+      "real_quota_windows": true,
+      "read_requests": 1
+    }
+  ],
+  "errors": []
+}
