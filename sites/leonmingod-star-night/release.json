@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "5dcb1267-240c-4eb2-8dee-5ff10132694f",
+  "baseline_parent": "48036a19-9c59-4260-9e8a-136a58d6cd19",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Tune Dragon Pearl snake v2 pace (220ms->148ms), zero-lag IME/touch input, always-visible virtual keypad, outside phase bar, and ghost stele telegraph",
+  "message": "Upgrade Dragon Pearl v3 with custom Xianxia/Christmas dragon sprite atlases, spline-scaled dragon body, and shifting 8-stele challenge matching Sword Trial",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -141,7 +141,11 @@
     "free-token/snake/app-v1.mjs",
     "free-token/snake/style-v2.css",
     "free-token/snake/engine-v2.mjs",
-    "free-token/snake/app-v2.mjs"
+    "free-token/snake/app-v2.mjs",
+    "free-token/snake/engine-v3.mjs",
+    "free-token/snake/app-v3.mjs",
+    "free-token/snake/snake-atlas-classic-v1.webp",
+    "free-token/snake/snake-atlas-xmas-v1.webp"
   ],
-  "staged_version": "48036a19-9c59-4260-9e8a-136a58d6cd19"
+  "staged_version": ""
 }

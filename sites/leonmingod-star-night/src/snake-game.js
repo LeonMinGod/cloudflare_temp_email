@@ -1,10 +1,16 @@
-import * as current from '../public/free-token/snake/engine-v2.mjs';
-import * as previous from '../public/free-token/snake/engine-v1.mjs';
+import * as current from '../public/free-token/snake/engine-v3.mjs';
+import * as v2 from '../public/free-token/snake/engine-v2.mjs';
+import * as v1 from '../public/free-token/snake/engine-v1.mjs';
 
 export const SNAKE_RULES = current.RULES;
 export const createSnakeGame = current.createGame;
 export const installSnakeEntropy = current.installEntropy;
-export const snakeEngineFor = run => (run?.rulesVersion === 2 ? current : run?.rulesVersion === 1 ? previous : null);
+export const snakeEngineFor = run => (
+  run?.rulesVersion === 3 ? current
+    : run?.rulesVersion === 2 ? v2
+      : run?.rulesVersion === 1 ? v1
+        : null
+);
 export const SNAKE_MAX_AGE = 240000;
 
 const error = (status, message) => ({ status, error: message });

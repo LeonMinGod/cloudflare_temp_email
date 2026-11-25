@@ -4,16 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07161b">
-  <meta name="description" content="灵龙衔珠：游龙集齐24枚灵珠，抢限时金丹缩尾，避开剑碑障碍，凭走位实力领取免费Token。">
+  <meta name="description" content="灵龙衔珠：游龙集齐30枚灵珠，抢限时金丹缩尾，避开流转剑碑阵，凭走位实力领取免费Token。">
   <title>灵龙衔珠 · 凭实力领 Token | LeonMinGod</title>
   <link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
   <link rel="stylesheet" href="/free-token/snake/style-v2.css">
-  <script type="module" src="/free-token/snake/app-v2.mjs"></script>
+  <script type="module" src="/free-token/snake/app-v3.mjs"></script>
   <link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
   <link rel="stylesheet" href="/free-token/saved-key-v1.css">
   <script type="module" src="/free-token/saved-key-v2.mjs?v=3"></script>
   <link rel="stylesheet" href="/theme-xmas-v2.css">
   <script src="/theme-xmas-v2.js"></script>
+  <style>.seal-dragon{display:block;width:78px;height:78px;background:url('/free-token/snake/snake-atlas-classic-v1.webp') 0 0/200% 200% no-repeat;filter:drop-shadow(0 0 12px rgba(96,240,196,.48))}html[data-skin="xmas"] .seal-dragon{background-image:url('/free-token/snake/snake-atlas-xmas-v1.webp');filter:drop-shadow(0 0 14px rgba(251,191,36,.52))}@media(max-width:760px){.seal-dragon{width:58px;height:58px}}</style>
 </head>
 <body class="snake-page">
   <header class="top">
@@ -24,11 +25,11 @@
     <section class="intro" aria-labelledby="title">
       <p class="eyebrow">THE DRAGON TRIAL · 第二境</p>
       <h1 id="title">灵龙<span>衔珠</span><i>凭走位，拿令牌。</i></h1>
-      <p class="description">不止御剑一条路。<br>御灵龙游星盘，衔珠满数自有礼。</p>
+      <p class="description">不止御剑一条路。<br>御神龙游星盘，破流转剑碑自有礼。</p>
       <ol class="rules">
-        <li><b>01</b><span>四向游龙<small>方向键 / WASD · 手机可按下方方向键或划屏</small></span></li>
-        <li><b>02</b><span>衔满 <em>24</em> 灵珠<small>每吞 5 珠现限时金丹/礼盒，吃下 <em>+2 分且缩尾 2 节</em></small></span></li>
-        <li><b>03</b><span>巧避 <em>剑碑</em><small>12 珠后落碑，先现虚影聚阵预警再凝实，不撞壁不咬尾</small></span></li>
+        <li><b>01</b><span>四向御龙<small>方向键 / WASD · 手机可按下方方向键或划屏</small></span></li>
+        <li><b>02</b><span>衔满 <em>30</em> 灵珠<small>每吞 6 珠现限时金丹/礼盒，吃下 <em>+2 分且缩尾 1 节</em></small></span></li>
+        <li><b>03</b><span>破 <em>8 座流转剑碑</em><small>6 珠起渐落并周期移阵，先现虚影聚阵再凝实，切勿撞壁缠身</small></span></li>
       </ol>
       <p class="reward-note"><span>令</span>通关后验证邮箱，领取专属 API Key<br><small>与御剑破阵共享同一邮箱找回体系</small></p>
       <div class="alt-links">
@@ -39,26 +40,20 @@
 
     <section class="arena" id="arena" aria-label="灵龙衔珠游戏">
       <div class="hud">
-        <div><small>灵珠</small><strong id="score">0<span> / 24</span></strong></div>
+        <div><small>灵珠</small><strong id="score">0<span> / 30</span></strong></div>
         <div><small>龙身</small><strong id="length">4<span> 节</span></strong></div>
         <div><small>用时</small><strong id="elapsed">0.0<span>s</span></strong></div>
         <button id="sound" type="button" aria-label="关闭音效" aria-pressed="true" title="音效开关">♪</button>
       </div>
-      <div class="phase-bar" aria-live="polite"><span class="phase" id="phase">第一境 · 游龙戏珠</span></div>
+      <div class="phase-bar" aria-live="polite"><span class="phase" id="phase">第一境 · 潜龙入星</span></div>
       <div class="field-wrap" id="field-wrap">
         <div class="field" id="field">
-          <canvas id="game" width="720" height="720" tabindex="0" aria-label="灵龙衔珠棋盘，使用方向键、WASD、虚拟按键或滑动屏幕控制灵龙收集灵珠，避开边界、龙身与剑碑。">请使用支持 Canvas 的浏览器。</canvas>
+          <canvas id="game" width="680" height="680" tabindex="0" aria-label="灵龙衔珠棋盘，使用方向键、WASD、虚拟按键或滑动屏幕控制神龙收集灵珠，避开边界、龙身与剑碑。">请使用支持 Canvas 的浏览器。</canvas>
           <div class="screen" id="screen">
-            <div class="seal" aria-hidden="true">
-              <svg viewBox="0 0 80 80" width="60" height="60" fill="none">
-                <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-opacity="0.32" stroke-dasharray="4 4"/>
-                <path d="M58 53C52 63 39 66 28 61C17 56 12 43 16 31C20 19 33 13 46 16C56 18 62 25 63 34" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/>
-                <circle cx="40" cy="40" r="9.5" fill="currentColor" fill-opacity="0.88"/>
-              </svg>
-            </div>
+            <div class="seal" aria-hidden="true"><span class="seal-dragon"></span></div>
             <p class="eyebrow" id="screen-kicker">灵龙衔珠 · 凭走位领礼</p>
             <h2 id="screen-title">准备御龙？</h2>
-            <p id="screen-description">集齐 24 枚灵珠即通关。限时金丹 +2 分并缩尾 2 节。<br>12 珠后将降下预警剑碑，切勿撞壁或咬尾。</p>
+            <p id="screen-description">集齐 30 枚灵珠即通关。限时金丹 +2 分并缩尾 1 节。<br>6 珠起渐落最多 8 座流转剑碑，切勿撞壁或缠身。</p>
             <p class="loss-taunt" id="loss-taunt" hidden></p>
             <button class="primary" id="start" type="button">御龙 · 开始试炼 <span>→</span></button>
             <a class="oath-detour" id="oath-detour" href="/free-token/claim/" hidden>行，去叫义父领礼 →</a>
@@ -71,7 +66,7 @@
       <div class="arena-foot">
         <span><i class="orb-dot"></i> 灵珠 +1</span>
         <span><i class="bonus-dot"></i> <b id="bonus-legend">金丹 +2·缩尾</b></span>
-        <span><i class="pillar-dot"></i> 剑碑</span>
+        <span><i class="pillar-dot"></i> 流转剑碑</span>
         <small id="control-hint">方向键 / WASD · 下方按键或划屏</small>
       </div>
       <div class="dpad" id="dpad" aria-label="虚拟方向键盘">
@@ -87,7 +82,7 @@
   <dialog id="reward" aria-labelledby="reward-title">
     <button class="close" id="close-reward" type="button" aria-label="关闭奖励">×</button>
     <p class="eyebrow">以龙为证 · 凭实力领取</p>
-    <h2 id="reward-title">衔珠成圣</h2>
+    <h2 id="reward-title">衔珠渡劫成功</h2>
     <p id="score-note">这是你的通关奖励。</p>
     <div id="reward-steps">
       <p class="reward-help">绑定邮箱后会进入独立验证码页面。邮箱只用于验证身份和找回同一把 API Key。</p>
