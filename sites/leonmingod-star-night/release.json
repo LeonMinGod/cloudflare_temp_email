@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "7f495473-9e83-438e-ae4c-7ae6f6d038a9",
+  "baseline_parent": "efec7038-70c5-4b60-ad63-cc3c131c0569",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Add Starry Christmas Wonderland skin across home and free-token pages with one-click homepage revert toggle",
+  "message": "Upgrade Christmas skin with ruby-gold portal plaques, warm crimson-gold fluid, burgundy claim inputs, and mobile portrait guard",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -127,7 +127,10 @@
     "assets/xmas-orb-v1.webp",
     "free-token/xmas-welcome-desktop-v1.webp",
     "free-token/xmas-welcome-mobile-v1.webp",
-    "free-token/xmas-token-v1.webp"
+    "free-token/xmas-token-v1.webp",
+    "theme-xmas-v2.css",
+    "theme-xmas-v2.js",
+    "assets/xmas-portal-frame-v1.webp"
   ],
-  "staged_version": "efec7038-70c5-4b60-ad63-cc3c131c0569"
+  "staged_version": ""
 }

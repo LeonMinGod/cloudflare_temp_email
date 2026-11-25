@@ -17,8 +17,8 @@ test('all main and free-token pages include the shared Christmas skin engine and
   ];
   for (const page of pages) {
     const html = await readFile(page, 'utf8');
-    assert.match(html, /\/theme-xmas-v1\.css/, `${page} missing theme-xmas-v1.css`);
-    assert.match(html, /\/theme-xmas-v1\.js/, `${page} missing theme-xmas-v1.js`);
+    assert.match(html, /\/theme-xmas-v2\.css/, `${page} missing theme-xmas-v2.css`);
+    assert.match(html, /\/theme-xmas-v2\.js/, `${page} missing theme-xmas-v2.js`);
   }
 
   const home = await readFile('public/index.html', 'utf8');
@@ -50,11 +50,12 @@ test('built Worker stays well under compressed bundle budget and serves all Chri
 
   try {
     const paths = [
-      ['/theme-xmas-v1.css', 'text/css'],
-      ['/theme-xmas-v1.js', 'application/javascript'],
+      ['/theme-xmas-v2.css', 'text/css'],
+      ['/theme-xmas-v2.js', 'application/javascript'],
       ['/xmas-home-desktop-v1.webp', 'image/webp'],
       ['/xmas-home-mobile-v1.webp', 'image/webp'],
       ['/assets/xmas-orb-v1.webp', 'image/webp'],
+      ['/assets/xmas-portal-frame-v1.webp', 'image/webp'],
       ['/free-token/xmas-welcome-desktop-v1.webp', 'image/webp'],
       ['/free-token/xmas-welcome-mobile-v1.webp', 'image/webp'],
       ['/free-token/xmas-token-v1.webp', 'image/webp'],
