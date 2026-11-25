@@ -9,7 +9,7 @@ import {
   SNAKE_MAX_AGE,
   SNAKE_RULES,
   createSnakeGame,
-  installSnakeEntropy,
+  snakeEngineFor,
   verifySnakeProgress,
   verifySnakeRun,
 } from './snake-game.js';
@@ -135,10 +135,12 @@ export class GameRun {
         const checked = verifySnakeProgress(run, body, now);
         if (checked.status !== 200) return json(checked.status, { error: checked.error });
         const state = checked.state, entropy = [];
-        const boundary = Math.ceil((state.tick + 1) / SNAKE_RULES.segmentTicks) * SNAKE_RULES.segmentTicks;
-        if (!state.done && boundary < SNAKE_RULES.maxTicks && state.tick >= boundary - 20 && !state.entropy[boundary]) {
+        const engine = snakeEngineFor(run);
+        const rules = engine.RULES;
+        const boundary = Math.ceil((state.tick + 1) / rules.segmentTicks) * rules.segmentTicks;
+        if (!state.done && boundary < rules.maxTicks && state.tick >= boundary - 16 && !state.entropy[boundary]) {
           const next = { tick: boundary, seed: seed() };
-          installSnakeEntropy(state, [next]);
+          engine.installEntropy(state, [next]);
           entropy.push(next);
         }
         const receipt = crypto.randomUUID();

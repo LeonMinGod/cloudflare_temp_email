@@ -1,13 +1,18 @@
-import { RULES, createGame, installEntropy, step } from '../public/free-token/snake/engine-v1.mjs';
+import * as current from '../public/free-token/snake/engine-v2.mjs';
+import * as previous from '../public/free-token/snake/engine-v1.mjs';
 
-export { RULES as SNAKE_RULES, createGame as createSnakeGame, installEntropy as installSnakeEntropy };
+export const SNAKE_RULES = current.RULES;
+export const createSnakeGame = current.createGame;
+export const installSnakeEntropy = current.installEntropy;
+export const snakeEngineFor = run => (run?.rulesVersion === 2 ? current : run?.rulesVersion === 1 ? previous : null);
 export const SNAKE_MAX_AGE = 240000;
 
 const error = (status, message) => ({ status, error: message });
 
 export function verifySnakeRun(run, body, now) {
   if (!run || now > run.expires) return error(410, '这一局已过期，重新开局即可。');
-  if (run.game !== 'snake' || run.protocol !== 'snake-live-v1' || run.rulesVersion !== RULES.version) {
+  const engine = snakeEngineFor(run);
+  if (run.game !== 'snake' || run.protocol !== 'snake-live-v1' || !engine) {
     return error(410, '阵法已更新，请刷新后重新挑战。');
   }
   if (body.sessionHash !== run.sessionHash) return error(403, '这一局与当前浏览器不匹配，请重新开局。');
@@ -15,7 +20,7 @@ export function verifySnakeRun(run, body, now) {
   if (body.trace !== undefined) return error(400, '请在游戏中实时完成挑战。');
   if (body.receipt !== run.receipt) return error(409, '本局操作记录不完整，请重新挑战。');
   const state = run.state;
-  if (!state?.won || !state.done || state.score < RULES.goal) {
+  if (!state?.won || !state.done || state.score < engine.RULES.goal) {
     return error(400, '灵珠尚未集齐，再挑战一次吧。');
   }
   const elapsed = now - run.started;
@@ -36,7 +41,8 @@ export function verifySnakeRun(run, body, now) {
 
 export function verifySnakeProgress(run, body, now) {
   if (!run || now > run.expires) return error(410, '这一局已过期，重新开局即可。');
-  if (run.game !== 'snake' || run.protocol !== 'snake-live-v1' || run.rulesVersion !== RULES.version) {
+  const engine = snakeEngineFor(run);
+  if (run.game !== 'snake' || run.protocol !== 'snake-live-v1' || !engine) {
     return error(410, '阵法已更新，请刷新后重新开局。');
   }
   if (body.sessionHash !== run.sessionHash) return error(403, '这一局与当前浏览器不匹配。');
@@ -44,9 +50,10 @@ export function verifySnakeProgress(run, body, now) {
   if (body.receipt !== run.receipt) return error(409, '操作顺序不匹配，请重新开局。');
   if (run.state.done) return error(409, '这一局已经结束，请重新开局。');
 
+  const rules = engine.RULES;
   const from = run.state.tick;
   const tick = body.tick;
-  if (!Number.isInteger(tick) || tick <= from || tick > RULES.maxTicks || tick - from > 45) {
+  if (!Number.isInteger(tick) || tick <= from || tick > rules.maxTicks || tick - from > 45) {
     return error(400, '操作记录不完整，请重新挑战。');
   }
   if (now - run.lastSeen > 8000) {
@@ -57,13 +64,13 @@ export function verifySnakeProgress(run, body, now) {
   if (!Array.isArray(trace) || trace.length < 1 || trace.length > tick - from || trace[0]?.[0] !== from) {
     return error(400, '本局操作记录无效。');
   }
-  let previous = from - 1;
+  let previousTick = from - 1;
   for (const entry of trace) {
     if (
       !Array.isArray(entry) ||
       entry.length !== 2 ||
       !Number.isInteger(entry[0]) ||
-      entry[0] <= previous ||
+      entry[0] <= previousTick ||
       entry[0] < from ||
       entry[0] >= tick ||
       !Number.isInteger(entry[1]) ||
@@ -72,7 +79,7 @@ export function verifySnakeProgress(run, body, now) {
     ) {
       return error(400, '本局操作记录无效。');
     }
-    previous = entry[0];
+    previousTick = entry[0];
   }
 
   const state = structuredClone(run.state);
@@ -81,7 +88,7 @@ export function verifySnakeProgress(run, body, now) {
   try {
     while (state.tick < tick && !state.done) {
       if (trace[index]?.[0] === state.tick) dir = trace[index++][1];
-      step(state, dir);
+      engine.step(state, dir);
     }
   } catch {
     return error(409, '后续阵法尚未下发，请重新挑战。');
@@ -89,7 +96,7 @@ export function verifySnakeProgress(run, body, now) {
   if (state.tick !== tick || index !== trace.length) {
     return error(400, '本局操作记录与阵法不符。');
   }
-  if (!state.done && tick - from < 6) {
+  if (!state.done && tick - from < 5) {
     return error(400, '操作记录不完整，请重新挑战。');
   }
   const elapsed = now - run.started;

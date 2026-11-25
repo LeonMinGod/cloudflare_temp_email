@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "bc4f07f3-c77e-4fc0-9690-d2a6fdbe549d",
+  "baseline_parent": "5dcb1267-240c-4eb2-8dee-5ff10132694f",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Add Dragon Pearl (snake) skill trial with 3-path choose page and hero wordmark face-safe positioning",
+  "message": "Tune Dragon Pearl snake v2 pace (220ms->148ms), zero-lag IME/touch input, always-visible virtual keypad, outside phase bar, and ghost stele telegraph",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -138,7 +138,10 @@
     "free-token/snake/index.html",
     "free-token/snake/style-v1.css",
     "free-token/snake/engine-v1.mjs",
-    "free-token/snake/app-v1.mjs"
+    "free-token/snake/app-v1.mjs",
+    "free-token/snake/style-v2.css",
+    "free-token/snake/engine-v2.mjs",
+    "free-token/snake/app-v2.mjs"
   ],
-  "staged_version": "5dcb1267-240c-4eb2-8dee-5ff10132694f"
+  "staged_version": ""
 }
