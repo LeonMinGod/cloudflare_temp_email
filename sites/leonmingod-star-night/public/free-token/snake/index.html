@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07161b">
+  <meta name="description" content="灵龙衔珠：游龙集齐30枚灵珠，抢限时金丹缩尾，避开流转剑碑阵，凭走位实力领取免费Token。">
+  <title>灵龙衔珠 · 凭实力领 Token | LeonMinGod</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
+  <link rel="stylesheet" href="/free-token/snake/style-v2.css">
+  <script type="module" src="/free-token/snake/app-v3.mjs"></script>
+  <link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
+  <link rel="stylesheet" href="/free-token/saved-key-v1.css">
+  <script type="module" src="/free-token/saved-key-v2.mjs?v=3"></script>
+  <link rel="stylesheet" href="/theme-xmas-v2.css">
+  <link rel="stylesheet" href="/ui-polish-v1.css">
+  <script src="/theme-xmas-v2.js"></script>
+  <style>.seal-dragon{display:block;width:78px;height:78px;background:url('/free-token/snake/snake-atlas-classic-v1.webp') 0 0/200% 200% no-repeat;filter:drop-shadow(0 0 12px rgba(96,240,196,.48))}html[data-skin="xmas"] .seal-dragon{background-image:url('/free-token/snake/snake-atlas-xmas-v1.webp');filter:drop-shadow(0 0 14px rgba(251,191,36,.52))}@media(max-width:760px){.seal-dragon{width:58px;height:58px}}</style>
+</head>
+<body class="snake-page">
+  <header class="top">
+    <a href="/" class="brand"><img src="/assets/logo-v2.svg" width="32" height="32" alt=""><span>LeonMinGod<small>一念风起，万境星垂</small></span></a>
+    <a class="back" href="/free-token/choose/">退出 · 返回选择 ↗</a>
+  </header>
+  <main class="layout">
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">THE DRAGON TRIAL · 第二境</p>
+      <h1 id="title">灵龙<span>衔珠</span><i>凭走位，拿令牌。</i></h1>
+      <p class="description">不止御剑一条路。<br>御神龙游星盘，破流转剑碑自有礼。</p>
+      <ol class="rules">
+        <li><b>01</b><span>四向御龙<small>方向键 / WASD · 手机可按下方方向键或划屏</small></span></li>
+        <li><b>02</b><span>衔满 <em>30</em> 灵珠<small>每吞 6 珠现限时金丹/礼盒，吃下 <em>+2 分且缩尾 1 节</em></small></span></li>
+        <li><b>03</b><span>破 <em>8 座流转剑碑</em><small>6 珠起渐落并周期移阵，先现虚影聚阵再凝实，切勿撞壁缠身</small></span></li>
+      </ol>
+      <p class="reward-note"><span>令</span>通关后验证邮箱，领取专属 API Key<br><small>与御剑破阵共享同一邮箱找回体系</small></p>
+      <div class="alt-links">
+        <a class="other-path" href="/free-token/game/">换玩御剑破阵 →</a>
+        <a class="other-path" href="/free-token/claim/">或走人情路线 →</a>
+      </div>
+    </section>
+
+    <section class="arena" id="arena" aria-label="灵龙衔珠游戏">
+      <div class="hud">
+        <div><small>灵珠</small><strong id="score">0<span> / 30</span></strong></div>
+        <div><small>龙身</small><strong id="length">4<span> 节</span></strong></div>
+        <div><small>用时</small><strong id="elapsed">0.0<span>s</span></strong></div>
+        <button id="sound" type="button" aria-label="关闭音效" aria-pressed="true" title="音效开关">♪</button>
+      </div>
+      <div class="phase-bar" aria-live="polite"><span class="phase" id="phase">第一境 · 潜龙入星</span></div>
+      <div class="field-wrap" id="field-wrap">
+        <div class="field" id="field">
+          <canvas id="game" width="680" height="680" tabindex="0" aria-label="灵龙衔珠棋盘，使用方向键、WASD、虚拟按键或滑动屏幕控制神龙收集灵珠，避开边界、龙身与剑碑。">请使用支持 Canvas 的浏览器。</canvas>
+          <div class="screen" id="screen">
+            <div class="seal" aria-hidden="true"><span class="seal-dragon"></span></div>
+            <p class="eyebrow" id="screen-kicker">灵龙衔珠 · 凭走位领礼</p>
+            <h2 id="screen-title">准备御龙？</h2>
+            <p id="screen-description">集齐 30 枚灵珠即通关。限时金丹 +2 分并缩尾 1 节。<br>6 珠起渐落最多 8 座流转剑碑，切勿撞壁或缠身。</p>
+            <p class="loss-taunt" id="loss-taunt" hidden></p>
+            <button class="primary" id="start" type="button">御龙 · 开始试炼 <span>→</span></button>
+            <a class="oath-detour" id="oath-detour" href="/free-token/claim/" hidden>行，去叫义父领礼 →</a>
+            <p class="notice" id="notice" role="status"></p>
+            <button type="button" class="saved-key-entry" data-saved-key-entry data-victory-only hidden>查看本浏览器保存的 API Key</button>
+          </div>
+          <div class="countdown" id="countdown" hidden aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="arena-foot">
+        <span><i class="orb-dot"></i> 灵珠 +1</span>
+        <span><i class="bonus-dot"></i> <b id="bonus-legend">金丹 +2·缩尾</b></span>
+        <span><i class="pillar-dot"></i> 流转剑碑</span>
+        <small id="control-hint">方向键 / WASD · 下方按键或划屏</small>
+      </div>
+      <div class="dpad" id="dpad" aria-label="虚拟方向键盘">
+        <button type="button" class="dpad-btn dpad-up" data-dir="0" aria-label="向上"><span>▲</span><kbd>W</kbd></button>
+        <button type="button" class="dpad-btn dpad-left" data-dir="3" aria-label="向左"><span>◀</span><kbd>A</kbd></button>
+        <button type="button" class="dpad-btn dpad-down" data-dir="2" aria-label="向下"><span>▼</span><kbd>S</kbd></button>
+        <button type="button" class="dpad-btn dpad-right" data-dir="1" aria-label="向右"><span>▶</span><kbd>D</kbd></button>
+      </div>
+      <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <dialog id="reward" aria-labelledby="reward-title">
+    <button class="close" id="close-reward" type="button" aria-label="关闭奖励">×</button>
+    <p class="eyebrow">以龙为证 · 凭实力领取</p>
+    <h2 id="reward-title" tabindex="-1" autofocus>衔珠渡劫成功</h2>
+    <p id="score-note">这是你的通关奖励。</p>
+    <div id="reward-steps">
+      <p class="reward-help">绑定邮箱后会进入独立验证码页面。邮箱只用于验证身份和找回同一把 API Key。</p>
+      <label for="player-email">邮箱地址</label>
+      <div class="copy-row"><input id="player-email" name="email" type="email" inputmode="email" maxlength="254" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send"></div>
+      <div id="claim-human" hidden></div>
+      <p id="reward-error" role="alert"></p>
+      <button id="send-code" class="primary" type="button">发送验证码</button>
+      <small class="resend-note">发送后 120 秒可重新发送。</small>
+      <button type="button" class="saved-key-entry" data-saved-key-entry hidden>查看本浏览器保存的 API Key</button>
+    </div>
+    <div id="reward-secret" hidden>
+      <p id="reward-result-note" class="reward-help">邮箱验证成功，专属 API Key 已准备好。</p>
+      <label for="base-url">接口地址 <small>Base URL</small></label>
+      <div class="copy-row"><input id="base-url" readonly><button id="copy-url" type="button">复制</button></div>
+      <label for="api-key">专属 API Key</label>
+      <div class="copy-row"><textarea id="api-key" rows="2" readonly spellcheck="false"></textarea><button id="copy-key" type="button">复制</button></div>
+      <button id="copy-all" class="primary" type="button">复制地址与 Key</button>
+      <button id="open-ccswitch" class="ccswitch-entry" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>接入 CC Switch</span></button>
+      <button id="open-ccswitch-agy" class="ccswitch-entry ccswitch-entry-agy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5 7 17M5 8H3v13h13v-2"/></svg><span>反重力一键接入 CC Switch</span></button>
+      <p id="copy-status" role="status"></p>
+    </div>
+  </dialog>
+  <noscript><p class="noscript">游戏需要开启 JavaScript。也可前往<a href="/free-token/choose/">选择领取方式</a>。</p></noscript>
+</body>
+</html>

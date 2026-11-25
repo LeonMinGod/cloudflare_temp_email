@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "efec7038-70c5-4b60-ad63-cc3c131c0569",
+  "baseline_parent": "495c72fb-3db7-4ac4-8f69-ae97861eb7f9",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Upgrade Christmas skin with ruby-gold portal plaques, warm crimson-gold fluid, burgundy claim inputs, and mobile portrait guard",
+  "message": "Site-wide UI polish: prevent accidental text selection on buttons/chrome, fix modal initial close-button focus box, and unify Christmas modal colors",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -130,7 +130,23 @@
     "free-token/xmas-token-v1.webp",
     "theme-xmas-v2.css",
     "theme-xmas-v2.js",
-    "assets/xmas-portal-frame-v1.webp"
+    "assets/xmas-portal-frame-v1.webp",
+    "hero-safe-v1.css",
+    "free-token/choose-v4.css",
+    "free-token/verify-flow-v4.mjs",
+    "free-token/verify-v4.mjs",
+    "free-token/snake/index.html",
+    "free-token/snake/style-v1.css",
+    "free-token/snake/engine-v1.mjs",
+    "free-token/snake/app-v1.mjs",
+    "free-token/snake/style-v2.css",
+    "free-token/snake/engine-v2.mjs",
+    "free-token/snake/app-v2.mjs",
+    "free-token/snake/engine-v3.mjs",
+    "free-token/snake/app-v3.mjs",
+    "free-token/snake/snake-atlas-classic-v1.webp",
+    "free-token/snake/snake-atlas-xmas-v1.webp",
+    "ui-polish-v1.css"
   ],
-  "staged_version": "bc4f07f3-c77e-4fc0-9690-d2a6fdbe549d"
+  "staged_version": "ce1c4254-8965-4c32-a1c4-de7462bd7cb2"
 }

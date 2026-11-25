@@ -1,5 +1,5 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
-import { handleGame } from './game.js';
+import { handleGame, handleSnakeGame } from './game.js';
 import { handleClaimCode, handleClaimVerify, handleLeaderboard, handleLegacyClaim } from './claim.js';
 import { securityConfig, operationProbe } from './security.js';
 import { staticResponse } from './static.js';
@@ -35,6 +35,9 @@ const site = {
     if (page) return page;
     if (['/api/free-token/game/start', '/api/free-token/game/progress', '/api/free-token/game/finish'].includes(url.pathname)) {
       return handleGame(request, env);
+    }
+    if (['/api/free-token/snake/start', '/api/free-token/snake/progress', '/api/free-token/snake/finish'].includes(url.pathname)) {
+      return handleSnakeGame(request, env);
     }
     if (url.pathname === '/api/free-token/claim') return handleLegacyClaim(request, env);
     if (url.pathname === '/api/free-token/claim/code') return handleClaimCode(request, env);

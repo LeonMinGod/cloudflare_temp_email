@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07171e">
   <title>这份礼，怎么拿？ · LeonMinGod</title>
   <link rel="icon" href="/assets/logo-v2.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/free-token/choose-v3.css">
+  <link rel="stylesheet" href="/free-token/choose-v4.css">
   <link rel="stylesheet" href="/free-token/saved-key-v1.css">
   <link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
   <script type="module" src="/free-token/saved-key-v2.mjs?v=3"></script>
@@ -14,12 +14,13 @@
   <script>try{const p=JSON.parse(sessionStorage.getItem('lmg-token-passage')||'null');sessionStorage.removeItem('lmg-token-passage');if(p&&p.destination===location.pathname&&Date.now()-p.at<8000&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('token-arrival')}catch{}</script>
   <script src="/free-token/token-passage-v1.js" defer></script>
   <link rel="stylesheet" href="/theme-xmas-v2.css">
+  <link rel="stylesheet" href="/ui-polish-v1.css">
   <script src="/theme-xmas-v2.js"></script>
 </head>
 <body>
   <header class="choice-top"><a href="/free-token/" aria-label="返回令牌入口">← 返回令牌</a><span>LEON<span class="moon">☾</span></span></header>
   <main class="choice">
-    <header class="choice-heading"><p class="eyebrow">A LITTLE GIFT, YOUR WAY</p><h1>一份见面礼。<span>两种拿法。</span></h1><p class="lead">叫我一声，或打赢这一局。</p></header>
+    <header class="choice-heading"><p class="eyebrow">A LITTLE GIFT, YOUR WAY</p><h1>一份见面礼。<span>三种拿法。</span></h1><p class="lead">叫我一声，御剑破阵，或灵龙衔珠。</p></header>
     <div class="paths">
       <a class="path path-gift" href="/free-token/claim/" aria-labelledby="gift-title">
         <span class="path-number" aria-hidden="true">01</span>
@@ -29,10 +30,42 @@
       <a class="path path-trial" href="/free-token/game/" aria-labelledby="trial-title">
         <span class="path-number" aria-hidden="true">02</span>
         <div class="path-art sword-art" aria-hidden="true"><span class="art-halo"></span><span class="jade-sword"></span></div>
-        <div class="path-copy"><span class="path-label">实力 · 凭剑说话</span><h2 id="trial-title">御剑破阵</h2><p>四十五秒见真章。<br>躲剑煞，夺灵玉，赢了就拿。</p><span class="path-action">拔剑，试一局 <b aria-hidden="true">↗</b></span></div>
+        <div class="path-copy"><span class="path-label">实力 · 闪避流</span><h2 id="trial-title">御剑破阵</h2><p>四十五秒见真章。<br>躲剑煞，夺灵玉，赢了就拿。</p><span class="path-action">拔剑，试一局 <b aria-hidden="true">↗</b></span></div>
+      </a>
+      <a class="path path-snake" href="/free-token/snake/" aria-labelledby="snake-title">
+        <span class="path-number" aria-hidden="true">03</span>
+        <span class="path-badge" aria-hidden="true">新试炼</span>
+        <div class="path-art dragon-art" aria-hidden="true">
+          <span class="art-halo"></span>
+          <svg class="dragon-emblem" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="dragonBodyGrad" x1="18" y1="22" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" style="stop-color:var(--dragon-scale-a)"/>
+                <stop offset="100%" style="stop-color:var(--dragon-scale-b)"/>
+              </linearGradient>
+              <radialGradient id="dragonPearlGrad" cx="42%" cy="38%" r="60%">
+                <stop offset="0%" style="stop-color:var(--dragon-pearl-core)"/>
+                <stop offset="55%" style="stop-color:var(--dragon-pearl-mid)"/>
+                <stop offset="100%" style="stop-color:var(--dragon-scale-b)" stop-opacity="0.25"/>
+              </radialGradient>
+            </defs>
+            <circle cx="64" cy="64" r="46" stroke="var(--dragon-pearl-ring)" stroke-opacity="0.26" stroke-width="1.2" stroke-dasharray="4 5"/>
+            <path d="M98 86C90 102 68 108 49 101C29 94 18 74 23 53C28 32 49 20 71 23C89 26 101 38 103 52" stroke="url(#dragonBodyGrad)" stroke-width="13" stroke-linecap="round"/>
+            <path d="M96 86C88 100 68 106 50 99C32 92 22 74 26 55C31 36 50 24 70 27C85 29 96 39 99 51" stroke="var(--dragon-ridge)" stroke-opacity="0.72" stroke-width="2.2" stroke-dasharray="5 6" stroke-linecap="round"/>
+            <path d="M103 52C105 58 101 64 94 64C88 64 85 59 86 53C87 47 93 44 99 46" fill="url(#dragonBodyGrad)" stroke="var(--dragon-ridge)" stroke-width="1.6"/>
+            <path d="M97 44L104 35M93 44L96 34" stroke="var(--dragon-ridge)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M102 58C110 61 114 66 116 71M99 63C105 68 107 74 107 79" stroke="var(--dragon-ridge)" stroke-opacity="0.82" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="94.5" cy="52" r="2.2" fill="#fff8e0"/>
+            <circle cx="64" cy="64" r="15" fill="url(#dragonPearlGrad)"/>
+            <circle cx="64" cy="64" r="19" stroke="var(--dragon-pearl-ring)" stroke-opacity="0.55" stroke-width="1.3"/>
+            <path d="M64 49V42M64 86V79M49 64H42M86 64H79" stroke="var(--dragon-pearl-ring)" stroke-opacity="0.6" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="59" cy="59" r="3.4" fill="#ffffff" fill-opacity="0.85"/>
+          </svg>
+        </div>
+        <div class="path-copy"><span class="path-label">实力 · 走位流</span><h2 id="snake-title">灵龙衔珠</h2><p>御神龙集齐三十珠。<br>抢金丹缩尾，破流转剑碑。</p><span class="path-action">御龙，试一局 <b aria-hidden="true">↗</b></span></div>
       </a>
     </div>
-    <p class="choice-note"><span aria-hidden="true">◇</span> 两条路，同一份 Token。选你喜欢的。</p>
+    <p class="choice-note"><span aria-hidden="true">◇</span> 三条路，同一份 Token。选你喜欢的。</p>
     <button type="button" class="saved-key-entry" data-saved-key-entry hidden>查看本浏览器保存的 API Key</button>
   </main>
 </body>
