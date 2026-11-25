@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "a8eb9f05-240e-4730-afb8-2e54a011246d",
+  "baseline_parent": "7f495473-9e83-438e-ae4c-7ae6f6d038a9",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Resolve Hall of Shame warning usernames from KV and switch board updates to daily cache",
+  "message": "Add Starry Christmas Wonderland skin across home and free-token pages with one-click homepage revert toggle",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -119,7 +119,15 @@
     "hall-of-shame/shame-v2.css",
     "hall-of-shame/shame-v2.mjs",
     "hall-of-shame/shame-v3.css",
-    "hall-of-shame/shame-v3.mjs"
+    "hall-of-shame/shame-v3.mjs",
+    "theme-xmas-v1.css",
+    "theme-xmas-v1.js",
+    "xmas-home-desktop-v1.webp",
+    "xmas-home-mobile-v1.webp",
+    "assets/xmas-orb-v1.webp",
+    "free-token/xmas-welcome-desktop-v1.webp",
+    "free-token/xmas-welcome-mobile-v1.webp",
+    "free-token/xmas-token-v1.webp"
   ],
-  "staged_version": "7f495473-9e83-438e-ae4c-7ae6f6d038a9"
+  "staged_version": ""
 }

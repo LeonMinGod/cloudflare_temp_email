@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="/free-token/availability-v1.css">
 <link rel="stylesheet" href="/star-sea-v1.css">
 <link rel="stylesheet" href="/free-token/token-entry-v3.css">
+<link rel="stylesheet" href="/theme-xmas-v1.css">
+<script src="/theme-xmas-v1.js"></script>
 </head>
 <body>
   <main class="welcome" data-layout="fullscreen-token">
@@ -24,14 +26,15 @@
     <h1 class="sr-only">免费 Token · 轻触令牌进入。</h1>
     <div class="scene star-sea-token">
       <picture class="poster">
-        <source media="(orientation: landscape)" srcset="/free-token/welcome-desktop-v5.webp" width="1672" height="941">
-        <img src="/free-token/welcome-mobile-v5.webp" width="941" height="1672" alt="月门天桥之上，青衣仙子递出青玉令牌，身后是悬空宫阙与星河。" fetchpriority="high" decoding="async" draggable="false">
+        <source media="(orientation: landscape)" srcset="/free-token/welcome-desktop-v5.webp" data-xmas-srcset="/free-token/xmas-welcome-desktop-v1.webp" width="1672" height="941">
+        <img src="/free-token/welcome-mobile-v5.webp" data-xmas-src="/free-token/xmas-welcome-mobile-v1.webp" width="941" height="1672" alt="月门天桥之上，仙子递出流光令牌，身后是悬空宫阙与星河。" fetchpriority="high" decoding="async" draggable="false">
       </picture>
-      <a id="token-entry" class="token-entry" href="/free-token/choose/" aria-label="点击青玉令牌，领取免费 Token">
+      <a id="token-entry" class="token-entry" href="/free-token/choose/" aria-label="点击流光令牌，领取免费 Token">
         <span class="token-signal" aria-hidden="true"><span class="token-orbit"></span></span>
-        <span class="token-float"><img class="token-art" src="/free-token/jade-token-v2.webp" width="1122" height="1402" alt="刻有令字的青玉令牌，挂绳、玉珠和白色流苏完整相连" decoding="async" draggable="false"></span>
+        <span class="token-float"><img class="token-art" src="/free-token/jade-token-v2.webp" data-xmas-src="/free-token/xmas-token-v1.webp" width="1122" height="1402" alt="刻有令字的贵宾令牌，挂绳、玉珠和白色流苏完整相连" decoding="async" draggable="false"></span>
       </a>
     </div>
+    <script>window.__lmgSkin&&window.__lmgSkin.syncMedia();</script>
     <div class="hero-wordmark" aria-hidden="true"><span class="hero-name">LeonMinGod</span><p class="hero-motto">一念风起，万境星垂</p></div>
     <nav class="top-entries" aria-label="快捷监控入口">
       <a class="shame-entry" href="/hall-of-shame/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 5.2 5.6v5.7c0 4.5 2.9 8.4 6.8 9.9 3.9-1.5 6.8-5.4 6.8-9.9V5.6L12 2.8Z"/><path d="M12 8.2v4.4m0 3.2h.01"/></svg><span>封神榜</span></a>

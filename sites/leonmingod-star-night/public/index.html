@@ -217,11 +217,13 @@
   <link rel="stylesheet" href="/jade-portals-v2.css?v=20261025-2">
   <script src="/home-enhancements.js?v=20261025-2" defer></script>
   <link rel="stylesheet" href="/star-sea-v1.css">
+  <link rel="stylesheet" href="/theme-xmas-v1.css">
+  <script src="/theme-xmas-v1.js"></script>
 </head>
 <body data-motion="loading" data-effects="on">
   <picture class="cover">
-    <source media="(min-width: 768px) and (orientation: landscape)" srcset="/home-hero-desktop-v7.webp">
-    <img id="scene-image" src="/home-hero-mobile-v7.webp" alt="LeonMinGod：云海观星台与悬空宫阙之间，青衣仙子托起流光玉球。一念风起，万境星垂。" fetchpriority="high" decoding="async">
+    <source media="(min-width: 768px) and (orientation: landscape)" srcset="/home-hero-desktop-v7.webp" data-xmas-srcset="/xmas-home-desktop-v1.webp">
+    <img id="scene-image" src="/home-hero-mobile-v7.webp" data-xmas-src="/xmas-home-mobile-v1.webp" alt="LeonMinGod：云海观星台与悬空宫阙之间，仙子托起流光灵球。一念风起，万境星垂。" fetchpriority="high" decoding="async">
   </picture>
   <div class="hero-wordmark" aria-hidden="true"><span class="hero-name">LeonMinGod</span><p class="hero-motto">一念风起，万境星垂</p></div>
   <div class="astral-currents" aria-hidden="true"><i></i><i></i></div>
@@ -233,15 +235,20 @@
     <a id="spirit-orb" class="spirit-orb" href="/free-token/" aria-label="触碰灵球，进入免费 Token">
       <span class="orb-orbit" aria-hidden="true"></span>
       <span class="orb-orbit orb-orbit-inner" aria-hidden="true"></span>
-      <span class="orb-float" aria-hidden="true"><img class="orb-art" src="/assets/jade-orb-v4.webp" width="1254" height="1254" alt="" decoding="async" draggable="false"></span>
+      <span class="orb-float" aria-hidden="true"><img class="orb-art" src="/assets/jade-orb-v4.webp" data-xmas-src="/assets/xmas-orb-v1.webp" width="1254" height="1254" alt="" decoding="async" draggable="false"></span>
     </a>
     <span id="orb-status" class="sr-only" role="status" aria-live="polite"></span>
   </main>
+  <script>window.__lmgSkin&&window.__lmgSkin.syncMedia();</script>
   <div class="interface">
     <header class="topbar">
       <a class="site-brand" href="/" aria-label="LeonMinGod 灵境仙域首页"><img src="/assets/logo-v2.svg" width="36" height="36" alt=""><span>LeonMinGod<small>灵境仙域</small></span></a>
-      <div class="scene-controls" aria-label="流光控制">
-        <button id="cast" type="button" disabled title="重新引动一缕青金流光">
+      <div class="scene-controls" aria-label="主题与流光控制">
+        <button id="skin-toggle" class="skin-toggle" type="button" aria-pressed="true" title="一键切换圣诞限定皮肤与星垂原版皮肤">
+          <span class="skin-icon" aria-hidden="true">❄</span><span class="skin-label-full">圣诞限定 · 切原版</span><span class="skin-label-short">圣诞版</span>
+        </button>
+        <span class="control-divider" aria-hidden="true"></span>
+        <button id="cast" type="button" disabled title="重新引动一缕流光">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3Z"/></svg>
           <span>引动灵气</span>
         </button>
