@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "a7540d4a-bf68-48db-b995-69187a0b5dd5",
+  "baseline_parent": "02b6c979-ed65-4e8e-814c-7054746f793e",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Animate the jade token with ripples and a light sweep, and simplify the pool status link",
+  "message": "Add Hall of Shame entry beside pool status and live anonymized Hall of Shame page",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -12,6 +12,7 @@
     "free-token/layout-v3.css",
     "free-token/token-entry-v1.css",
     "free-token/token-entry-v2.css",
+    "free-token/token-entry-v3.css",
     "free-token/choose/index.html",
     "free-token/choose-v1.css",
     "free-token/claim/index.html",
@@ -111,7 +112,10 @@
     "model-status/time-v1.mjs",
     "model-status/status-v9.mjs",
     "model-status/status-v10.css",
-    "model-status/status-v10.mjs"
+    "model-status/status-v10.mjs",
+    "hall-of-shame/index.html",
+    "hall-of-shame/shame-v1.css",
+    "hall-of-shame/shame-v1.mjs"
   ],
-  "staged_version": "02b6c979-ed65-4e8e-814c-7054746f793e"
+  "staged_version": ""
 }

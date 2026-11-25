@@ -4,6 +4,7 @@ import { handleClaimCode, handleClaimVerify, handleLeaderboard, handleLegacyClai
 import { securityConfig, operationProbe } from './security.js';
 import { staticResponse } from './static.js';
 import { handlePoolStatus } from './pool-status.js';
+import { handleHallOfShame } from './shame-board.js';
 export { GameRun } from './game.js';
 
 const RETIRED_HERO = /^\/(?:home-hero-(?:desktop|mobile)-v[23]\.webp|image|img|bg|wallpaper\.png)$/;
@@ -22,6 +23,7 @@ const site = {
     }
     // Fixed read-only status routes are deliberately outside claim/game limits.
     if (['/api/pool-status', '/api/pool-status/quota'].includes(url.pathname)) return handlePoolStatus(request, env);
+    if (url.pathname === '/api/hall-of-shame') return handleHallOfShame(request, env);
     if (url.pathname === '/api/free-token/security') return securityConfig(request, env);
     if (url.pathname === '/api/free-token/status') {
       const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };

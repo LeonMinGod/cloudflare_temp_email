@@ -6,7 +6,7 @@ export function signature(secret, stamp, path, text) {
   return createHmac('sha256', secret).update(`lmg-vps-pool-v1\n${stamp}\nPOST\n${path}\n${text}`).digest('hex');
 }
 
-export function createCollector({ storage, secret, managementKey, cpaOrigin = 'http://127.0.0.1:8317', readRecordedUsage, discoverApiKeys = true, fetcher = (url, init) => fetch(url, init), clock = () => Date.now() }) {
+export function createCollector({ storage, secret, managementKey, cpaOrigin = 'http://127.0.0.1:8317', readRecordedUsage, readShameBoard, discoverApiKeys = true, fetcher = (url, init) => fetch(url, init), clock = () => Date.now() }) {
   const env = { FREE_TOKEN_OPS_SECRET: secret, CPA_STATUS_MANAGEMENT_KEY: managementKey, CPA_STATUS_ORIGIN: cpaOrigin };
   const coordinatorOptions = { fetcher, clock, readRecordedUsage, discoverApiKeys };
   let coordinator = new PoolStatusCoordinator({ storage }, env, coordinatorOptions);
@@ -45,6 +45,11 @@ export function createCollector({ storage, secret, managementKey, cpaOrigin = 'h
         coordinator = new PoolStatusCoordinator({ storage }, env, coordinatorOptions);
         await coordinator.ready;
         return reply(200, { imported: true, history_models: Object.keys(cache.modelUsage?.models || {}).length });
+      }
+      if (body.kind === 'shame') {
+        if (typeof readShameBoard !== 'function') return reply(503, { error: '封神榜数据源暂不可用' });
+        try { return reply(200, await readShameBoard()); }
+        catch (error) { console.warn(JSON.stringify({ event: 'shame_board_read_failed', error_type: error.name })); return reply(503, { error: '封神榜暂时无法读取，请稍后再试。' }); }
       }
       if (!['snapshot', 'quota'].includes(body.kind) || (body.kind === 'quota' && !/^[a-f0-9]{8}$/.test(body.id || ''))) return reply(400, { error: 'Invalid request' });
       try { return await coordinator.fetch(new Request('https://pool.internal/pool-status', { method: 'POST', body: JSON.stringify({ kind: body.kind, id: body.id, peek: Boolean(body.peek) }) })); }

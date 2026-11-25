@@ -189,7 +189,7 @@ elif mode == 'publish':
         print('ACTIVATED_SITE='+json.dumps({'parent':api.active(worker),'entrance':entrance_after,'exports':version['resources'].get('script',{}).get('named_handlers')}),flush=True)
         for attempt in range(12):
             try:
-                for path, local in [('/','index.html'),('/free-token/','free-token/index.html'),('/free-token/choose/','free-token/choose/index.html'),('/free-token/claim/','free-token/claim/index.html'),('/free-token/verify/','free-token/verify/index.html'),('/free-token/game/','free-token/game/index.html'),('/model-status/','model-status/index.html')]:
+                for path, local in [('/','index.html'),('/free-token/','free-token/index.html'),('/free-token/choose/','free-token/choose/index.html'),('/free-token/claim/','free-token/claim/index.html'),('/free-token/verify/','free-token/verify/index.html'),('/free-token/game/','free-token/game/index.html'),('/model-status/','model-status/index.html'),('/hall-of-shame/','hall-of-shame/index.html')]:
                     body=api.request(api.ORIGIN+path)[2].decode()
                     expected=(root/'public'/local).read_text()
                     import re
@@ -205,6 +205,9 @@ elif mode == 'publish':
                 released_claim_has_no_shared_key()
                 released_board_and_hero()
                 pool_verified = released_pool_read()
+                shame = json.loads(api.request(api.ORIGIN + '/api/hall-of-shame')[2])
+                assert shame.get('schema') == 1 and isinstance(shame.get('entries'), list)
+                assert not any(k in json.dumps(shame) for k in ('"last_ip"', '"ban_key"', '"apiKey"', '"key_enc"'))
                 status = json.loads(api.request(api.ORIGIN + '/api/free-token/status')[2])
                 assert status['open'] is has_reward_binding, 'Token click availability differs from issuance state'
                 after=api.cf(worker+'/settings')['bindings']
