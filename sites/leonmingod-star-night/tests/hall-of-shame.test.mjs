@@ -239,7 +239,7 @@ test('built Worker serves /free-token/ shame entry beside pool-entry, /hall-of-s
     const noSlashRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame');
     assert.equal(noSlashRes.status, 200);
 
-    const cssRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame/shame-v1.css');
+    const cssRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame/shame-v2.css');
     assert.equal(cssRes.status, 200);
     assert.match(cssRes.headers.get('Cache-Control'), /immutable/);
 

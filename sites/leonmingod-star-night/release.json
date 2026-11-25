@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "02b6c979-ed65-4e8e-814c-7054746f793e",
+  "baseline_parent": "a8eb9f05-240e-4730-afb8-2e54a011246d",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Add Hall of Shame entry beside pool status and live anonymized Hall of Shame page",
+  "message": "Polish Hall of Shame severity ordering and crisp instant dark/light theme transitions",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -115,7 +115,9 @@
     "model-status/status-v10.mjs",
     "hall-of-shame/index.html",
     "hall-of-shame/shame-v1.css",
-    "hall-of-shame/shame-v1.mjs"
+    "hall-of-shame/shame-v1.mjs",
+    "hall-of-shame/shame-v2.css",
+    "hall-of-shame/shame-v2.mjs"
   ],
-  "staged_version": "a8eb9f05-240e-4730-afb8-2e54a011246d"
+  "staged_version": ""
 }

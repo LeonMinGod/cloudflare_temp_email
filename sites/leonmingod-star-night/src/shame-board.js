@@ -240,11 +240,14 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
     if (rankDiff !== 0) return rankDiff;
     // Key-revoked dual-ban entries surface first among permanent bans
     if (a.key_revoked !== b.key_revoked) return a.key_revoked ? -1 : 1;
+    if (a.status === 'warning') {
+      if (b.strikes !== a.strikes) return b.strikes - a.strikes;
+    } else if (b.blocked_hits !== a.blocked_hits) {
+      return b.blocked_hits - a.blocked_hits;
+    }
     const timeA = Date.parse(a.banned_at || a.last_strike_at || '') || 0;
     const timeB = Date.parse(b.banned_at || b.last_strike_at || '') || 0;
-    if (timeB !== timeA) return timeB - timeA;
-    if (b.strikes !== a.strikes) return b.strikes - a.strikes;
-    return b.blocked_hits - a.blocked_hits;
+    return timeB - timeA;
   });
 
   const timestamps = [
