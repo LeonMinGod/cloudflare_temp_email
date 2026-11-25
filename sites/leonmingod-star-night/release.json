@@ -1,7 +1,7 @@
 {
-  "baseline_parent": "48036a19-9c59-4260-9e8a-136a58d6cd19",
+  "baseline_parent": "495c72fb-3db7-4ac4-8f69-ae97861eb7f9",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Upgrade Dragon Pearl v3 with custom Xianxia/Christmas dragon sprite atlases, spline-scaled dragon body, and shifting 8-stele challenge matching Sword Trial",
+  "message": "Site-wide UI polish: prevent accidental text selection on buttons/chrome, fix modal initial close-button focus box, and unify Christmas modal colors",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -145,7 +145,8 @@
     "free-token/snake/engine-v3.mjs",
     "free-token/snake/app-v3.mjs",
     "free-token/snake/snake-atlas-classic-v1.webp",
-    "free-token/snake/snake-atlas-xmas-v1.webp"
+    "free-token/snake/snake-atlas-xmas-v1.webp",
+    "ui-polish-v1.css"
   ],
-  "staged_version": "495c72fb-3db7-4ac4-8f69-ae97861eb7f9"
+  "staged_version": ""
 }

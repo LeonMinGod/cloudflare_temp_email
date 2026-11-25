@@ -20,6 +20,7 @@ test('all main and free-token pages include the shared Christmas skin engine and
     const html = await readFile(page, 'utf8');
     assert.match(html, /\/theme-xmas-v2\.css/, `${page} missing theme-xmas-v2.css`);
     assert.match(html, /\/theme-xmas-v2\.js/, `${page} missing theme-xmas-v2.js`);
+    assert.match(html, /\/ui-polish-v1\.css/, `${page} missing ui-polish-v1.css`);
   }
 
   const home = await readFile('public/index.html', 'utf8');
@@ -74,6 +75,7 @@ test('built Worker stays well under compressed bundle budget and serves all Chri
       ['/free-token/verify-flow-v4.mjs', 'application/javascript'],
       ['/free-token/verify-v4.mjs', 'application/javascript'],
       ['/hero-safe-v1.css', 'text/css'],
+      ['/ui-polish-v1.css', 'text/css'],
     ];
     for (const [path, mimePrefix] of paths) {
       const res = await mf.dispatchFetch('https://leonmingod.com' + path);

@@ -1,0 +1,168 @@
+/* ==========================================================================
+   LeonMinGod · Global UI Interaction Polish (ui-polish-v1.css)
+   1. Prevents accidental text selection & ghost dragging on buttons/UI chrome
+      while preserving normal text selection inside inputs, textareas & keys.
+   2. Refines modal close buttons (×) into clean circular icon buttons and
+      eliminates harsh square focus boxes on programmatic dialog headings / canvas.
+   3. Unifies Christmas skin styling inside reward / saved-key / CC Switch dialogs.
+   ========================================================================== */
+
+button,
+a,
+summary,
+[role="button"],
+img,
+svg,
+canvas,
+.top,
+.choice-top,
+.brand,
+.hud,
+.phase-bar,
+.arena-foot,
+.dpad,
+.screen,
+.paths,
+.path,
+.path-art,
+.scene-controls,
+#site-portals,
+.top-entries,
+.hero-wordmark,
+.ccswitch-segments,
+.ccswitch-entry,
+.saved-key-entry,
+.close,
+.ccswitch-close,
+.saved-key-close {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img,
+a,
+button {
+  -webkit-user-drag: none;
+}
+
+input,
+textarea,
+select,
+code,
+pre,
+[readonly],
+.copy-row input,
+.copy-row textarea,
+.saved-key-row input,
+.saved-key-row textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Suppress sticky focus rings on pointer clicks & programmatic modal headings/canvas */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+dialog h2[tabindex="-1"]:focus,
+dialog h2[tabindex="-1"]:focus-visible,
+canvas:focus,
+canvas:focus-visible {
+  outline: none;
+}
+
+/* Refined circular icon close buttons across all dialogs */
+dialog .close,
+.ccswitch-dialog .ccswitch-close,
+.saved-key-modal .saved-key-close {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.12s ease;
+}
+
+dialog .close:hover,
+.ccswitch-dialog .ccswitch-close:hover,
+.saved-key-modal .saved-key-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff6e0;
+}
+
+dialog .close:active,
+.ccswitch-dialog .ccswitch-close:active,
+.saved-key-modal .saved-key-close:active {
+  transform: scale(0.92);
+}
+
+dialog .close:focus-visible,
+.ccswitch-dialog .ccswitch-close:focus-visible,
+.saved-key-modal .saved-key-close:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid rgba(242, 214, 157, 0.72);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Softer, rounded keyboard focus ring on standard buttons & links */
+:is(button, a):focus-visible {
+  outline: 2px solid rgba(242, 214, 157, 0.76);
+  outline-offset: 2px;
+}
+html[data-theme="light"] :is(button, a):focus-visible {
+  outline-color: rgba(16, 185, 129, 0.85);
+}
+
+/* Cohesive Christmas Wonderland styling for Game/Snake Reward, Saved-Key & CC Switch modals */
+html[data-skin="xmas"] body:has(.arena) dialog {
+  border-color: rgba(255, 214, 150, 0.4);
+  background: linear-gradient(145deg, #270e1a, #140914);
+}
+
+html[data-skin="xmas"] body:has(.arena) dialog input,
+html[data-skin="xmas"] body:has(.arena) dialog textarea,
+html[data-skin="xmas"] .saved-key-modal input,
+html[data-skin="xmas"] .saved-key-modal textarea,
+html[data-skin="xmas"] .ccswitch-dialog .ccswitch-input {
+  background: #1a0a12;
+  border-color: rgba(255, 212, 152, 0.32);
+  color: #fff2dc;
+}
+
+html[data-skin="xmas"] body:has(.arena) dialog input:focus,
+html[data-skin="xmas"] body:has(.arena) dialog textarea:focus {
+  border-color: rgba(255, 224, 162, 0.72);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18);
+  outline: none;
+}
+
+html[data-skin="xmas"] body:has(.arena) dialog .primary,
+html[data-skin="xmas"] .saved-key-modal .saved-key-primary {
+  border-color: rgba(255, 224, 162, 0.62);
+  background: linear-gradient(135deg, #9f1239, #6b1129);
+  color: #fff5df;
+}
+
+html[data-skin="xmas"] body:has(.arena) dialog .primary:hover:not(:disabled),
+html[data-skin="xmas"] .saved-key-modal .saved-key-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #be123c, #881337);
+}
+
+html[data-skin="xmas"] body:has(.arena) dialog .copy-row button,
+html[data-skin="xmas"] .saved-key-modal .saved-key-row button {
+  border-color: rgba(255, 212, 152, 0.36);
+  background: #471425;
+  color: #ffeccf;
+}
+
+html[data-skin="xmas"] .saved-key-modal,
+html[data-skin="xmas"] .ccswitch-dialog {
+  border-color: rgba(255, 214, 150, 0.4);
+  background: linear-gradient(145deg, #270e1a, #140914);
+}

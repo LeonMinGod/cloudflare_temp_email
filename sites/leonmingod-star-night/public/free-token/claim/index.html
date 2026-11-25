@@ -318,6 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script><link rel="stylesheet" href="/free-token/claim-compact-v5.css">
 <link rel="stylesheet" href="/free-token/ccswitch-v1.css?v=3">
 <link rel="stylesheet" href="/theme-xmas-v2.css">
+<link rel="stylesheet" href="/ui-polish-v1.css">
 <script src="/theme-xmas-v2.js"></script>
 </head>
 <body><canvas id="token-fluid" aria-hidden="true"></canvas><span id="token-pointer-light" aria-hidden="true"></span>
@@ -388,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <dialog id="email-dialog" class="modal" aria-labelledby="email-title">
     <p class="eyebrow">最后一步 · 验证归属</p>
-    <h2 id="email-title" tabindex="-1">绑定邮箱</h2>
+    <h2 id="email-title" tabindex="-1" autofocus>绑定邮箱</h2>
     <p class="modal-description">邮箱用于验证身份和找回同一把 API Key。本浏览器会记住邮箱，下次自动填入。</p>
     <label class="credential-label" for="claim-email">邮箱地址</label>
     <div class="input-wrap"><input id="claim-email" name="email" type="email" inputmode="email" maxlength="254" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" required></div>
