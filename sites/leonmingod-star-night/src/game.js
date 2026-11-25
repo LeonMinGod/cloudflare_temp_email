@@ -5,7 +5,16 @@ const engineFor = run => run.rulesVersion === 7 ? previous : run.rulesVersion ==
 import { json, hash, sessionIdentity, verifyHuman, rateLimit } from './security.js';
 import { issueClaimGrant } from './claim-grant.js';
 import { PoolStatusCoordinator } from './pool-status.js';
+import {
+  SNAKE_MAX_AGE,
+  SNAKE_RULES,
+  createSnakeGame,
+  installSnakeEntropy,
+  verifySnakeProgress,
+  verifySnakeRun,
+} from './snake-game.js';
 export { json } from './security.js';
+export { verifySnakeProgress, verifySnakeRun } from './snake-game.js';
 export const MAX_AGE = 180000;
 const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 const seed = () => crypto.getRandomValues(new Uint32Array(1))[0] || 1;
@@ -99,6 +108,45 @@ export class GameRun {
       await this.ctx.storage.setAlarm(run.expires + 60000);
       return json(200, { protocol: run.protocol, seed: initial, receipt: run.receipt, expires: run.expires, rules: RULES });
     }
+    if (path === '/snake-init') {
+      const now = Date.now(), initial = seed();
+      const run = { game: 'snake', protocol: 'snake-live-v1', rulesVersion: SNAKE_RULES.version, sessionHash: body.sessionHash, started: now + 1800, expires: now + SNAKE_MAX_AGE, lastSeen: now + 1800, claimed: false, receipt: crypto.randomUUID(), state: createSnakeGame(initial) };
+      const created = await this.ctx.storage.transaction(async txn => {
+        if (await txn.get('run')) return false;
+        await txn.put('run', run); return true;
+      });
+      if (!created) return json(409, { error: '请重新开局。' });
+      await this.ctx.storage.setAlarm(run.expires + 60000);
+      return json(200, { protocol: run.protocol, seed: initial, receipt: run.receipt, expires: run.expires, rules: SNAKE_RULES });
+    }
+    if (['/snake-progress', '/snake-finish'].includes(path)) {
+      const digest = path === '/snake-progress' ? await hash(JSON.stringify(body)) : null;
+      return this.ctx.storage.transaction(async txn => {
+        const run = await txn.get('run'), now = Date.now();
+        if (path === '/snake-finish') {
+          const checked = verifySnakeRun(run, body, now);
+          if (checked.status !== 200) return json(checked.status, { error: checked.error });
+          await txn.put('run', { ...run, claimed: true });
+          return json(200, checked.result);
+        }
+        if (run && now <= run.expires && body.sessionHash === run.sessionHash && body.receipt === run.previousReceipt && digest === run.previousDigest) {
+          return json(200, run.previousResponse);
+        }
+        const checked = verifySnakeProgress(run, body, now);
+        if (checked.status !== 200) return json(checked.status, { error: checked.error });
+        const state = checked.state, entropy = [];
+        const boundary = Math.ceil((state.tick + 1) / SNAKE_RULES.segmentTicks) * SNAKE_RULES.segmentTicks;
+        if (!state.done && boundary < SNAKE_RULES.maxTicks && state.tick >= boundary - 20 && !state.entropy[boundary]) {
+          const next = { tick: boundary, seed: seed() };
+          installSnakeEntropy(state, [next]);
+          entropy.push(next);
+        }
+        const receipt = crypto.randomUUID();
+        const response = { tick: state.tick, receipt, entropy, done: state.done, won: state.won, score: state.score };
+        await txn.put('run', { ...run, state, receipt, lastSeen: now, previousReceipt: body.receipt, previousDigest: digest, previousResponse: response });
+        return json(200, response);
+      });
+    }
     if (!['/progress', '/finish'].includes(path)) return json(404, { error: 'Not found' });
     const digest = path === '/progress' ? await hash(JSON.stringify(body)) : null;
     return this.ctx.storage.transaction(async txn => {
@@ -169,5 +217,46 @@ export async function handleGame(request, env) {
   const headers = new Headers();
   headers.append('Set-Cookie', issued.cookie);
   headers.append('Set-Cookie', `lmg_game=; HttpOnly; SameSite=Strict; Path=/api/free-token/game; Max-Age=0${url.protocol === 'https:' ? '; Secure' : ''}`);
+  return json(200, { ...result, claimable: true }, headers);
+}
+
+export async function handleSnakeGame(request, env) {
+  const url = new URL(request.url), action = url.pathname.split('/').at(-1);
+  if (request.method !== 'POST') return json(405, { error: '请通过游戏页面发起挑战。' }, { Allow: 'POST' });
+  if (request.headers.get('Origin') !== url.origin) return json(403, { error: '请在本站完成挑战。' });
+  if (!request.headers.get('Content-Type')?.toLowerCase().includes('application/json')) return json(415, { error: '请求格式不正确。' });
+  if (!env.FREE_TOKEN_RENDER_KEY || !env.GAME_RUNS) return json(503, { error: '暂未开放，请稍后再来。' });
+  const verificationRequest = request.clone();
+  const text = await request.text();
+  if (text.length > 12000) return json(413, { error: '操作记录过长，请重新挑战。' });
+  let body;
+  try { body = JSON.parse(text); } catch { return json(400, { error: '请求格式不正确。' }); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json(400, { error: '请求格式不正确。' });
+  if (action === 'start') {
+    const limited = await rateLimit(verificationRequest, env, 'start'); if (limited) return limited;
+    const headers = new Headers();
+    const denied = await verifyHuman(verificationRequest, env, body.humanToken, 'game_start', headers); if (denied) return denied;
+    const id = crypto.randomUUID(), secret = crypto.randomUUID() + crypto.randomUUID();
+    const sessionHash = await hash(secret + ':' + await sessionIdentity(request));
+    const response = await env.GAME_RUNS.get(env.GAME_RUNS.idFromName(id)).fetch('https://game.internal/snake-init', { method: 'POST', body: JSON.stringify({ sessionHash }) });
+    const challenge = await response.json();
+    if (!response.ok) return json(response.status, challenge, headers);
+    headers.append('Set-Cookie', `lmg_snake=${secret}; HttpOnly; SameSite=Strict; Path=/api/free-token/snake; Max-Age=240${url.protocol === 'https:' ? '; Secure' : ''}`);
+    return json(200, { id, ...challenge }, headers);
+  }
+  if (!ID.test(body.id || '') || !['progress', 'finish'].includes(action)) return json(400, { error: '这一局的信息无效，请重新开局。' });
+  const secret = request.headers.get('Cookie')?.match(/(?:^|;\s*)lmg_snake=([a-f0-9-]{72})(?:;|$)/)?.[1];
+  if (!secret) return json(403, { error: '挑战凭证已失效，请重新开局。' });
+  const response = await env.GAME_RUNS.get(env.GAME_RUNS.idFromName(body.id)).fetch('https://game.internal/snake-' + action, {
+    method: 'POST',
+    body: JSON.stringify({ sessionHash: await hash(secret + ':' + await sessionIdentity(request)), receipt: body.receipt, tick: body.tick, trace: body.trace }),
+  });
+  const result = await response.json();
+  if (!response.ok || action === 'progress') return json(response.status, result);
+  const issued = await issueClaimGrant(request, env, 'game');
+  if (!issued) return json(503, { error: '通关已记录，但领取暂时不可用，请稍后重试。' });
+  const headers = new Headers();
+  headers.append('Set-Cookie', issued.cookie);
+  headers.append('Set-Cookie', `lmg_snake=; HttpOnly; SameSite=Strict; Path=/api/free-token/snake; Max-Age=0${url.protocol === 'https:' ? '; Secure' : ''}`);
   return json(200, { ...result, claimable: true }, headers);
 }

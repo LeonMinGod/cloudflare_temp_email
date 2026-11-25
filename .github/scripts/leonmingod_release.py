@@ -189,7 +189,7 @@ elif mode == 'publish':
         print('ACTIVATED_SITE='+json.dumps({'parent':api.active(worker),'entrance':entrance_after,'exports':version['resources'].get('script',{}).get('named_handlers')}),flush=True)
         for attempt in range(12):
             try:
-                for path, local in [('/','index.html'),('/free-token/','free-token/index.html'),('/free-token/choose/','free-token/choose/index.html'),('/free-token/claim/','free-token/claim/index.html'),('/free-token/verify/','free-token/verify/index.html'),('/free-token/game/','free-token/game/index.html'),('/model-status/','model-status/index.html'),('/hall-of-shame/','hall-of-shame/index.html')]:
+                for path, local in [('/','index.html'),('/free-token/','free-token/index.html'),('/free-token/choose/','free-token/choose/index.html'),('/free-token/claim/','free-token/claim/index.html'),('/free-token/verify/','free-token/verify/index.html'),('/free-token/game/','free-token/game/index.html'),('/free-token/snake/','free-token/snake/index.html'),('/model-status/','model-status/index.html'),('/hall-of-shame/','hall-of-shame/index.html')]:
                     body=api.request(api.ORIGIN+path)[2].decode()
                     expected=(root/'public'/local).read_text()
                     import re

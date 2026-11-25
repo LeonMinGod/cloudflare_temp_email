@@ -12,6 +12,7 @@ test('all main and free-token pages include the shared Christmas skin engine and
     'public/free-token/claim/index.html',
     'public/free-token/verify/index.html',
     'public/free-token/game/index.html',
+    'public/free-token/snake/index.html',
     'public/model-status/index.html',
     'public/hall-of-shame/index.html',
   ];
@@ -59,6 +60,13 @@ test('built Worker stays well under compressed bundle budget and serves all Chri
       ['/free-token/xmas-welcome-desktop-v1.webp', 'image/webp'],
       ['/free-token/xmas-welcome-mobile-v1.webp', 'image/webp'],
       ['/free-token/xmas-token-v1.webp', 'image/webp'],
+      ['/free-token/choose-v4.css', 'text/css'],
+      ['/free-token/snake/style-v1.css', 'text/css'],
+      ['/free-token/snake/engine-v1.mjs', 'application/javascript'],
+      ['/free-token/snake/app-v1.mjs', 'application/javascript'],
+      ['/free-token/verify-flow-v4.mjs', 'application/javascript'],
+      ['/free-token/verify-v4.mjs', 'application/javascript'],
+      ['/hero-safe-v1.css', 'text/css'],
     ];
     for (const [path, mimePrefix] of paths) {
       const res = await mf.dispatchFetch('https://leonmingod.com' + path);
