@@ -75,7 +75,11 @@ test('sanitizeBanStore drops raw IPs, converts Go zero timestamps, and orders pe
     ],
   };
 
-  const out = sanitizeBanStore(raw, { secret: 'unit-secret', now });
+  const out = sanitizeBanStore(raw, {
+    secret: 'unit-secret',
+    now,
+    ipKeyMap: { by_ip: { '154.40.35.159': '874d438e910215a8' } },
+  });
   const text = JSON.stringify(out);
   assert.doesNotMatch(text, /121\.102|35\.159|205:200|a2a3|ban_key|last_ip/);
   assert.equal(out.totals.permanent_bans, 2);
@@ -87,6 +91,7 @@ test('sanitizeBanStore drops raw IPs, converts Go zero timestamps, and orders pe
   assert.equal(out.records[1].ip_family, 'ipv6_subnet');
   assert.equal(out.records[2].status, 'warning');
   assert.equal(out.records[2].banned_at, null);
+  assert.equal(out.records[2].key_hash_prefix, '874d438e910215a8');
 });
 
 test('collector exposes signed kind:shame endpoint reading ip_bans.json safely', async () => {

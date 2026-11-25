@@ -1,13 +1,20 @@
 import { relayPoolToVps } from './pool-vps.js';
 
 export const SHAME_KV_KEY = 'ops:hall-of-shame:v1';
-const CACHE_TTL_MS = 60_000;
-const REFRESH_COOLDOWN_MS = 15_000;
+const SHAME_CACHE_VERSION = 'v3';
+const DAILY_TTL_SECONDS = 86_400;
+const DAILY_TTL_MS = DAILY_TTL_SECONDS * 1000;
+const BEIJING_OFFSET_MS = 8 * 3_600_000;
+const KEY_HASH_PREFIX_RE = /^[a-f0-9]{12,64}$/;
 
-const HEADERS = {
-  'Cache-Control': 'no-store',
+const BASE_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'same-origin',
+};
+
+const PUBLIC_CACHE_HEADERS = {
+  ...BASE_HEADERS,
+  'Cache-Control': `public, max-age=3600, s-maxage=${DAILY_TTL_SECONDS}`,
 };
 
 const POLICY_RULES = [
@@ -34,6 +41,15 @@ export function resetHallOfShameCache() {
   memoryCache = null;
 }
 
+export function beijingDateKey(now = Date.now()) {
+  return new Date(now + BEIJING_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+export function nextBeijingMidnightIso(now = Date.now()) {
+  const dayStartUtc = Date.parse(`${beijingDateKey(now)}T00:00:00Z`) - BEIJING_OFFSET_MS;
+  return new Date(dayStartUtc + DAILY_TTL_MS).toISOString();
+}
+
 export function maskEmailSafe(raw) {
   const text = String(raw || '').trim();
   if (!text) return null;
@@ -49,7 +65,6 @@ export function maskEmailSafe(raw) {
 export function maskIpSafe(raw) {
   const text = String(raw || '').trim();
   if (!text) return null;
-  // Already masked IPv4 or IPv6
   if (/^\d{1,3}\.\d{1,3}\.\*\.\*$/.test(text)) return text;
   if (/^[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:\*:\*$/.test(text)) return text.toLowerCase();
   const host = text.split('/')[0].trim();
@@ -117,6 +132,7 @@ function sanitizeVpsRecord(raw) {
   const maskedIp = maskIpSafe(raw.masked_ip);
   if (!maskedIp) return null;
   const status = ['permanent_ban', 'temp_ban', 'warning'].includes(raw.status) ? raw.status : 'warning';
+  const rawPrefix = typeof raw.key_hash_prefix === 'string' ? raw.key_hash_prefix.trim().toLowerCase() : '';
   return {
     id: scrubText(raw.id, 32) || maskedIp,
     masked_ip: maskedIp,
@@ -136,20 +152,63 @@ function sanitizeVpsRecord(raw) {
     last_strike_at: normalizeIso(raw.last_strike_at),
     banned_at: normalizeIso(raw.banned_at),
     ban_expires_at: normalizeIso(raw.ban_expires_at),
+    key_hash_prefix: KEY_HASH_PREFIX_RE.test(rawPrefix) ? rawPrefix : null,
   };
+}
+
+export async function resolveKeyIdentities(kv, prefixes) {
+  const result = new Map();
+  if (!kv?.list || !kv?.get) return result;
+  const uniquePrefixes = [...new Set((prefixes || []).filter(p => typeof p === 'string' && KEY_HASH_PREFIX_RE.test(p)))].slice(0, 30);
+  if (!uniquePrefixes.length) return result;
+
+  const matchedKeyNames = new Map(); // prefix -> full KV key name (`key:<64-hex>`)
+  let cursor;
+  for (let page = 0; page < 5; page++) {
+    const listed = await kv.list({ prefix: 'key:', ...(cursor ? { cursor } : {}) });
+    for (const item of listed?.keys || []) {
+      const hash = String(item?.name || '').slice(4);
+      if (!hash) continue;
+      for (const prefix of uniquePrefixes) {
+        if (!matchedKeyNames.has(prefix) && hash.startsWith(prefix)) {
+          matchedKeyNames.set(prefix, item.name);
+        }
+      }
+    }
+    if (matchedKeyNames.size >= uniquePrefixes.length || listed?.list_complete || !listed?.cursor) break;
+    cursor = listed.cursor;
+  }
+
+  const fetches = [...matchedKeyNames.entries()].map(async ([prefix, keyName]) => {
+    try {
+      const raw = await kv.get(keyName);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const username = scrubText(parsed?.username, 32) || null;
+      const maskedEmail = maskEmailSafe(parsed?.email);
+      const keyRevoked = Boolean(parsed?.status && parsed.status !== 'active' && !parsed?.replaced_by);
+      if (username || maskedEmail || keyRevoked) {
+        result.set(prefix, { username, masked_email: maskedEmail, key_revoked: keyRevoked });
+      }
+    } catch {
+      // Ignore malformed KV record
+    }
+  });
+  await Promise.all(fetches);
+  return result;
 }
 
 const STATUS_ORDER = { permanent_ban: 0, key_revoked: 1, temp_ban: 2, warning: 3 };
 
-export function mergeShameSources({ vpsData = null, kvData = null, now = Date.now() } = {}) {
+export function mergeShameSources({ vpsData = null, kvData = null, keyIdentities = null, now = Date.now() } = {}) {
   const vpsRecords = Array.isArray(vpsData?.records) ? vpsData.records.map(sanitizeVpsRecord).filter(Boolean) : [];
   const kvEntries = Array.isArray(kvData?.entries) ? kvData.entries.map(sanitizeDossier).filter(Boolean) : [];
+  const identities = keyIdentities instanceof Map ? keyIdentities : new Map();
 
   const matchedDossiers = new Set();
   const entries = [];
 
   for (const vps of vpsRecords) {
-    // Match a KV dossier by masked_ip (and optional rule_id if multiple entries share a /16 mask)
     let matchedIndex = -1;
     if (vps.banned) {
       matchedIndex = kvEntries.findIndex((d, idx) =>
@@ -162,7 +221,10 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
     const dossier = matchedIndex >= 0 ? kvEntries[matchedIndex] : null;
     if (matchedIndex >= 0) matchedDossiers.add(matchedIndex);
 
-    const keyRevoked = Boolean(dossier?.key_revoked);
+    const resolved = vps.key_hash_prefix ? identities.get(vps.key_hash_prefix) : null;
+    const username = dossier?.username || resolved?.username || null;
+    const maskedEmail = dossier?.masked_email || resolved?.masked_email || null;
+    const keyRevoked = Boolean(dossier?.key_revoked || resolved?.key_revoked);
     const ipBanned = Boolean(vps.banned || dossier?.ip_banned);
     const status = vps.status;
     const punishment = dossier?.punishment || (
@@ -173,15 +235,16 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
           : `安全预警（${vps.strikes}/${vps.strike_limit} 次，满 ${vps.strike_limit} 次永封）`
     );
 
+    // Note: vps.key_hash_prefix is intentionally omitted from the public payload.
     entries.push({
       id: vps.id,
-      source: dossier ? 'merged' : 'prompt_guard',
+      source: dossier ? 'merged' : (resolved ? 'guard_kv' : 'prompt_guard'),
       status,
       permanent: Boolean(vps.permanent || dossier?.permanent),
       key_revoked: keyRevoked,
       ip_banned: ipBanned,
-      username: dossier?.username || null,
-      masked_email: dossier?.masked_email || null,
+      username,
+      masked_email: maskedEmail,
       masked_ip: vps.masked_ip,
       ip_family: vps.ip_family,
       rank_title: dossier?.rank_title || null,
@@ -202,7 +265,6 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
     });
   }
 
-  // Add unmatched KV dossiers (e.g., key-only revocations or when VPS is offline)
   kvEntries.forEach((dossier, idx) => {
     if (matchedDossiers.has(idx)) return;
     const status = dossier.ip_banned && dossier.permanent ? 'permanent_ban' : (dossier.key_revoked ? 'key_revoked' : 'permanent_ban');
@@ -238,7 +300,6 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
   entries.sort((a, b) => {
     const rankDiff = (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9);
     if (rankDiff !== 0) return rankDiff;
-    // Key-revoked dual-ban entries surface first among permanent bans
     if (a.key_revoked !== b.key_revoked) return a.key_revoked ? -1 : 1;
     if (a.status === 'warning') {
       if (b.strikes !== a.strikes) return b.strikes - a.strikes;
@@ -267,8 +328,11 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
 
   return {
     schema: 1,
+    update_interval: 'daily',
+    day_key: beijingDateKey(now),
     updated_at: latestUpdate,
     observed_at: new Date(now).toISOString(),
+    next_update_at: nextBeijingMidnightIso(now),
     sources: {
       vps_guard: Boolean(vpsData),
       kv_dossier: Boolean(kvData),
@@ -281,22 +345,35 @@ export function mergeShameSources({ vpsData = null, kvData = null, now = Date.no
 
 export async function handleHallOfShame(request, env, { fetcher = (url, init) => fetch(url, init), clock = () => Date.now(), useCache = true } = {}) {
   if (!['GET', 'HEAD'].includes(request.method)) {
-    return Response.json({ error: 'Method not allowed' }, { status: 405, headers: { ...HEADERS, Allow: 'GET, HEAD' } });
+    return Response.json({ error: 'Method not allowed' }, { status: 405, headers: { ...BASE_HEADERS, 'Cache-Control': 'no-store', Allow: 'GET, HEAD' } });
   }
 
   const now = clock();
-  const url = new URL(request.url);
-  const wantRefresh = url.searchParams.get('refresh') === '1';
-  const cacheKey = env.VPS_POOL_ENDPOINT || 'kv-only';
+  const dayKey = beijingDateKey(now);
+  const cacheScope = `${env.VPS_POOL_ENDPOINT || 'kv-only'}:${SHAME_CACHE_VERSION}:${dayKey}`;
 
-  if (useCache && memoryCache && memoryCache.key === cacheKey) {
-    const age = now - memoryCache.at;
-    const ttl = wantRefresh ? REFRESH_COOLDOWN_MS : CACHE_TTL_MS;
-    if (age < ttl) {
-      return new Response(request.method === 'HEAD' ? null : memoryCache.json, {
-        status: 200,
-        headers: { ...HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
-      });
+  if (useCache && memoryCache && memoryCache.key === cacheScope && now - memoryCache.at < DAILY_TTL_MS) {
+    return new Response(request.method === 'HEAD' ? null : memoryCache.json, {
+      status: 200,
+      headers: { ...PUBLIC_CACHE_HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
+    });
+  }
+
+  const edgeCache = useCache && typeof caches !== 'undefined' && caches?.default ? caches.default : null;
+  const edgeCacheKey = new Request(`https://shame-cache.leonmingod.internal/api/hall-of-shame/${SHAME_CACHE_VERSION}?day=${dayKey}`);
+  if (edgeCache) {
+    try {
+      const hit = await edgeCache.match(edgeCacheKey);
+      if (hit) {
+        const json = await hit.text();
+        memoryCache = { key: cacheScope, at: now, json };
+        return new Response(request.method === 'HEAD' ? null : json, {
+          status: 200,
+          headers: { ...PUBLIC_CACHE_HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
+        });
+      }
+    } catch {
+      // Ignore edge cache errors and fall through to origin fetch
     }
   }
 
@@ -316,26 +393,50 @@ export async function handleHallOfShame(request, env, { fetcher = (url, init) =>
   const kvData = kvResult.status === 'fulfilled' ? kvResult.value : null;
 
   if (!vpsData && !kvData && (vpsResult.status === 'rejected' || kvResult.status === 'rejected')) {
-    if (useCache && memoryCache && memoryCache.key === cacheKey) {
+    if (useCache && memoryCache) {
       return new Response(request.method === 'HEAD' ? null : memoryCache.json, {
         status: 200,
-        headers: { ...HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
+        headers: { ...PUBLIC_CACHE_HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
       });
     }
     return Response.json(
       { error: '封神榜数据暂时无法连接，请稍后再试。' },
-      { status: 503, headers: { ...HEADERS, 'Retry-After': '60' } }
+      { status: 503, headers: { ...BASE_HEADERS, 'Cache-Control': 'no-store', 'Retry-After': '300' } }
     );
   }
 
-  const payload = mergeShameSources({ vpsData, kvData, now });
+  const prefixes = (vpsData?.records || []).map(r => r?.key_hash_prefix).filter(Boolean);
+  let keyIdentities = new Map();
+  if (prefixes.length && env.KV?.list && env.KV?.get) {
+    try {
+      keyIdentities = await resolveKeyIdentities(env.KV, prefixes);
+    } catch {
+      keyIdentities = new Map();
+    }
+  }
+
+  const payload = mergeShameSources({ vpsData, kvData, keyIdentities, now });
   const json = JSON.stringify(payload);
+
   if (useCache) {
-    memoryCache = { key: cacheKey, at: now, json };
+    memoryCache = { key: cacheScope, at: now, json };
+    if (edgeCache && payload.sources.vps_guard) {
+      try {
+        await edgeCache.put(edgeCacheKey, new Response(json, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': `public, max-age=${DAILY_TTL_SECONDS}`,
+          },
+        }));
+      } catch {
+        // Ignore edge cache write failures
+      }
+    }
   }
 
   return new Response(request.method === 'HEAD' ? null : json, {
     status: 200,
-    headers: { ...HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
+    headers: { ...PUBLIC_CACHE_HEADERS, 'Content-Type': 'application/json; charset=utf-8' },
   });
 }

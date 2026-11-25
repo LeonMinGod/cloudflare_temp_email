@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090d16">
-<meta name="description" content="义父公益站封神榜：实时同步 Prompt Guard 风控拦截与违规密钥吊销公示，所有 IP 与邮箱均已脱敏处理。">
+<meta name="description" content="义父公益站封神榜：每日汇总 Prompt Guard 风控拦截与违规密钥吊销公示，所有 IP 与邮箱均已脱敏处理。">
 <title>封神榜 · 灵境天劫录 | LeonMinGod</title>
 <link rel="icon" type="image/svg+xml" href="/assets/logo-v2.svg">
-<link rel="stylesheet" href="/hall-of-shame/shame-v2.css">
-<script type="module" src="/hall-of-shame/shame-v2.mjs"></script>
+<link rel="stylesheet" href="/hall-of-shame/shame-v3.css">
+<script type="module" src="/hall-of-shame/shame-v3.mjs"></script>
 </head>
 <body>
 <div class="cosmos-backdrop" aria-hidden="true"></div>
@@ -28,13 +28,13 @@
 <main>
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="live-dot" id="live-dot"></span> LIVE ENFORCEMENT LEDGER · PROMPT GUARD + KV</p>
+      <p class="eyebrow"><span class="live-dot" id="live-dot"></span> DAILY ENFORCEMENT LEDGER · PROMPT GUARD + KV</p>
       <h1>义父公益站 · 封神榜</h1>
-      <p class="subtitle" id="status-note" role="status" aria-live="polite">正在连线灵境风控石碑，同步最新封禁与破限拦截记录…</p>
+      <p class="subtitle" id="status-note" role="status" aria-live="polite">正在读取今日封神石碑，汇总封禁与破限预警记录…</p>
     </div>
-    <div class="hero-actions">
-      <span id="refresh-countdown" class="countdown">每 5 分钟同步</span>
-      <button id="refresh" class="refresh-btn" type="button"><span aria-hidden="true">↻</span> 刷新榜单</button>
+    <div class="sync-badge" aria-label="榜单更新频率">
+      <span class="sync-freq">每日自动更新一次</span>
+      <span id="sync-stamp" class="sync-stamp">按北京时间每日刷新</span>
     </div>
   </section>
 
@@ -52,12 +52,12 @@
     <article class="metric-card" data-tone="gold">
       <span>累计挡劫拦截</span>
       <strong id="stat-hits">—</strong>
-      <small id="stat-hits-note">Prompt Guard 实时拦截计数</small>
+      <small id="stat-hits-note">Prompt Guard 累计拦截计数</small>
     </article>
     <article class="metric-card" data-tone="jade">
-      <span>风控护航状态</span>
+      <span>榜单更新周期</span>
       <strong id="stat-source">—</strong>
-      <small id="stat-updated">等待同步时间</small>
+      <small id="stat-updated">等待读取今日快照</small>
     </article>
   </section>
 
@@ -80,8 +80,8 @@
 
       <div class="toolbar" role="search">
         <div class="search-wrap">
-          <label class="sr-only" for="search">搜索昵称、脱敏 IP、脱敏邮箱或违规类型</label>
-          <input id="search" type="search" placeholder="搜索昵称、脱敏 IP / 邮箱或违规行为…" autocomplete="off">
+          <label class="sr-only" for="search">搜索落款、脱敏 IP、脱敏邮箱或违规类型</label>
+          <input id="search" type="search" placeholder="搜索落款、脱敏 IP / 邮箱或违规行为…" autocomplete="off">
         </div>
         <label class="sr-only" for="sort">排序方式</label>
         <select id="sort">
@@ -119,12 +119,11 @@
     </div>
     <div id="rules-grid" class="rules-grid"></div>
     <p class="privacy-note">
-      隐私与合规声明：本榜单由服务端自动脱敏生成，仅展示 IP 前两段与邮箱前缀，绝不公开任何原始 IP、完整邮箱、API Key 或对话正文。数据每 5 分钟同步一次，页面隐藏时自动暂停轮询。
+      隐私与更新声明：本榜单按北京时间每日自动更新一次，所有 IP 均只保留前两段、邮箱仅保留前缀，绝不公开任何原始 IP、完整邮箱、API Key 或对话正文。
     </p>
   </section>
 </main>
 
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-<noscript><p class="empty">请开启 JavaScript 查看实时封神榜。</p></noscript>
+<noscript><p class="empty">请开启 JavaScript 查看封神榜。</p></noscript>
 </body>
 </html>

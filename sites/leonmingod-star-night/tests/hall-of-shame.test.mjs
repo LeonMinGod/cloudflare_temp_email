@@ -208,6 +208,24 @@ test('built Worker serves /free-token/ shame entry beside pool-entry, /hall-of-s
             evidence: 'windking 45-UA relay resale abuse (8617x 429)',
             banned_at: '2026-11-25T12:07:19Z',
           },
+          {
+            id: 'live-warn-1',
+            masked_ip: '154.40.*.*',
+            ip_family: 'ipv4',
+            status: 'warning',
+            banned: false,
+            permanent: false,
+            strikes: 2,
+            strike_limit: 3,
+            blocked_hits: 0,
+            rule_id: 'jailbreak-compound-directives',
+            category: 'jailbreak',
+            rule_badge: '越狱注入',
+            rule_title: '复合越狱指令 / 强行绕过安全护栏',
+            evidence: '[user] 禁止+道德说教+拒绝',
+            last_strike_at: '2026-11-25T09:55:27Z',
+            key_hash_prefix: '874d438e910215a8',
+          },
         ],
       });
     },
@@ -215,6 +233,11 @@ test('built Worker serves /free-token/ shame entry beside pool-entry, /hall-of-s
 
   try {
     const kv = await mf.getKVNamespace('KV');
+    await kv.put('key:874d438e910215a8000000000000000000000000000000000000000000000000', JSON.stringify({
+      username: 'zzzsss',
+      email: '1601234567@qq.com',
+      status: 'active',
+    }));
     await kv.put(SHAME_KV_KEY, JSON.stringify({
       updated_at: '2026-11-25T12:08:00Z',
       entries: [
@@ -234,21 +257,27 @@ test('built Worker serves /free-token/ shame entry beside pool-entry, /hall-of-s
     const pageRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame/');
     assert.equal(pageRes.status, 200);
     assert.equal(pageRes.headers.get('Cache-Control'), 'no-store');
-    assert.match(await pageRes.text(), /义父公益站 · 封神榜/);
+    assert.match(await pageRes.text(), /每日自动更新一次/);
 
     const noSlashRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame');
     assert.equal(noSlashRes.status, 200);
 
-    const cssRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame/shame-v2.css');
+    const cssRes = await mf.dispatchFetch('https://leonmingod.com/hall-of-shame/shame-v3.css');
     assert.equal(cssRes.status, 200);
     assert.match(cssRes.headers.get('Cache-Control'), /immutable/);
 
     const apiRes = await mf.dispatchFetch('https://leonmingod.com/api/hall-of-shame');
     assert.equal(apiRes.status, 200);
-    const data = await apiRes.json();
+    assert.match(apiRes.headers.get('Cache-Control'), /s-maxage=86400/);
+    const rawApiText = await apiRes.text();
+    assert.doesNotMatch(rawApiText, /key_hash_prefix|874d438e910215a8|1601234567/);
+    const data = JSON.parse(rawApiText);
     assert.equal(data.schema, 1);
+    assert.equal(data.update_interval, 'daily');
     assert.equal(data.entries[0].username, 'windking');
     assert.equal(data.entries[0].blocked_hits, 5);
+    assert.equal(data.entries[1].username, 'zzzsss');
+    assert.equal(data.entries[1].masked_email, '160***@qq.com');
     assert.equal(data.sources.vps_guard, true);
     assert.equal(data.sources.kv_dossier, true);
   } finally {

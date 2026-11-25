@@ -2,7 +2,8 @@ import { createHmac } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 
 const DEFAULT_BAN_FILE = '/var/lib/yifu-prompt-guard/ip_bans.json';
-const CACHE_TTL_MS = 60_000;
+const DEFAULT_KEY_MAP_FILE = '/var/lib/yifu-prompt-guard/ip_key_map.json';
+const CACHE_TTL_MS = 300_000;
 const STRIKE_LIMIT = 3;
 
 const RULE_CATALOG = {
@@ -29,12 +30,12 @@ const RULE_CATALOG = {
 };
 
 const IPV4_RE = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+const KEY_HASH_PREFIX_RE = /^[a-f0-9]{12,64}$/;
 
 function expandIpv6(address) {
   const clean = address.toLowerCase().split('%')[0];
   if (!clean.includes(':')) return null;
   let working = clean;
-  // Convert embedded IPv4 tail (e.g. ::ffff:192.0.2.1)
   const lastColon = working.lastIndexOf(':');
   const tail = working.slice(lastColon + 1);
   if (tail.includes('.')) {
@@ -75,7 +76,6 @@ export function maskIp(raw) {
 
   const v6 = expandIpv6(host);
   if (v6) {
-    // Handle IPv4-mapped IPv6 (::ffff:a.b.c.d)
     if (v6.slice(0, 5).every(g => g === '0') && v6[5] === 'ffff') {
       const hi = parseInt(v6[6], 16);
       const a = (hi >> 8) & 0xff;
@@ -128,9 +128,23 @@ function stableId(secret, key) {
     .slice(0, 10);
 }
 
+function lookupKeyHashPrefix(row, ipKeyMap) {
+  if (!ipKeyMap || typeof ipKeyMap !== 'object') return null;
+  const byIp = ipKeyMap.by_ip && typeof ipKeyMap.by_ip === 'object' ? ipKeyMap.by_ip : ipKeyMap;
+  const candidates = [row.last_ip, row.ban_key].filter(Boolean);
+  for (const candidate of candidates) {
+    const found = byIp[candidate];
+    if (typeof found === 'string') {
+      const normalized = found.trim().toLowerCase();
+      if (KEY_HASH_PREFIX_RE.test(normalized)) return normalized;
+    }
+  }
+  return null;
+}
+
 const STATUS_RANK = { permanent_ban: 0, temp_ban: 1, warning: 2 };
 
-export function sanitizeBanStore(rawData, { secret = '', now = Date.now() } = {}) {
+export function sanitizeBanStore(rawData, { secret = '', now = Date.now(), ipKeyMap = null } = {}) {
   const rows = Array.isArray(rawData?.records)
     ? rawData.records
     : (rawData?.records && typeof rawData.records === 'object' ? Object.values(rawData.records) : []);
@@ -156,12 +170,12 @@ export function sanitizeBanStore(rawData, { secret = '', now = Date.now() } = {}
     const activeTempBan = Boolean(row.banned && !permanent && (!banExpiresAt || Date.parse(banExpiresAt) > now));
     const banned = Boolean(row.banned && (permanent || activeTempBan));
 
-    // Skip stale entries with zero strikes and no active ban
     if (!banned && strikes <= 0 && blockedHits <= 0) continue;
 
     const status = permanent && banned ? 'permanent_ban' : (banned ? 'temp_ban' : 'warning');
     const ruleId = String(row.last_rule_id || 'unknown').trim().slice(0, 64);
     const rule = classifyRule(ruleId);
+    const keyHashPrefix = lookupKeyHashPrefix(row, ipKeyMap);
 
     records.push({
       id: stableId(secret, sourceKey),
@@ -182,6 +196,8 @@ export function sanitizeBanStore(rawData, { secret = '', now = Date.now() } = {}
       last_strike_at: lastStrikeAt,
       banned_at: banned ? bannedAt : null,
       ban_expires_at: activeTempBan ? banExpiresAt : null,
+      // Internal hash prefix for Worker-side KV username attribution; Worker strips it before public output.
+      ...(keyHashPrefix ? { key_hash_prefix: keyHashPrefix } : {}),
     });
   }
 
@@ -218,33 +234,54 @@ export function sanitizeBanStore(rawData, { secret = '', now = Date.now() } = {}
   };
 }
 
-export function createBanBoardReader({ filePath = DEFAULT_BAN_FILE, secret = '', clock = () => Date.now(), cacheTtlMs = CACHE_TTL_MS } = {}) {
+async function safeMtime(path) {
+  try {
+    return (await stat(path)).mtimeMs;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return -1;
+    throw error;
+  }
+}
+
+export function createBanBoardReader({
+  filePath = DEFAULT_BAN_FILE,
+  keyMapPath = DEFAULT_KEY_MAP_FILE,
+  secret = '',
+  clock = () => Date.now(),
+  cacheTtlMs = CACHE_TTL_MS,
+} = {}) {
   let cached = null;
   let cachedAt = 0;
-  let cachedMtime = -1;
+  let cachedMtime = -2;
+  let cachedKeyMapMtime = -2;
 
   return async function readBanBoard() {
     const now = clock();
-    let mtime = -1;
-    try {
-      const info = await stat(filePath);
-      mtime = info.mtimeMs;
-    } catch (error) {
-      if (error?.code === 'ENOENT') {
-        return sanitizeBanStore({ records: [] }, { secret, now });
-      }
-      throw error;
+    const mtime = await safeMtime(filePath);
+    if (mtime === -1) {
+      return sanitizeBanStore({ records: [] }, { secret, now });
     }
+    const keyMapMtime = keyMapPath ? await safeMtime(keyMapPath).catch(() => -1) : -1;
 
-    if (cached && mtime === cachedMtime && now - cachedAt < cacheTtlMs) {
+    if (cached && mtime === cachedMtime && keyMapMtime === cachedKeyMapMtime && now - cachedAt < cacheTtlMs) {
       return cached;
     }
 
     const text = await readFile(filePath, 'utf8');
     const parsed = JSON.parse(text);
-    cached = sanitizeBanStore(parsed, { secret, now });
+    let ipKeyMap = null;
+    if (keyMapMtime !== -1) {
+      try {
+        ipKeyMap = JSON.parse(await readFile(keyMapPath, 'utf8'));
+      } catch {
+        ipKeyMap = null;
+      }
+    }
+
+    cached = sanitizeBanStore(parsed, { secret, now, ipKeyMap });
     cachedAt = now;
     cachedMtime = mtime;
+    cachedKeyMapMtime = keyMapMtime;
     return cached;
   };
 }

@@ -14,6 +14,7 @@ const storage = new SqliteStorage(root + '/data/pool.sqlite');
 const readRecordedUsage = createRecordedUsageReader(root + '/plus/usage.sqlite', root + '/data/usage-coverage.json');
 const readShameBoard = createBanBoardReader({
   filePath: process.env.YIFU_PROMPT_GUARD_BANS || '/var/lib/yifu-prompt-guard/ip_bans.json',
+  keyMapPath: process.env.YIFU_PROMPT_GUARD_KEY_MAP || '/var/lib/yifu-prompt-guard/ip_key_map.json',
   secret: secrets.ops_secret,
 });
 const app = createCollector({ storage, secret: secrets.ops_secret, managementKey: values.MANAGEMENT_PASSWORD,

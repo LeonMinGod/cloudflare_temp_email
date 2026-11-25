@@ -1,7 +1,7 @@
 {
   "baseline_parent": "a8eb9f05-240e-4730-afb8-2e54a011246d",
   "baseline_entrance": "dd06bb43-184f-4db6-b764-8110b025aa34",
-  "message": "Polish Hall of Shame severity ordering and crisp instant dark/light theme transitions",
+  "message": "Resolve Hall of Shame warning usernames from KV and switch board updates to daily cache",
   "plain_bindings": {
     "VPS_POOL_ENDPOINT": "https://yifu.leonmingod.com/_pool/status"
   },
@@ -117,7 +117,9 @@
     "hall-of-shame/shame-v1.css",
     "hall-of-shame/shame-v1.mjs",
     "hall-of-shame/shame-v2.css",
-    "hall-of-shame/shame-v2.mjs"
+    "hall-of-shame/shame-v2.mjs",
+    "hall-of-shame/shame-v3.css",
+    "hall-of-shame/shame-v3.mjs"
   ],
   "staged_version": ""
 }
